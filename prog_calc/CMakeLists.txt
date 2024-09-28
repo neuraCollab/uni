@@ -27,7 +27,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         loginform.h loginform.cpp loginform.ui
-        calculatorform.h calculatorform.cpp calculatorform.ui
+        calculatorform.h calculatorform.cpp
 
     )
 # Define target properties for Android with Qt 6 as:

@@ -2,6 +2,8 @@
 #define CALCULATORFORM_H
 
 #include <QDialog>
+#include <QLineEdit>
+#include <QSignalMapper>
 
 namespace Ui {
 class CalculatorForm;
@@ -24,15 +26,16 @@ private slots:
     void on_divideButton_clicked();
     void on_equalsButton_clicked();
     void on_clearButton_clicked();
+    void digit_pressed();
 
 private:
     double firstNumber;
     double secondNumber;
     QString pendingOperator;
+    QLineEdit *display; // Объявляем переменную display здесь
+    QSignalMapper *signalMapper;
     Ui::CalculatorForm *ui;
 
-private slots:
-    void digit_pressed();
 };
 
 

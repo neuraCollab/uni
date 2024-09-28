@@ -3,6 +3,10 @@
 
 #include <QDialog>
 #include "calculatorform.h"
+#include <QDialog>
+#include <QLineEdit>
+#include <QLabel>
+#include <QPushButton>
 
 namespace Ui {
 class LoginForm;
@@ -23,6 +27,11 @@ private slots:
 private:
     Ui::LoginForm *ui;
     CalculatorForm *calculatorForm;
+
+    QLineEdit *usernameLineEdit;
+    QLineEdit *passwordLineEdit;
+    QLabel *errorLabel;
+    QPushButton *loginButton;
 };
 
 #endif // LOGINFORM_H
