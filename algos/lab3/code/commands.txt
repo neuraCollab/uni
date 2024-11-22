@@ -1,0 +1,10 @@
+hashcat -a 3 -m 0 ./data/hashes.txt ?d?d?d?d?d?d?d?d?d?d?d -o ./data/output.txt
+
+
+hashcat -m 22000  -a 0 -o ./data/cracked_sha256.txt ./data/hashed_sha256.txt ./data/output.txt 
+hashcat -m 100 -a 0 -o ./data/cracked_sha1.txt ./data/hashed_sha1.txt ./data/output.txt 
+hashcat -m 620 -a 0 -o ./data/cracked_pbkdf2.txt ./data/hashed_pbkdf2.txt ./data/output.txt 
+
+Для SHA-256: hashcat -m 1400  -a 3 -o ./data/cracked_sha256.txt ./data/hashed_sha256.txt ?d?d?d?d?d?d?d?d?d?d?d
+Для SHA-1: hashcat -m 100 -a 3 -o ./data/cracked_sha1.txt ./data/hashed_sha1.txt ?d?d?d?d?d?d?d?d?d?d?d
+Для PBKDF2: hashcat -m 620 -a 3 -o ./data/cracked_pbkdf2.txt ./data/hashed_pbkdf2.txt ?d?d?d?d?d?d?d?d?d?d?d
