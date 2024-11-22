@@ -44,7 +44,7 @@ def evaluate_fitness(position):
 # Инициализация частицы
 def create_particle():
     position = np.array([random.uniform(-500, 500), random.uniform(-500, 500)])
-    velocity = np.array([random.uniform(-10, 10), random.uniform(-10, 10)])
+    velocity = np.array([random.uniform(-parameters["velocity_limit"], parameters["velocity_limit"]), random.uniform(-parameters["velocity_limit"], parameters["velocity_limit"])])
     fitness = evaluate_fitness(position)
     return {
         "position": position,
@@ -184,7 +184,7 @@ def toggle_inertia():
 def create_gui():
     global best_solution_label, function_value_label, num_iterations_label, execution_time_label, frame_plot, num_current_iterations_label
     root = tk.Tk()
-    root.title("Поставьте зачет пожалуйста :)")
+    root.title("Swarm Optimization with Velocity Control")
 
     frame_params = tk.LabelFrame(root, text="Параметры")
     frame_params.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
@@ -204,13 +204,19 @@ def create_gui():
     inertia_end_entry.insert(0, parameters["inertia_end"])
     inertia_end_entry.bind("<Leave>", lambda e: update_global_variable(inertia_end_entry, "inertia_end"))
 
-    tk.Label(frame_params, text="Количество частиц:").grid(row=3, column=0, sticky="w")
+    tk.Label(frame_params, text="Максимальная скорость частиц:").grid(row=3, column=0, sticky="w")
+    velocity_limit_entry = tk.Entry(frame_params, width=5)
+    velocity_limit_entry.grid(row=3, column=1)
+    velocity_limit_entry.insert(0, parameters["velocity_limit"])
+    velocity_limit_entry.bind("<Leave>", lambda e: update_global_variable(velocity_limit_entry, "velocity_limit"))
+
+    tk.Label(frame_params, text="Количество частиц:").grid(row=4, column=0, sticky="w")
     num_particles_entry = tk.Entry(frame_params, width=5)
-    num_particles_entry.grid(row=3, column=1)
+    num_particles_entry.grid(row=4, column=1)
     num_particles_entry.insert(0, parameters["num_particles"])
     num_particles_entry.bind("<Leave>", lambda e: update_global_variable(num_particles_entry, "num_particles"))
 
-    tk.Checkbutton(frame_params, text="Использовать инерцию", variable=tk.BooleanVar(value=True), command=toggle_inertia).grid(row=4, column=0, sticky="w")
+    tk.Checkbutton(frame_params, text="Использовать инерцию", variable=tk.BooleanVar(value=True), command=toggle_inertia).grid(row=5, column=0, sticky="w")
 
     frame_control = tk.LabelFrame(root, text="Управление")
     frame_control.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
