@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import random
+import time  # Импортируем модуль time
 
 
 def objective_function(individual):
@@ -79,6 +80,9 @@ class App:
         self.min_gene = tk.DoubleVar(value=-10)
         self.max_gene = tk.DoubleVar(value=10)
 
+        # Время выполнения
+        self.execution_time = tk.StringVar(value="")
+
         self.setup_ui()
 
     def setup_ui(self):
@@ -100,7 +104,8 @@ class App:
         ttk.Entry(frame, textvariable=self.max_gene).grid(row=4, column=1, sticky="w")
 
         ttk.Label(frame, text="Generations:").grid(row=5, column=0, sticky="w")
-        ttk.Entry(frame, textvariable=self.num_generations).grid(row=5, column=1, sticky="w")
+        self.generations_entry = ttk.Entry(frame, textvariable=self.num_generations)
+        self.generations_entry.grid(row=5, column=1, sticky="w")
 
         ttk.Label(frame, text="Modified Selection:").grid(row=6, column=0, sticky="w")
         ttk.Combobox(frame, textvariable=self.modified, values=["Enable", "Disable"]).grid(row=6, column=1, sticky="w")
@@ -132,6 +137,10 @@ class App:
         self.fitness_label = ttk.Label(best_frame, text="")
         self.fitness_label.grid(row=1, column=1, sticky="w")
 
+        ttk.Label(best_frame, text="Execution Time:").grid(row=2, column=0, sticky="w")
+        self.time_label = ttk.Label(best_frame, textvariable=self.execution_time)
+        self.time_label.grid(row=2, column=1, sticky="w")
+
     def update_results(self, population, fitness_values):
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -141,6 +150,10 @@ class App:
 
     def run_algorithm(self):
         try:
+            # Увеличиваем количество итераций
+            self.num_generations.set(self.num_generations.get() + 10)
+
+            start_time = time.time()  # Запоминаем время начала
             population = initialize_population(self.population_size.get(), 2, self.min_gene.get(), self.max_gene.get())
             population, best, best_fitness, fitness_values = evolve(
                 population,
@@ -151,6 +164,11 @@ class App:
                 self.modified.get(),
                 objective_function
             )
+            end_time = time.time()  # Запоминаем время окончания
+
+            execution_time = end_time - start_time  # Вычисляем время выполнения
+            self.execution_time.set(f"{execution_time:.6f} seconds")  # Устанавливаем значение в метку
+
             self.update_results(population, fitness_values)
             self.best_label.config(text=f"{best}")
             self.fitness_label.config(text=f"{round(best_fitness, 6)}")
