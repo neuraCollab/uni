@@ -1,0 +1,6 @@
+{
+    "source_directory": "/mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2",
+    "backup_directory": "/mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup",
+    "backup_interval": 3600,
+    "log_file": "/mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup_daemon.log"
+}

@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup Daemon
+
+[Service]
+ExecStart= /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/.venv/bin/activate &&  /usr/bin/python3 /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup_daemon.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

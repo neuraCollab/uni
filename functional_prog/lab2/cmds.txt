@@ -1,0 +1,22 @@
+sudo cp  /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup_daemon.service /etc/systemd/system/
+
+
+
+sudo systemctl daemon-reload
+sudo systemctl start backup_daemon
+sudo systemctl enable backup_daemon
+
+
+
+# Остановка демона
+sudo systemctl stop backup_daemon
+
+# Перезапуск демона
+sudo systemctl restart backup_daemon
+
+# Проверка статуса
+sudo systemctl status backup_daemon
+
+
+chmod 600 /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup_config.json
+chmod 700 /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2
