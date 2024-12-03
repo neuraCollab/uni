@@ -32,7 +32,7 @@ def backup_process(config):
         time.sleep(config['backup_interval'])
 
 if __name__ == "__main__":
-    config = load_config('/mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup_config.json')
+    config = load_config('/home/bubu/Documents/uni/functional_prog/lab2/backup_config.json')
 
     with daemon.DaemonContext():
         backup_process(config)

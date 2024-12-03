@@ -1,4 +1,4 @@
-sudo cp  /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup_daemon.service /etc/systemd/system/
+sudo cp  /home/bubu/Documents/uni/functional_prog/lab2/backup_daemon.service /etc/systemd/system/
 
 
 
@@ -18,5 +18,8 @@ sudo systemctl restart backup_daemon
 sudo systemctl status backup_daemon
 
 
-chmod 600 /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2/backup_config.json
-chmod 700 /mnt/c/Users/bubuntu/Documents/uni/functional_prog/lab2
+chmod 600 /home/bubu/Documents/uni/functional_prog/lab2/backup_config.json
+chmod 700 /home/bubu/Documents/uni/functional_prog/lab2
+
+
+journalctl -u backup_daemon.service -n 100
