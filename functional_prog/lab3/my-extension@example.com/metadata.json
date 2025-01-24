@@ -1,8 +1,0 @@
-{
-    "uuid": "my-extension@example.com",
-    "name": "My Extension",
-    "description": "A brief description of my extension.",
-    "version": 46,
-    "url": "https://example.com",
-    "shell-version": ["45", "46", "47"]
-}
