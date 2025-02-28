@@ -1,0 +1,14 @@
+Поместите backup_daemon.service в: /etc/systemd/system/backup_daemon.service
+
+Запуск демона: sudo systemctl start backup_daemon
+Остановка демона: sudo systemctl stop backup_daemon
+Перезапуск демона: sudo systemctl restart backup_daemon
+Статус демона: sudo systemctl status backup_daemon
+
+Включение автозапуска при старте системы: sudo systemctl enable backup_daemon
+Выключение автозапуска при старте системы: sudo systemctl disable backup_daemon
+
+росмотр текущей конфигурации(запускаем в папке с файлом): python3 backup_config_control.py display
+Изменение исходной директории для резервного копирования(запускаем в папке с файлом): python3 backup_config_control.py set source_dir /path/to/source
+Изменение директории для сохранения резервных копий(запускаем в папке с файлом): python3 backup_config_control.py set backup_dir /path/to/backup
+Изменение интервала резервного копирования(запускаем в папке с файлом): python3 backup_config_control.py set interval 60

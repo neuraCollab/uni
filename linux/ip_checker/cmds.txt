@@ -1,0 +1,4 @@
+checker -> sender -> block
+sudo "/mnt/c/Users/Lenovo/OneDrive/Рабочий стол/jas/fp/Laboratory_2/venv/bin/python3" ./checker.py
+sudo "/mnt/c/Users/Lenovo/OneDrive/Рабочий стол/jas/fp/Laboratory_2/venv/bin/python3" ./sender.py
+sudo "/mnt/c/Users/Lenovo/OneDrive/Рабочий стол/jas/fp/Laboratory_2/venv/bin/python3" ./block.py
