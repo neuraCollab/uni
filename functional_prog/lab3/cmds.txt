@@ -1,1 +1,0 @@
-cp -r ./my-extension@example.com ~/.local/share/gnome-shell/extensions/

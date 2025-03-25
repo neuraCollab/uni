@@ -1,7 +1,0 @@
-\babel@toc {russian}{}\relax 
-\contentsline {section}{\numberline {1}Вопрос 1. Определения и формы комплексных чисел и действия над ними}{2}{section.1}%
-\contentsline {subsection}{\numberline {1.1}Действия с комплексными числами}{2}{subsection.1.1}%
-\contentsline {subsection}{\numberline {1.2}Особый разговор об аргументе}{2}{subsection.1.2}%
-\contentsline {subsection}{\numberline {1.3}Тригонометрическая форма комплексного числа}{3}{subsection.1.3}%
-\contentsline {subsection}{\numberline {1.4}Умножение и деление комплексных чисел, записанных в тригонометрической или показательной формах}{3}{subsection.1.4}%
-\contentsline {subsection}{\numberline {1.5}Возведение в степень и извлечение корня из комплексного числа}{3}{subsection.1.5}%

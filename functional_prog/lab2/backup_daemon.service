@@ -1,9 +1,0 @@
-[Unit]
-Description=Backup Daemon
-
-[Service]
-ExecStart=/home/bubu/Documents/uni/functional_prog/lab2/my-venv/bin/python3 /home/bubu/Documents/uni/functional_prog/lab2/backup_daemon.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target

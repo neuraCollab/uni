@@ -1,6 +1,0 @@
-{
-    "source_directory": "/home/bubu/Documents/uni/functional_prog/lab2",
-    "backup_directory": "/home/bubu/Documents/uni/functional_prog/lab2/backup",
-    "backup_interval": 3600,
-    "log_file": "/home/bubu/Documents/uni/functional_prog/lab2/backup_daemon.log"
-}

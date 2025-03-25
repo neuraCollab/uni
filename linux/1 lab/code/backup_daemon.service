@@ -1,0 +1,10 @@
+[Unit]
+Description=Backup Daemon
+
+[Service]
+User=enovo
+ExecStart=/usr/bin/python3 "/mnt/c/Users/Lenovo/OneDrive/Рабочий стол/jas/linux/Laboratory_1/backup_daemon.py" start --config "/mnt/c/Users/Lenovo/OneDrive/Рабочий стол/jas/linux/Laboratory_1/backup_config.ini"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
