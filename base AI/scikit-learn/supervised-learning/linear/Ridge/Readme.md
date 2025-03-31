@@ -4,6 +4,8 @@ https://www.mit.edu/~9.520/spring07/Classes/rlsslides.pdf
 
 ![ridge vs least square](output.png)
 
+# L2 Ridge
+
 Ridge формула
 
 ![ridge](image.png)

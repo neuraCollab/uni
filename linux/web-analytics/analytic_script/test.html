@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bootstrap Website</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="container mt-5">
+      <h1 class="mb-4">Bootstrap Website</h1>
+
+      <!-- Форма для отправки файлов -->
+      <form  method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="file">Напишите какой нибудь текс, для демострации отправки формы (спойлер: она не сохранится на сервере):</label>
+          <input type="text" class="form-control-file" id="file" name="file" />
+        </div>
+        <button type="submit" class="btn btn-primary">ОТправить</button>
+      </form>
+
+      <input type="file" id="fileInput" class="form-control-file" >
+    <button onclick="uploadFile()" class="btn btn-primary">Upload</button>
+
+      
+
+      <hr />
+
+      <!-- Видео проигрыватель -->
+      <div class="embed-responsive embed-responsive-16by9">
+        <iframe width="420" height="345" src="https://www.youtube.com/embed/tgbNymZ7vqY">
+        </iframe>
+      </div>
+
+      <hr />
+
+      <!-- Ссылки на другие сайты -->
+      <div class="mb-4">
+        <h5>Некоторые полезные ссылки:</h5>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <a href="https://www.example.com">Пример 1</a>
+          </li>
+          <li class="list-group-item">
+            <a href="https://www.example.com">Пример 2</a>
+          </li>
+          <li class="list-group-item">
+            <a href="https://www.example.com">Пример 3</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Ссылка для скачивания файла -->
+      <a href="./uploads/example.pdf" download class="btn btn-primary"
+        >Скачать файл</a
+      >
+    </div>
+
+    
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    const dataURL = event.target.result;
+                    console.log('File loaded as data URL:', dataURL);
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                console.error('No file selected.');
+            }
+        }
+    </script>
+
+    <!-- Подключение Bootstrap JS (необходимо для работы некоторых компонентов) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="./analytic_script.js"></script>
+  </body>
+</html>

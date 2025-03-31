@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit CSV File</title>
+    <!-- Подключение стилей Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyWIlZOAU/Rtj+3SAlFqLgJfISSMzRQV6W"
+    crossorigin="anonymous">
+</head>
+<body class="container mt-5">
+
+    <h1 class="mb-4">Edit CSV File: {{ file_name }}</h1>
+
+    <form action="{{ url_for('update_csv', file_name=file_name) }}" method="POST">
+        <table id="csvTable" class="table table-bordered">
+            {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                        <td><input type="text" name="row" class="form-control" value="{{ cell }}"></td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h2>Add Column</h2>
+        <div class="form-row align-items-center mb-3">
+            <div class="col-auto">
+                <label for="new_column" class="sr-only">Column Name:</label>
+                <input type="text" name="new_column" id="new_column" class="form-control" required>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary" onclick="addColumn()">Add Column</button>
+            </div>
+        </div>
+
+        <h2>Add Row</h2>
+        <div class="form-row mb-3">
+            <div class="col-auto">
+                <button type="button" class="btn btn-success" onclick="addRow()">Add Row</button>
+            </div>
+        </div>
+
+        <h2>Resize Table</h2>
+        <div class="form-row">
+            <div class="col-auto">
+                <label for="rows" class="sr-only">Rows:</label>
+                <input type="number" name="rows" id="rows" class="form-control" value="{{ rows|length }}">
+            </div>
+            <div class="col-auto">
+                <label for="columns" class="sr-only">Columns:</label>
+                <input type="number" name="columns" id="columns" class="form-control" value="{{ rows[0]|length if rows else 0 }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Подключение скриптов Bootstrap и Popper.js (необходим для работы некоторых компонентов Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXc8sJn9Yquv0Op6r85t83J1NEF9H6JqvuJ"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyWIlZOAU/Rtj+3SAlFqLgJfISSMzRQV6W"
+        crossorigin="anonymous"></script>
+
+    <script>
+        function addColumn() {
+            var table = document.getElementById("csvTable");
+            var headerRow = table.querySelector("tr");
+            var newColumn = document.getElementById("new_column").value;
+
+            if (newColumn) {
+                var th = document.createElement("th");
+                th.textContent = newColumn;
+                headerRow.appendChild(th);
+
+                var rows = table.querySelectorAll("tr");
+                rows.forEach(function(row) {
+                    var td = document.createElement("td");
+                    row.appendChild(td);
+                });
+
+                // Обновление значения столбцов
+                document.getElementById("columns").value = headerRow.cells.length;
+            }
+        }
+
+        function addRow() {
+            var table = document.getElementById("csvTable");
+            var row = table.insertRow(-1);
+            var columns = table.rows[0].cells.length;
+
+            for (var i = 0; i < columns; i++) {
+                var cell = row.insertCell(i);
+                var input = document.createElement("input");
+                input.type = "text";
+                input.name = "row";
+                input.className = "form-control";
+                cell.appendChild(input);
+            }
+
+            // Обновление значения строк
+            document.getElementById("rows").value = table.rows.length;
+        }
+    </script>
+</body>
+</html>

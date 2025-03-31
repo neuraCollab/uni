@@ -1,0 +1,12 @@
+[Unit]
+Description=My Python Bot Service
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/comments_vkbot/src
+ExecStart=/root/comments_vkbot/venv/bin/python /root/comments_vkbot/src/bot/bot.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
