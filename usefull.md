@@ -1,1 +1,0 @@
-learn python - https://codebattle.hexlet.io/#lobby
