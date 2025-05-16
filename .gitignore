@@ -2,6 +2,7 @@ build
 # Dependency directories
 node_modules/
 vendor/
+temp/
 
 # Logs
 logs/

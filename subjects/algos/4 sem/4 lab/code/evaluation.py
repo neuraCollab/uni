@@ -3,6 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import List
 from imputation_methods import fill_missing
+import os
+from visualization import plot_all_methods_comparison, plot_best_methods
+
+
+# Создание папки для результатов
+os.makedirs("data", exist_ok=True)
+
 
 def evaluate_imputation_methods(df: pd.DataFrame, 
                                 methods: List[str], 
@@ -113,17 +120,10 @@ def evaluate_imputation_methods(df: pd.DataFrame,
     print("\nРезюмирующая таблица с лучшими методами:")
     print(best_methods_summary)
     
-    # 10. Построение графика
-    plt.figure(figsize=(10, 6))
-    for method in best_methods['Method'].unique():
-        method_data = best_methods[best_methods['Method'] == method]
-        plt.plot(method_data['Missing%'], method_data['MeanRelativeError%'], label=method, marker='o')
-    
-    plt.title("Лучшие методы заполнения пропусков по уровням пропусков")
-    plt.xlabel("Процент пропусков")
-    plt.ylabel("Средняя относительная ошибка (%)")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
+    result_df.to_csv("data/full_results.csv", index=False)
+    best_methods_summary.to_csv("data/best_methods_summary.csv", index=False)
+
+    plot_all_methods_comparison(final_results)
+    plot_best_methods(best_methods)
+ 
     return best_methods_summary

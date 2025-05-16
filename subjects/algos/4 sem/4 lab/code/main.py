@@ -3,7 +3,6 @@
 import pandas as pd
 from data_loading import read_csv_by_pd
 from data_preprocessing import preprocess_data
-from visualization import visualize_columns
 from evaluation import evaluate_imputation_methods
 
 # def main():
@@ -15,6 +14,9 @@ datasets = read_csv_by_pd(paths, info=True, head=True)
 # Предварительная обработка
 datasets = preprocess_data(datasets)
 
+# for i in datasets:
+#     i.head()
+
 # Визуализация
 # %%
 # visualize_columns([datasets[0]])
@@ -22,8 +24,7 @@ datasets = preprocess_data(datasets)
 # %%
 # Оценка методов заполнения пропусков
 methods = [
-    "mean", "median", "mode", "ffill", "hot_deck",
-    "linear_regression", "stochastic_regression", "spline"
+    "mean", "hot_deck", "linear_regression"
 ]
 
 for dataset in datasets:

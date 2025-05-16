@@ -1,43 +1,30 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pandas as pd
 
-def visualize_columns(datasets: list[pd.DataFrame]):
-    """Создает визуализации для каждого столбца в датасетах"""
-    for df in datasets:
-        for col in df.columns:
-            plt.figure(figsize=(8, 4))
-            title = f"{col}"
-            
-            if pd.api.types.is_datetime64_any_dtype(df[col]) or df[col].astype(str).str.match(r'^\d{4}-\d{2}-\d{2}T').any():
-                try:
-                    df[col] = pd.to_datetime(df[col])
-                    sns.lineplot(x=df[col], y=range(len(df)))
-                    plt.xlabel(col)
-                    plt.ylabel('Index')
-                    plt.title(title)
-                except Exception as e:
-                    print(f"Ошибка преобразования даты в '{col}': {e}")
-                    continue
+def plot_all_methods_comparison(final_results, return_fig=False):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
 
-            elif pd.api.types.is_numeric_dtype(df[col]):
-                sns.histplot(df[col], kde=True)
-                mean_val = df[col].mean()
-                median_val = df[col].median()
-                plt.axvline(mean_val, color='red', linestyle='--', label=f"Mean = {mean_val:.2f}")
-                plt.axvline(median_val, color='green', linestyle='-', label=f"Median = {median_val:.2f}")
-                plt.xlabel(col)
-                plt.title(title)
-                plt.legend()
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.boxplot(data=final_results, x="Missing%", y="MeanRelativeError%", hue="Method", ax=ax)
+    ax.set_title("Сравнение ошибок разных методов")
+    ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
+    plt.tight_layout()
 
-            else:
-                if col == "full_name" or col == "pasport_number":
-                    continue
-                counts = df[col].value_counts().reset_index()
-                counts.columns = [col, 'count']
-                sns.barplot(data=counts, x=col, y='count')
-                plt.title(title)
-                plt.xticks(rotation=45)
+    if return_fig:
+        return fig, ax
+    else:
+        plt.show()
 
-            plt.tight_layout()
-            plt.show()
+
+def plot_best_methods(best_methods, return_fig=False):
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.barplot(data=best_methods, x="Missing%", y="MeanRelativeError%", hue="Method", ax=ax)
+    ax.set_title("Лучшие методы по каждому уровню пропусков")
+    ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
+
+    if return_fig:
+        return fig, ax
+    else:
+        plt.tight_layout()
+        plt.show()

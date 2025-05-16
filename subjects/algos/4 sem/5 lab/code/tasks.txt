@@ -1,0 +1,3 @@
+ create cure algorthm
+
+ streamlit run app_streamlit.py

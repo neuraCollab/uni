@@ -1,0 +1,59 @@
+# configs/anon_config.yaml
+
+data_path: ./data/iris.csv
+n_clusters: 3
+normalize: true
+has_true_labels: false
+output_dir: ../reports/anonymized
+
+feature_selection:
+  method: add_method
+  n_features: 2
+
+metrics:
+  - compactness
+  - separation
+
+clustering:
+  cure:
+    method: cure
+    params:
+      n_clusters: 3
+      num_reps: 5
+      compression_rate: 0.2
+      metric: euclidean
+      p: 2
+
+  forel:
+    method: forel
+    params:
+      radius: 1.2
+      metric: manhattan
+      p: 1
+
+  isodata:
+    method: isodata
+    params:
+      k_initial: 4
+      max_clusters: 6
+      min_points_per_cluster: 5
+      sigma_threshold: 1.0
+      merge_threshold: 1.5
+      max_iterations: 10
+      metric: minkowski
+      p: 3
+
+  single_linkage:
+    method: single_linkage
+    params:
+      n_clusters: 3
+      metric: chebyshev
+      p: 1
+
+  maxmin_distance:
+    method: maxmin_distance
+    params:
+      k: 3
+      threshold: 0.5
+      metric: euclidean
+      p: 2
