@@ -1,0 +1,186 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Welcome to Overleaf --- just edit your LaTeX on the left,
+% and we'll compile it for you on the right. If you open the
+% 'Share' menu, you can invite other users to edit at the same
+% time. See www.overleaf.com/learn for more info. Enjoy!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass{ctexart}
+\tableofcontents
+
+\documentclass[12pt]{article}
+\usepackage{cmap}
+\usepackage{polyglossia}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{graphicx} % Для графики
+\usepackage{hyperref}
+\usepackage{float}
+
+% Настройки страницы
+\geometry{a4paper, margin=2cm}
+\setstretch{1.5}
+
+% Счётчик для рисунков
+\newcounter{figurecounter}
+\setcounter{figurecounter}{0}
+
+% Новая команда \myfigure{путь}{описание}{ширина}
+\newcommand{\myfigure}[3]{%
+  \stepcounter{figurecounter}%
+  \begin{figure}[H]%
+    \centering%
+    \includegraphics[width=#3]{#1}%
+    \caption{#2}%
+    \label{fig:#1}%
+  \end{figure}%
+}
+
+% Титульные данные
+\title{报告 \\ 第5次实验作业 \\ 课程《聚类分析》}
+\author{学生组号 22Б16-пу 沙拉巴林 М.C.\\指导教师 迪克 А.Г.}
+\date{圣彼得堡，2025年}
+
+\begin{document}
+
+\begin{center}
+    \textbf{圣彼得堡国立大学} \\
+    应用数学与过程控制系 \\
+    本科项目 \\
+    <<大数据与分布式数字平台>> \\
+    \vspace{1cm}
+    \textbf{报告} \\
+    关于第5次实验作业 \\
+    课程《聚类分析》
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+学生组号 22Б16-пу \hfill 沙拉巴林 М.C. \\
+指导教师 \hfill 迪克 А.Г.
+
+\vspace{2cm}
+
+\begin{center}
+圣彼得堡 \\
+2025年
+\end{center}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{工作目标}
+开发一个系统来比较不同聚类算法，并根据给定指标对具有15个以上特征的数据集进行评估。
+
+\section{任务描述（问题形式化）}
+
+- 实现图形用户界面(GUI)，用于设置聚类器参数
+- 支持选择和配置多个聚类算法：CURE、Single Linkage、MaxMin Distance、ISODATA、FOREL
+- 根据外部和内部指标评估聚类质量：
+  - Rand Index
+  - Jaccard Index
+  - Fowlkes-Mallows Index
+  - Phi Index
+  - Compactness
+  - Separation
+- 实现特征选择方法：add\_method, del\_method, spa\_method, compactness, spread
+- 执行聚类可视化（包括真实标签）
+- 对比以下情况的聚类结果：
+  - 不进行特征选择
+  - 特征选择后
+  - 去标识化数据上的结果
+
+\section{程序说明}
+\subsection*{输入数据:}
+- 包含15+个特征的数据集（如果存在目标变量，则应位于最后列）
+
+\subsection*{输出数据:}
+- 各种图表
+- 高质量指标
+- 每种特征选择方法在不同指标下的比较
+
+\section{算法结果分析}
+使用以下数据集进行测试：
+
+测试程序时使用的\texttt{iris.csv}数据集包含150个样本和4个特征。真实标签取自最后一列，并用于评估外部聚类质量指标。
+
+\subsection*{程序设置:}
+- 聚类数量：3
+- 特征选择方法：add\_method
+- 特征选择后的特征数量：2
+- 质量指标：Rand Index, Jaccard Index, Fowlkes-Mallows Index, Phi Index, Compactness, Separation
+- 数据标准化：启用
+
+完成完整聚类流程（所有特征、特征选择后以及去标识化数据）后，得到以下结果：
+
+- \textbf{图 1. 未进行特征选择}：Single linkage 和 ISODATA 表现良好。
+
+\myfigure{2025-05-25-13-35-58.png}{图片说明}{\textwidth}
+
+- \textbf{图 2. 使用特征选择}：FOREL 显示出最高的精度提升。
+
+\myfigure{2025-05-25-13-36-10.png}{图片说明}{\textwidth}
+
+- \textbf{图 3–7. 指标对比}：
+
+\myfigure{2025-05-25-13-31-22.png.png}{测试结果}{\textwidth}
+\myfigure{2025-05-25-13-38-26.png}{测试结果}{\textwidth}
+\myfigure{2025-05-25-13-38-38.png}{测试结果}{\textwidth}
+\myfigure{2025-05-25-13-38-48.png}{测试结果}{\textwidth}
+\myfigure{2025-05-25-13-42-58.png}{测试结果}{\textwidth}
+\myfigure{2025-05-25-13-43-08.png}{测试结果}{\textwidth}
+  - Rand Index
+  - Jaccard Index
+  - Fowlkes
+  - Phi Index
+  - Compactness
+  - Separation
+
+\textbf{指标结论：}
+- 分离度 → ISODATA
+- 紧致性 → CURE
+- 其他情况 → FOREL 或 Single Linkage
+
+\textbf{最终流程如下：}
+- 图 8. 报告生成流程图
+\myfigure{2025-05-25-13-43-41.png}{终端图表}{\textwidth}
+- 图 9. 图形界面视图
+\myfigure{2025-05-25-13-46-53.png}{图形界面}{\textwidth}
+- 图 10. 特征选择前的指标评估
+\myfigure{2025-05-25-14-00-12.png}{指标评估}{\textwidth}
+- 图 11. 去标识化数据上特征选择后的指标评估
+\myfigure{2025-05-25-14-00-12.png.png}{特征选择后的指标评估}{\textwidth}
+- 图 12. 结果对比
+\myfigure{2025-05-25-14-02-27.png}{结果对比}{\textwidth}
+- 图表 2. 获取数据的对比
+\myfigure{2025-05-25-14-02-58.png.png}{获取数据的对比}{\textwidth}
+
+Single Linkage 在聚类方面表现最佳。
+
+\section{程序结构图}
+- 图 13. 主程序结构图
+\myfigure{2025-05-25-14-04-01.png}{结构图}{\textwidth}
+
+\section{测试示例}
+- 图 14. 图的解决方案示例
+\myfigure{2025-05-25-14-04-33.png}{系统界面示例}{\textwidth}
+- 图 15. 特征选择前的用户设置
+\myfigure{2025-05-25-14-05-10.png}{特征选择前的用户设置}{\textwidth}
+
+\section{总结}
+在本次实验中，我们开发了一个用于比较各种聚类算法的系统，该系统包含用于参数设置和结果分析的图形界面。实现并测试了多种算法（CURE、Single Linkage、MaxMin Distance、ISODATA、FOREL），使用了原始数据、去标识化数据及特征选择后的数据。
+
+分析表明，聚类质量取决于所选算法、特征选择方法和预处理方式。使用 $add_method$ 方法显著提高了外部和内部指标的表现，如 Rand Index、Jaccard Index、Fowlkes-Mallows Index、Phi Index、Compactness 和 Separation。最稳定的结果来自 CURE 和 ISODATA。
+
+此外，还实现了聚类可视化功能，有助于直观地评估数据结构和算法效率。程序运行结果以图表和表格形式呈现，便于进行有效比较并得出合理结论。
+
+\section{参考文献}
+- Dorigo M., Di Caro G. \emph{"Ant Colony Optimization: A New Meta-Heuristic"}
+- Tkinter 库: \url{https://docs.python.org/3/library/tkinter.html }
+- Math 库: \url{https://docs.python.org/3/library/math.html }
+
+\end{document}
