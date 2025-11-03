@@ -1,7 +1,0 @@
-{
-    "ignore": ["*.test.js", "node_modules/", "./analytics.db"],
-    "execMap": {
-      "js": "node --inspect"
-    }
-  }
-  

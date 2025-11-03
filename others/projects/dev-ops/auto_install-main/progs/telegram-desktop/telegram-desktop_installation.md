@@ -1,1 +1,0 @@
-# telegram-desktop instalation
