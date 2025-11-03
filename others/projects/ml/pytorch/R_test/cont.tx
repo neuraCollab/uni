@@ -1,0 +1,7 @@
+podman run -d \
+  --name rstudio-server \
+  -e PASSWORD=yourpassword \
+  -p 8787:8787 \
+  -v "$HOME/rstudio-data:/home/rstudio:Z" \
+  -v "$HOME/Documents/learn/tr/R_test:/root/R_test:Z" \
+  docker.io/rocker/rstudio

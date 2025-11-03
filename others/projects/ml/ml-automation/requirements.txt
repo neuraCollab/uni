@@ -1,0 +1,19 @@
+pandas
+numpy
+scikit-learn
+xgboost
+lightgbm
+catboost
+pycaret
+h2o
+optuna
+ydata-profiling
+jupyter
+matplotlib
+seaborn
+shap
+autofeat
+transformers  # для NLP
+torch         # для NLP/CV
+tensorflow    # опционально, для CV
+sentence-transformers  # для эмбеддингов текста

@@ -1,0 +1,1001 @@
+age,income,education,city,score,text,target
+56,135186,Bachelor,Chicago,59,Average experience,1
+69,64674,High School,Chicago,95,Will buy again,1
+46,196926,High School,LA,62,I love this product,1
+32,76271,High School,New York,86,Will buy again,1
+60,103688,PhD,Phoenix,87,Not as expected,1
+25,199590,PhD,New York,73,This is terrible,1
+38,141076,Master,Houston,51,I love this product,1
+56,171339,PhD,Houston,71,Average experience,1
+36,31062,High School,LA,66,Not as expected,1
+40,80448,High School,LA,85,This is terrible,1
+28,125462,PhD,LA,63,Will buy again,1
+28,167301,Bachelor,Houston,59,This is terrible,1
+41,77915,PhD,New York,84,Not as expected,1
+53,34632,PhD,New York,74,Not as expected,1
+57,134592,High School,LA,52,This is terrible,1
+41,164668,Master,Phoenix,96,Will buy again,1
+20,139779,High School,New York,87,This is terrible,1
+39,167240,Master,Houston,66,Not as expected,1
+19,138099,High School,Chicago,61,Not as expected,1
+41,37561,PhD,Chicago,73,Average experience,1
+61,112152,High School,Chicago,78,Average experience,0
+47,155036,High School,Phoenix,92,I love this product,1
+55,154049,High School,LA,74,Not as expected,1
+19,56734,PhD,Houston,85,Average experience,1
+38,167443,PhD,Phoenix,75,This is terrible,1
+50,56069,PhD,Houston,87,Will buy again,1
+29,42910,PhD,Houston,50,This is terrible,1
+39,103479,Master,LA,69,Will buy again,1
+61,111264,Master,Chicago,77,Average experience,1
+42,53275,Bachelor,LA,65,I love this product,1
+66,102274,PhD,Phoenix,96,This is terrible,1
+44,130776,Master,Phoenix,66,This is terrible,1
+59,78447,High School,Phoenix,89,This is terrible,0
+45,195601,PhD,LA,77,Will buy again,0
+33,156394,Bachelor,Houston,61,Average experience,1
+32,105703,Bachelor,Houston,76,This is terrible,1
+64,106090,Bachelor,New York,91,This is terrible,1
+68,47260,High School,Phoenix,96,I love this product,1
+61,142581,Master,Houston,79,I love this product,1
+69,33812,High School,New York,90,Average experience,1
+20,189096,PhD,Houston,83,Average experience,0
+54,146148,Bachelor,Phoenix,86,Not as expected,1
+68,188357,High School,Chicago,55,I love this product,1
+24,146421,High School,Phoenix,56,Not as expected,1
+38,31605,Master,LA,81,Will buy again,1
+26,102303,Master,Houston,81,Not as expected,1
+56,188211,Bachelor,Houston,74,This is terrible,1
+35,106125,High School,LA,82,Not as expected,1
+21,174990,High School,LA,56,Average experience,1
+42,188518,Master,Chicago,61,Will buy again,1
+31,154040,High School,Houston,65,This is terrible,1
+67,174118,High School,Houston,65,Not as expected,1
+26,185890,High School,Chicago,92,Will buy again,1
+43,34324,Master,New York,85,Will buy again,1
+19,106323,Bachelor,Chicago,62,This is terrible,1
+37,39111,PhD,Phoenix,56,Not as expected,1
+45,199182,Bachelor,Houston,85,Will buy again,1
+64,46389,PhD,LA,96,Will buy again,1
+24,152177,High School,Phoenix,58,I love this product,0
+61,71427,Bachelor,Houston,81,Will buy again,1
+25,189818,PhD,Chicago,60,I love this product,0
+64,152883,Master,Phoenix,57,Not as expected,1
+52,161189,Master,Houston,82,Not as expected,1
+31,155808,Bachelor,New York,72,Not as expected,1
+34,142221,Bachelor,New York,74,Average experience,1
+53,43234,High School,LA,57,Not as expected,1
+67,83441,Bachelor,Houston,94,Will buy again,1
+57,30846,High School,New York,71,This is terrible,1
+21,40954,High School,Chicago,53,I love this product,0
+19,109239,Master,Houston,89,Average experience,1
+23,76514,Master,Chicago,52,Not as expected,1
+59,118236,PhD,Chicago,78,Not as expected,1
+21,127579,Master,New York,90,This is terrible,1
+46,167541,Master,Houston,78,This is terrible,1
+35,191177,Bachelor,Phoenix,83,Average experience,1
+43,72101,Master,New York,83,I love this product,0
+61,94323,PhD,New York,77,Not as expected,1
+51,121922,Bachelor,Houston,62,Average experience,1
+27,198048,PhD,Houston,64,Will buy again,1
+53,157534,Master,Chicago,72,Will buy again,1
+31,97584,PhD,Houston,93,Average experience,1
+48,134537,Bachelor,Chicago,75,Not as expected,1
+65,108477,High School,New York,53,Average experience,1
+32,72533,PhD,LA,75,Not as expected,1
+25,31828,PhD,Phoenix,89,This is terrible,1
+31,31917,Bachelor,New York,58,Average experience,0
+40,50618,Bachelor,Houston,54,Not as expected,1
+57,62254,PhD,Phoenix,81,Average experience,1
+38,135292,Master,LA,69,Average experience,1
+33,77362,PhD,LA,99,Not as expected,1
+62,50128,Bachelor,Chicago,60,Not as expected,1
+35,153781,High School,Phoenix,64,I love this product,0
+64,95545,High School,Chicago,81,Average experience,1
+41,112180,Master,New York,77,Will buy again,1
+43,117958,PhD,Phoenix,71,Average experience,1
+42,170937,High School,New York,90,Average experience,1
+62,163291,PhD,Chicago,66,Not as expected,1
+58,69809,Bachelor,Phoenix,75,Average experience,1
+46,146748,High School,Chicago,93,Average experience,1
+32,35287,Master,Phoenix,56,Will buy again,1
+62,195459,Bachelor,Chicago,91,Not as expected,1
+18,38512,Master,LA,75,Average experience,1
+42,162414,Bachelor,Chicago,74,This is terrible,1
+24,138872,High School,LA,59,I love this product,1
+26,180288,Master,Chicago,94,Will buy again,1
+41,123070,Master,Phoenix,68,Average experience,1
+18,109767,Bachelor,Phoenix,60,This is terrible,1
+61,127829,Master,Phoenix,62,Average experience,0
+25,187686,Bachelor,Houston,57,Average experience,1
+41,197330,Bachelor,New York,89,Not as expected,1
+28,72078,Bachelor,Phoenix,53,Not as expected,0
+68,136288,Bachelor,LA,96,Not as expected,1
+34,113524,High School,Phoenix,80,This is terrible,1
+25,42219,Bachelor,Houston,77,Average experience,0
+52,30235,PhD,LA,60,I love this product,1
+52,72929,Master,Houston,92,Will buy again,0
+50,157309,PhD,LA,50,Not as expected,1
+22,97444,High School,Chicago,98,Not as expected,1
+59,169639,PhD,New York,96,Average experience,1
+56,131834,Master,New York,87,Average experience,1
+58,114555,PhD,Houston,73,This is terrible,1
+45,103698,High School,New York,96,This is terrible,1
+24,154450,Bachelor,Houston,80,Not as expected,1
+26,166487,PhD,Houston,90,Average experience,1
+25,197231,High School,Houston,95,I love this product,0
+29,73925,High School,New York,99,Will buy again,1
+51,167023,Master,Houston,75,Average experience,1
+50,117388,Master,New York,98,Average experience,1
+65,38007,PhD,Houston,99,This is terrible,1
+40,88596,Bachelor,Phoenix,54,Will buy again,0
+41,151101,High School,Houston,69,Not as expected,1
+54,191595,PhD,LA,90,Average experience,1
+52,118861,High School,Houston,60,Not as expected,1
+61,116740,High School,Chicago,82,Average experience,1
+57,45524,Bachelor,Houston,99,Not as expected,1
+39,180354,Bachelor,LA,87,Will buy again,1
+44,185002,PhD,LA,76,This is terrible,1
+52,161149,Bachelor,New York,83,Will buy again,1
+18,155501,Bachelor,Phoenix,64,I love this product,1
+52,50611,PhD,Houston,81,This is terrible,1
+54,178056,Bachelor,New York,70,Will buy again,1
+64,44060,Master,Phoenix,95,I love this product,0
+31,73303,High School,Houston,54,Average experience,0
+20,190359,High School,Chicago,55,Average experience,1
+18,69711,High School,Houston,87,Not as expected,1
+22,173026,High School,LA,71,This is terrible,1
+43,103340,PhD,LA,67,Average experience,1
+31,132974,High School,Chicago,63,This is terrible,1
+56,179646,High School,New York,59,Average experience,1
+44,170256,High School,Phoenix,95,Not as expected,1
+26,180168,High School,Houston,62,Will buy again,0
+32,97728,Master,LA,80,Not as expected,1
+32,195088,High School,New York,79,I love this product,0
+43,41246,Master,Chicago,52,Average experience,1
+59,179453,PhD,LA,79,I love this product,1
+30,157796,Bachelor,Chicago,55,I love this product,1
+68,197527,High School,Houston,78,This is terrible,1
+49,122263,Bachelor,Phoenix,57,Average experience,1
+56,165090,Bachelor,LA,93,I love this product,1
+66,41302,PhD,LA,94,Will buy again,0
+69,97506,Bachelor,Houston,92,I love this product,1
+49,71157,Master,New York,93,Will buy again,1
+21,84917,Bachelor,Phoenix,82,This is terrible,1
+47,126646,Bachelor,LA,66,I love this product,1
+54,113122,Bachelor,Phoenix,97,Not as expected,1
+40,54519,High School,LA,60,This is terrible,0
+56,110910,High School,Phoenix,62,Will buy again,1
+62,150430,Master,Chicago,99,This is terrible,1
+32,101324,Master,LA,60,I love this product,1
+60,35408,High School,Phoenix,80,Average experience,1
+46,89379,Master,New York,77,Average experience,1
+53,55053,High School,Chicago,93,Will buy again,1
+30,170518,PhD,Chicago,55,Will buy again,1
+49,161994,Bachelor,New York,90,Average experience,1
+24,128723,Bachelor,Phoenix,65,Will buy again,1
+68,81356,Master,Houston,53,This is terrible,1
+39,40789,High School,New York,84,Not as expected,1
+45,127720,High School,Phoenix,97,Not as expected,1
+19,96656,Master,New York,75,This is terrible,1
+59,74028,High School,New York,61,Not as expected,1
+62,94484,PhD,LA,60,I love this product,1
+23,62154,Bachelor,Phoenix,86,This is terrible,1
+45,32336,Master,Houston,74,Will buy again,1
+45,133677,Master,LA,67,This is terrible,1
+61,97779,High School,New York,68,Average experience,0
+61,49029,Master,New York,72,Will buy again,1
+37,89201,PhD,New York,87,Average experience,1
+47,62265,High School,Phoenix,67,Will buy again,1
+28,132916,High School,Phoenix,75,Not as expected,1
+45,76197,High School,LA,55,This is terrible,1
+42,155733,High School,Houston,53,I love this product,0
+56,184782,PhD,LA,93,Will buy again,1
+50,190558,High School,Chicago,78,Will buy again,1
+18,101907,Master,New York,83,Average experience,1
+44,158876,PhD,New York,66,Not as expected,1
+69,94435,Bachelor,New York,92,Average experience,1
+30,70631,Bachelor,LA,92,Average experience,0
+58,159038,Master,LA,65,Not as expected,1
+20,50103,Master,New York,51,I love this product,1
+56,94772,PhD,LA,83,Average experience,1
+23,156108,Bachelor,Phoenix,57,Average experience,1
+25,44382,Bachelor,Phoenix,62,Will buy again,0
+44,114291,Bachelor,LA,91,Not as expected,1
+26,131195,Bachelor,New York,57,This is terrible,1
+54,164828,Bachelor,LA,79,I love this product,0
+50,50609,High School,LA,81,I love this product,0
+68,177550,Master,LA,85,Not as expected,1
+59,105683,High School,Chicago,96,Will buy again,1
+61,154714,Bachelor,Phoenix,79,Will buy again,1
+41,160330,PhD,Houston,50,Not as expected,1
+32,101315,PhD,Houston,92,Will buy again,1
+49,107834,Bachelor,Chicago,88,I love this product,0
+49,156205,Bachelor,LA,66,I love this product,0
+41,44153,PhD,Chicago,69,This is terrible,0
+58,106325,High School,Chicago,73,Not as expected,1
+69,174071,High School,New York,99,Average experience,1
+66,85318,Bachelor,Phoenix,71,Average experience,1
+66,161886,High School,Houston,78,This is terrible,0
+69,145033,PhD,LA,71,This is terrible,1
+29,106077,High School,Houston,93,Will buy again,1
+56,120474,Bachelor,Houston,58,This is terrible,1
+19,163515,PhD,Phoenix,86,This is terrible,0
+20,103319,High School,Houston,59,Average experience,1
+66,155885,Master,Houston,85,Will buy again,1
+54,139777,PhD,Chicago,86,This is terrible,1
+66,47368,PhD,Phoenix,77,This is terrible,1
+34,176400,Master,New York,77,Will buy again,1
+66,121751,Master,LA,91,Not as expected,1
+19,57306,PhD,Houston,92,Will buy again,1
+19,67219,Master,LA,70,Average experience,1
+45,90279,Bachelor,New York,73,Not as expected,1
+40,83028,Bachelor,LA,91,I love this product,1
+54,134263,Bachelor,New York,89,Will buy again,1
+49,30126,PhD,Chicago,51,Average experience,1
+50,82329,Master,Houston,57,Not as expected,0
+18,57632,Master,New York,97,Will buy again,0
+36,139945,High School,LA,76,This is terrible,1
+19,85176,High School,Houston,71,Will buy again,1
+61,164869,Master,Chicago,86,I love this product,1
+43,174790,Master,Houston,76,Will buy again,1
+49,64560,Master,New York,78,Not as expected,1
+23,106589,PhD,Chicago,52,Not as expected,0
+49,52116,Master,LA,93,Will buy again,1
+21,197316,High School,Chicago,62,Not as expected,1
+28,162717,PhD,Chicago,94,This is terrible,0
+34,154085,Master,Phoenix,59,Will buy again,1
+55,147718,High School,Chicago,85,This is terrible,1
+41,49256,PhD,Chicago,58,This is terrible,1
+22,130158,Master,Houston,76,Average experience,1
+69,198502,Master,LA,83,Will buy again,1
+51,149719,Master,Houston,50,Not as expected,1
+23,98244,PhD,Houston,81,This is terrible,0
+39,172766,High School,New York,74,Average experience,1
+28,86264,High School,Houston,78,Will buy again,1
+65,87545,Bachelor,Phoenix,56,Will buy again,1
+33,69224,Master,Phoenix,98,I love this product,1
+50,127945,Bachelor,New York,52,I love this product,1
+26,43224,Bachelor,LA,69,This is terrible,0
+23,70738,High School,LA,69,I love this product,1
+33,186222,PhD,Houston,79,This is terrible,1
+46,93731,PhD,Houston,84,Not as expected,1
+20,169649,High School,Houston,84,This is terrible,1
+37,38070,PhD,LA,98,I love this product,1
+53,156161,Bachelor,Chicago,88,Not as expected,1
+36,38666,Master,Phoenix,76,I love this product,1
+43,87761,High School,Chicago,75,This is terrible,1
+20,66368,Master,Chicago,63,Average experience,1
+36,167855,PhD,LA,66,Will buy again,1
+37,71914,Master,Chicago,67,I love this product,1
+49,157738,PhD,New York,94,This is terrible,1
+24,97526,PhD,Houston,78,Not as expected,1
+69,49956,Bachelor,New York,69,I love this product,1
+58,76240,PhD,Phoenix,76,I love this product,1
+50,151008,Bachelor,Houston,67,Will buy again,1
+57,198220,Bachelor,Chicago,53,This is terrible,1
+56,124270,Bachelor,Phoenix,50,Average experience,1
+35,34757,High School,Houston,99,Not as expected,1
+57,49097,High School,Chicago,50,This is terrible,1
+18,171467,PhD,New York,75,Not as expected,1
+28,177313,Bachelor,Houston,94,I love this product,0
+45,133892,High School,Chicago,69,Will buy again,1
+42,188768,Bachelor,New York,72,Will buy again,1
+67,100480,Master,Phoenix,59,Average experience,1
+40,76163,Master,Phoenix,60,Will buy again,1
+48,49816,Master,Phoenix,90,I love this product,1
+47,82853,PhD,Phoenix,90,Average experience,1
+59,185989,Bachelor,LA,54,This is terrible,1
+52,126731,Master,Houston,50,Will buy again,1
+24,182638,High School,Houston,66,Average experience,1
+33,92823,Master,LA,71,I love this product,1
+43,181878,Master,Chicago,83,Not as expected,1
+65,31759,Master,Chicago,94,Not as expected,1
+69,122374,PhD,Phoenix,90,I love this product,1
+66,163554,High School,New York,78,I love this product,1
+19,54442,Bachelor,Chicago,53,Not as expected,0
+18,194791,High School,New York,54,Average experience,1
+65,123501,Bachelor,Houston,60,Not as expected,1
+29,32079,PhD,New York,70,I love this product,1
+22,163789,PhD,Houston,84,Will buy again,1
+54,89676,PhD,LA,61,This is terrible,1
+49,189024,PhD,LA,75,Will buy again,1
+26,120397,Bachelor,Phoenix,68,Will buy again,1
+58,102847,Master,Chicago,94,I love this product,1
+52,123607,Bachelor,Phoenix,56,Not as expected,1
+36,179521,High School,Houston,96,Average experience,1
+65,194608,PhD,Phoenix,56,Will buy again,1
+33,94077,PhD,New York,75,Not as expected,1
+20,68258,High School,Houston,89,Average experience,1
+37,189937,Bachelor,LA,54,Will buy again,1
+41,167717,Master,Chicago,70,Average experience,1
+50,149771,Master,Houston,63,Not as expected,0
+41,68000,High School,Houston,53,This is terrible,1
+69,56737,Master,New York,72,Not as expected,1
+28,41485,Bachelor,Chicago,91,I love this product,1
+66,68565,Bachelor,LA,69,Average experience,1
+25,186594,High School,Houston,64,This is terrible,1
+53,149614,Bachelor,Houston,99,Average experience,1
+55,95155,PhD,New York,94,Average experience,1
+57,82487,High School,Phoenix,78,Will buy again,1
+37,159948,Bachelor,LA,57,I love this product,1
+52,42342,High School,Chicago,90,Average experience,1
+65,70806,Master,Houston,97,Not as expected,1
+42,78770,Bachelor,Houston,68,Not as expected,1
+52,108623,PhD,LA,97,Will buy again,1
+42,133177,Bachelor,Phoenix,88,I love this product,1
+46,161026,High School,Houston,95,I love this product,1
+35,105629,High School,LA,77,Not as expected,1
+63,150993,Bachelor,New York,95,This is terrible,0
+35,156944,PhD,Phoenix,76,Will buy again,1
+19,135947,PhD,Chicago,53,Will buy again,1
+52,56399,PhD,Houston,64,Not as expected,1
+33,158177,High School,LA,84,Not as expected,0
+58,139575,Bachelor,New York,86,This is terrible,1
+53,140904,Master,Chicago,50,This is terrible,1
+50,60678,High School,LA,52,I love this product,1
+21,106218,PhD,LA,96,Will buy again,1
+50,93230,Bachelor,Chicago,73,Will buy again,0
+31,104055,PhD,New York,76,Not as expected,1
+38,192552,Master,New York,89,I love this product,1
+65,102258,PhD,Phoenix,85,Will buy again,1
+37,69986,PhD,Houston,83,I love this product,1
+25,185232,Master,Chicago,78,I love this product,1
+24,115595,Bachelor,Chicago,73,Not as expected,1
+20,131358,High School,Chicago,73,I love this product,0
+34,94929,Bachelor,New York,91,This is terrible,1
+50,103506,Master,Houston,53,This is terrible,1
+65,64911,PhD,Phoenix,52,Average experience,1
+29,117127,Bachelor,LA,83,Not as expected,1
+68,192893,High School,LA,98,Average experience,1
+39,143453,Master,Chicago,72,This is terrible,1
+39,114458,Bachelor,Houston,72,Average experience,1
+63,42175,High School,New York,94,Not as expected,1
+47,149235,Master,Houston,54,Not as expected,1
+55,84771,High School,Houston,80,I love this product,1
+55,157157,Master,New York,90,Will buy again,1
+62,151300,PhD,Chicago,55,I love this product,1
+68,116925,Bachelor,Houston,86,Not as expected,1
+25,96358,High School,LA,59,This is terrible,1
+44,178399,Master,New York,89,This is terrible,1
+44,77057,High School,Phoenix,56,I love this product,1
+51,36150,High School,Chicago,88,Not as expected,1
+38,34425,Bachelor,New York,87,This is terrible,1
+47,46032,PhD,Phoenix,70,Not as expected,0
+50,32198,High School,Phoenix,69,This is terrible,0
+45,181151,Master,Houston,52,Not as expected,1
+64,197292,Master,Houston,71,Average experience,1
+50,174931,PhD,Houston,96,Not as expected,1
+22,192491,Master,New York,53,Not as expected,1
+65,148865,PhD,New York,77,I love this product,1
+36,169777,Master,Chicago,61,Average experience,1
+21,53236,Bachelor,Houston,87,Will buy again,0
+52,117955,High School,Phoenix,85,I love this product,1
+66,133145,Bachelor,LA,96,Will buy again,1
+34,176430,High School,Chicago,90,This is terrible,1
+61,124914,High School,New York,54,Will buy again,1
+45,132870,High School,Chicago,62,Not as expected,0
+47,146243,Bachelor,Chicago,72,Will buy again,1
+46,44596,High School,Chicago,99,I love this product,1
+63,194644,Bachelor,Chicago,79,I love this product,1
+23,162351,PhD,LA,86,Will buy again,1
+52,141496,Master,Houston,74,I love this product,1
+58,160273,Master,Phoenix,97,I love this product,1
+54,168155,High School,Chicago,76,Will buy again,1
+41,150674,Bachelor,Chicago,63,Average experience,1
+46,150307,Master,Chicago,97,Average experience,1
+66,178843,Bachelor,Houston,96,This is terrible,1
+63,191047,Bachelor,New York,85,I love this product,1
+48,49063,High School,New York,88,Will buy again,0
+52,97642,Master,LA,65,I love this product,1
+50,120093,High School,New York,71,Not as expected,1
+69,198671,High School,Chicago,70,I love this product,1
+38,189601,Master,Chicago,70,I love this product,1
+49,65954,Master,Chicago,57,Average experience,1
+40,57856,PhD,LA,98,Will buy again,1
+50,32573,PhD,Chicago,65,I love this product,1
+20,65367,Bachelor,New York,80,Average experience,0
+35,129608,Master,Houston,91,This is terrible,1
+42,90774,PhD,Houston,59,Average experience,1
+59,53752,Bachelor,Phoenix,81,Average experience,1
+48,85029,Bachelor,New York,83,Average experience,1
+20,178757,Bachelor,Chicago,58,I love this product,1
+57,160282,PhD,Houston,66,I love this product,1
+63,81693,Master,New York,60,This is terrible,1
+41,146739,High School,Houston,81,Not as expected,1
+67,85961,Bachelor,Chicago,59,Not as expected,1
+49,156678,PhD,Houston,71,Not as expected,1
+64,104532,PhD,Phoenix,66,This is terrible,1
+39,111994,High School,Phoenix,53,Not as expected,1
+40,86133,High School,Houston,97,Not as expected,1
+19,91268,PhD,New York,96,Average experience,1
+44,199315,Master,New York,74,I love this product,1
+59,61653,High School,New York,70,I love this product,1
+19,187729,PhD,Houston,86,Average experience,1
+43,183252,High School,New York,87,Average experience,1
+34,151829,Master,Chicago,98,Average experience,1
+57,158377,Bachelor,Phoenix,50,I love this product,1
+50,31622,High School,Chicago,74,Not as expected,1
+26,78756,Master,New York,85,Average experience,1
+60,70809,PhD,Chicago,66,This is terrible,1
+65,46725,High School,New York,90,Average experience,1
+56,81226,High School,Houston,73,Will buy again,1
+46,111182,PhD,Chicago,51,Average experience,1
+59,59402,Bachelor,Houston,89,I love this product,1
+43,34263,PhD,Houston,64,Average experience,1
+52,77924,High School,LA,81,Will buy again,1
+67,104182,PhD,New York,88,This is terrible,1
+42,172736,Master,Phoenix,55,Not as expected,1
+41,65737,PhD,New York,50,Average experience,1
+30,131332,High School,Phoenix,96,Will buy again,1
+24,119563,PhD,New York,72,Will buy again,1
+53,190445,Bachelor,Houston,88,This is terrible,1
+62,197469,PhD,Chicago,66,I love this product,1
+37,158575,Bachelor,Chicago,83,Average experience,1
+18,131371,Master,LA,90,Will buy again,1
+25,68709,Bachelor,Phoenix,78,This is terrible,0
+63,180322,PhD,Phoenix,58,Not as expected,0
+33,51172,High School,Phoenix,62,Will buy again,0
+31,41555,Bachelor,Houston,55,This is terrible,0
+29,83276,Master,Phoenix,55,I love this product,1
+68,87492,Bachelor,Chicago,69,I love this product,1
+40,119599,Bachelor,Houston,52,Will buy again,1
+32,185834,Bachelor,New York,66,Will buy again,1
+45,41046,Master,Phoenix,98,Average experience,1
+51,146021,PhD,Phoenix,61,This is terrible,1
+19,189841,Bachelor,New York,97,Will buy again,1
+49,184222,Bachelor,Phoenix,96,Average experience,1
+40,34853,High School,New York,94,Average experience,1
+39,150900,Master,Houston,50,Will buy again,1
+68,182864,Bachelor,Chicago,66,I love this product,1
+42,89129,Master,New York,52,This is terrible,1
+39,144130,Bachelor,LA,75,This is terrible,1
+39,193059,PhD,New York,64,I love this product,1
+66,176922,PhD,Phoenix,85,Will buy again,1
+69,173184,Bachelor,Houston,81,This is terrible,1
+59,151789,PhD,Houston,81,Will buy again,1
+23,185130,Bachelor,New York,53,Will buy again,1
+32,68890,PhD,Chicago,67,Average experience,1
+60,96017,High School,LA,98,I love this product,1
+54,193993,High School,Houston,68,Will buy again,1
+50,162596,High School,Phoenix,92,Not as expected,1
+25,130424,Master,Phoenix,84,I love this product,1
+61,45048,Master,Chicago,89,This is terrible,1
+61,196183,High School,Houston,63,Average experience,1
+22,198976,Master,New York,82,This is terrible,1
+56,84912,PhD,Phoenix,63,This is terrible,1
+21,64008,Bachelor,Chicago,83,I love this product,1
+23,161132,Bachelor,Houston,53,This is terrible,1
+62,113559,Bachelor,Houston,73,Will buy again,1
+49,85337,High School,Houston,78,This is terrible,1
+69,140616,Master,Houston,68,Average experience,1
+47,43350,PhD,Houston,55,Average experience,1
+64,54354,PhD,Phoenix,82,Not as expected,1
+52,75186,High School,Chicago,98,Average experience,1
+57,58145,PhD,Houston,89,This is terrible,1
+69,195092,PhD,LA,68,Average experience,0
+33,116123,PhD,LA,50,I love this product,1
+30,50581,PhD,Chicago,54,Average experience,1
+67,118929,Master,New York,76,Will buy again,1
+59,53051,PhD,New York,65,I love this product,1
+47,81474,Bachelor,New York,55,Not as expected,1
+36,121748,High School,LA,89,Will buy again,1
+34,155995,Master,New York,62,This is terrible,1
+36,99626,PhD,Phoenix,97,This is terrible,1
+45,36960,Master,Houston,84,This is terrible,1
+43,196844,PhD,LA,68,Will buy again,1
+54,182592,Bachelor,Chicago,61,Will buy again,1
+43,66408,High School,Chicago,65,Will buy again,1
+40,124006,PhD,Houston,92,I love this product,1
+26,87134,PhD,LA,59,I love this product,1
+29,181563,PhD,New York,74,This is terrible,1
+18,162413,PhD,New York,69,Average experience,1
+18,120327,High School,Phoenix,80,This is terrible,1
+64,161410,High School,Phoenix,53,Not as expected,1
+51,173326,Bachelor,New York,93,I love this product,1
+49,41344,High School,Chicago,72,Will buy again,1
+65,162822,PhD,Chicago,51,I love this product,1
+42,97957,Bachelor,Phoenix,71,Will buy again,1
+57,135423,Bachelor,Houston,86,Not as expected,1
+62,88053,Bachelor,New York,57,Not as expected,1
+18,176968,PhD,Phoenix,56,I love this product,1
+33,107454,Master,Phoenix,63,Will buy again,0
+56,120600,PhD,New York,52,Not as expected,1
+22,152732,High School,New York,99,This is terrible,1
+39,189007,High School,Chicago,65,This is terrible,1
+46,67641,PhD,Houston,68,Will buy again,1
+20,59711,PhD,Houston,67,I love this product,1
+29,100342,Bachelor,New York,65,Not as expected,1
+43,136896,PhD,LA,57,I love this product,1
+33,173254,Bachelor,Phoenix,82,This is terrible,1
+68,117833,High School,Phoenix,98,Not as expected,1
+54,86276,Bachelor,New York,61,I love this product,1
+39,49541,PhD,LA,60,Average experience,0
+46,124457,High School,Chicago,54,Will buy again,1
+31,74813,Master,New York,76,Will buy again,1
+45,198270,Bachelor,New York,61,Average experience,1
+22,169892,High School,Phoenix,66,This is terrible,1
+64,54070,Bachelor,New York,55,Not as expected,1
+66,172194,High School,New York,82,Will buy again,1
+47,110559,High School,New York,54,Average experience,1
+63,71786,Bachelor,Phoenix,77,Average experience,1
+69,167809,Master,Chicago,63,This is terrible,1
+22,66062,High School,Chicago,54,This is terrible,0
+29,81571,High School,New York,82,I love this product,1
+33,55510,High School,Phoenix,99,Will buy again,1
+43,49426,Master,Chicago,97,I love this product,1
+43,67265,Master,Chicago,90,Average experience,0
+65,178922,PhD,Chicago,68,Not as expected,1
+38,96150,Bachelor,Phoenix,71,Not as expected,1
+56,117312,Master,Phoenix,54,This is terrible,1
+53,119613,Bachelor,New York,51,Not as expected,1
+50,104910,PhD,Houston,79,Not as expected,1
+47,82375,Bachelor,Chicago,96,Not as expected,1
+54,151826,Master,Houston,88,Average experience,1
+40,65435,Bachelor,Phoenix,53,Not as expected,1
+27,126443,Master,Phoenix,82,Not as expected,1
+22,164055,Bachelor,Phoenix,62,Not as expected,1
+53,181734,Master,Houston,69,I love this product,1
+51,53510,Master,Phoenix,56,Average experience,1
+69,124071,Bachelor,New York,64,This is terrible,1
+48,36640,PhD,Phoenix,72,I love this product,1
+27,74547,High School,LA,63,Will buy again,0
+36,84620,PhD,Houston,72,Average experience,1
+49,176389,Bachelor,LA,68,Average experience,1
+18,145608,PhD,Phoenix,78,Will buy again,1
+22,37564,Master,New York,69,Will buy again,1
+62,188417,High School,Chicago,78,Will buy again,0
+21,143824,Bachelor,Phoenix,73,This is terrible,1
+33,109273,Bachelor,New York,67,Not as expected,1
+41,104859,Bachelor,Houston,59,Average experience,1
+33,140017,High School,LA,90,Not as expected,0
+19,153618,Master,LA,57,Not as expected,1
+66,155341,Bachelor,LA,75,Will buy again,1
+45,59430,PhD,Houston,78,This is terrible,1
+49,57788,Bachelor,New York,59,I love this product,1
+44,174991,Bachelor,Houston,66,This is terrible,1
+37,99346,Bachelor,LA,51,Not as expected,0
+41,126122,Bachelor,Phoenix,55,This is terrible,1
+29,69974,Master,Chicago,54,Will buy again,1
+67,137309,PhD,Houston,77,I love this product,1
+52,46371,Master,Houston,90,Will buy again,1
+50,75084,PhD,New York,54,I love this product,1
+50,190701,Bachelor,New York,67,Not as expected,1
+68,91916,High School,Houston,75,I love this product,1
+60,103972,Master,LA,69,I love this product,1
+54,42984,High School,Chicago,90,I love this product,1
+29,63039,Master,New York,98,This is terrible,1
+20,115431,Bachelor,LA,76,This is terrible,0
+18,113691,Master,Phoenix,98,Not as expected,1
+50,88606,Bachelor,New York,61,I love this product,1
+57,171688,Master,LA,56,Average experience,0
+27,132665,Bachelor,LA,52,Not as expected,1
+60,135373,Bachelor,Chicago,59,I love this product,0
+61,54574,PhD,Chicago,83,I love this product,1
+46,164502,Bachelor,Phoenix,74,This is terrible,1
+30,173748,PhD,LA,84,Not as expected,1
+29,171888,Bachelor,LA,65,I love this product,1
+48,62733,High School,Chicago,51,I love this product,1
+63,32050,Bachelor,New York,73,Not as expected,1
+19,139996,High School,New York,59,Average experience,1
+68,63933,High School,Houston,87,Not as expected,1
+67,54951,Bachelor,Chicago,71,Not as expected,0
+52,62413,High School,Houston,75,Average experience,1
+40,195873,PhD,Chicago,92,Not as expected,1
+34,193985,Master,Phoenix,88,I love this product,1
+43,142573,Bachelor,LA,76,Not as expected,1
+25,196472,High School,Phoenix,78,Average experience,1
+46,165566,Bachelor,Chicago,96,Will buy again,1
+43,152744,PhD,LA,87,Not as expected,1
+27,119431,Bachelor,New York,69,This is terrible,1
+43,73001,Bachelor,New York,76,I love this product,1
+51,97364,High School,Houston,90,I love this product,1
+68,154988,PhD,Chicago,69,This is terrible,0
+58,75028,Master,Chicago,93,This is terrible,1
+24,198645,Master,New York,68,Not as expected,1
+21,161878,High School,Phoenix,69,This is terrible,0
+67,154343,Bachelor,LA,84,Will buy again,1
+62,158301,High School,Phoenix,96,Average experience,1
+28,156295,High School,Phoenix,51,This is terrible,1
+46,190829,High School,New York,79,This is terrible,1
+53,64636,Bachelor,New York,83,Will buy again,1
+42,54262,PhD,New York,71,I love this product,0
+38,110435,High School,Houston,52,I love this product,1
+53,158583,Bachelor,Phoenix,55,Not as expected,1
+27,199269,PhD,Chicago,64,Will buy again,1
+54,71844,High School,LA,76,Average experience,0
+26,94754,Master,Houston,59,Average experience,1
+41,195229,PhD,Chicago,58,Will buy again,1
+52,107129,High School,Phoenix,82,Average experience,1
+66,70042,PhD,New York,81,I love this product,1
+52,91665,PhD,Phoenix,97,Average experience,1
+65,146953,PhD,LA,55,Average experience,1
+53,188448,PhD,Houston,90,Will buy again,1
+35,175271,PhD,Houston,85,Will buy again,1
+66,148533,PhD,LA,51,Average experience,1
+56,103781,High School,Chicago,78,This is terrible,1
+49,96262,Master,Chicago,53,Will buy again,1
+41,76600,Bachelor,Houston,50,Not as expected,0
+40,106898,PhD,Houston,68,Not as expected,1
+49,179369,Bachelor,New York,75,I love this product,1
+54,60448,High School,Chicago,74,Average experience,1
+29,56172,PhD,LA,59,This is terrible,1
+66,37657,Master,Chicago,64,I love this product,1
+30,186497,Bachelor,New York,71,Average experience,1
+40,187757,PhD,Houston,97,Will buy again,1
+42,142855,High School,Houston,70,Not as expected,1
+52,185650,Master,New York,71,This is terrible,0
+58,189903,Bachelor,LA,85,Not as expected,1
+47,37906,Bachelor,Houston,83,Will buy again,1
+34,91413,PhD,Phoenix,79,Average experience,1
+66,84028,Master,Houston,74,Will buy again,1
+37,37287,Master,Phoenix,94,Will buy again,0
+65,63660,Master,New York,77,Not as expected,1
+42,90504,Master,New York,50,This is terrible,1
+39,132979,High School,Houston,98,Will buy again,1
+30,64701,Master,Chicago,94,Not as expected,1
+36,113300,Bachelor,Phoenix,53,This is terrible,1
+66,178746,Bachelor,LA,56,Average experience,0
+53,113560,High School,Houston,98,Average experience,1
+29,184946,Bachelor,LA,58,I love this product,1
+58,73642,Bachelor,Houston,85,Not as expected,1
+36,95160,Master,Chicago,68,This is terrible,1
+29,47602,Bachelor,Chicago,50,Will buy again,0
+26,133320,High School,Chicago,59,Average experience,1
+24,118801,Master,Chicago,85,This is terrible,1
+45,55931,PhD,New York,58,Not as expected,1
+31,124377,Master,New York,94,I love this product,1
+48,59192,High School,Phoenix,95,Average experience,1
+69,76542,Master,LA,91,This is terrible,1
+36,157015,Master,Houston,81,This is terrible,1
+64,72520,High School,Houston,81,This is terrible,1
+33,94772,Master,New York,55,Not as expected,1
+22,80106,High School,Houston,97,Not as expected,1
+52,111121,High School,New York,87,Not as expected,1
+29,55559,PhD,Phoenix,66,Will buy again,1
+42,135595,Bachelor,LA,59,This is terrible,1
+69,63742,Bachelor,Phoenix,99,Average experience,1
+38,99669,Master,Chicago,76,Not as expected,1
+53,182826,Master,Chicago,99,Not as expected,1
+40,165044,PhD,Chicago,84,This is terrible,1
+33,100831,PhD,Phoenix,70,Not as expected,0
+56,142217,PhD,Houston,74,Will buy again,1
+62,71873,High School,LA,77,Will buy again,1
+59,136532,PhD,Chicago,96,Not as expected,0
+56,156267,PhD,Chicago,64,This is terrible,1
+31,170975,Master,Chicago,53,This is terrible,1
+48,164092,PhD,LA,78,This is terrible,1
+22,71755,High School,Chicago,58,I love this product,0
+52,115956,High School,LA,76,Not as expected,0
+40,116988,Master,Chicago,75,This is terrible,1
+46,75648,PhD,Phoenix,68,Will buy again,1
+60,155991,PhD,Phoenix,77,Average experience,1
+28,170588,High School,LA,66,Average experience,1
+35,145005,PhD,Phoenix,92,This is terrible,1
+64,32396,PhD,LA,90,Average experience,1
+29,114082,PhD,Phoenix,91,Average experience,1
+26,180201,Bachelor,Phoenix,99,I love this product,1
+27,158322,Master,LA,69,Will buy again,1
+61,162663,Bachelor,Houston,94,Will buy again,1
+34,41303,Master,Phoenix,89,I love this product,1
+55,191633,High School,Chicago,88,I love this product,1
+24,101719,PhD,Houston,98,Average experience,1
+63,129616,Master,LA,72,Not as expected,1
+30,154165,Bachelor,Houston,96,Average experience,1
+57,116231,PhD,New York,81,I love this product,1
+59,37314,High School,New York,96,Will buy again,1
+26,49623,Master,Phoenix,82,Average experience,1
+67,135228,Master,Phoenix,95,Not as expected,0
+44,194202,Master,Chicago,54,Average experience,1
+19,127624,PhD,Houston,92,This is terrible,1
+22,187364,Bachelor,New York,97,Average experience,1
+46,141785,Bachelor,Phoenix,83,I love this product,1
+54,116206,Master,Houston,89,Will buy again,1
+55,99274,High School,Phoenix,60,Will buy again,1
+36,163541,High School,Phoenix,99,I love this product,1
+25,83947,Bachelor,New York,52,This is terrible,1
+65,183606,High School,New York,82,I love this product,1
+62,78874,Bachelor,Phoenix,60,Average experience,1
+18,79708,Master,LA,65,I love this product,1
+39,104553,Bachelor,Phoenix,67,I love this product,1
+69,98344,Bachelor,Phoenix,79,This is terrible,1
+34,79138,Master,Chicago,97,Average experience,1
+24,77638,High School,Chicago,59,Not as expected,0
+42,108249,Bachelor,Chicago,67,Not as expected,1
+62,135865,Bachelor,LA,87,Will buy again,1
+21,32719,Master,LA,68,I love this product,1
+53,183962,High School,Phoenix,85,Will buy again,1
+23,197581,Bachelor,Chicago,62,This is terrible,1
+48,72534,Master,LA,95,Not as expected,1
+36,122241,Bachelor,New York,52,I love this product,1
+61,179859,PhD,Phoenix,59,This is terrible,1
+56,156209,Master,Houston,87,This is terrible,1
+44,122124,High School,Phoenix,50,I love this product,1
+27,121659,High School,Houston,76,This is terrible,0
+43,194134,High School,Chicago,95,I love this product,1
+36,105713,High School,Houston,57,I love this product,1
+56,105418,Bachelor,Chicago,95,Average experience,0
+20,158232,Bachelor,New York,91,Will buy again,1
+62,195904,High School,Houston,66,This is terrible,1
+30,193038,High School,Phoenix,58,This is terrible,1
+67,174059,High School,Chicago,55,Average experience,0
+45,198383,Bachelor,Phoenix,92,Average experience,1
+37,61575,High School,LA,74,Average experience,1
+45,93852,High School,Chicago,88,Not as expected,0
+25,162079,PhD,Houston,98,Not as expected,1
+58,106242,PhD,Chicago,77,Not as expected,0
+56,59257,High School,Phoenix,82,I love this product,1
+18,174353,Master,New York,86,This is terrible,1
+20,91246,High School,Chicago,58,Will buy again,1
+30,31435,PhD,Houston,67,I love this product,1
+45,121357,Master,LA,70,This is terrible,1
+66,187732,Master,New York,51,This is terrible,1
+42,166156,High School,LA,92,Average experience,1
+50,174579,PhD,Chicago,87,Average experience,1
+55,113807,PhD,Phoenix,89,I love this product,1
+23,145953,Master,Phoenix,85,Average experience,1
+61,168563,High School,Houston,99,This is terrible,1
+62,153797,Bachelor,Phoenix,92,Average experience,1
+49,93888,Bachelor,New York,86,Not as expected,1
+62,103609,PhD,Phoenix,64,Average experience,1
+64,39077,Bachelor,Houston,77,This is terrible,1
+38,50953,PhD,Chicago,67,I love this product,1
+33,144682,PhD,Chicago,83,Will buy again,1
+38,97889,PhD,Phoenix,71,Average experience,1
+28,184893,Bachelor,LA,60,This is terrible,1
+54,198639,PhD,Chicago,62,Will buy again,1
+53,145374,Master,Phoenix,53,Will buy again,1
+52,54860,High School,Houston,71,Not as expected,1
+36,182267,High School,Phoenix,56,Will buy again,1
+37,107475,PhD,Chicago,92,This is terrible,0
+35,117266,High School,Houston,73,This is terrible,1
+64,182499,Bachelor,Phoenix,53,Average experience,1
+58,130732,Bachelor,New York,77,Average experience,1
+66,57083,High School,Houston,64,Average experience,1
+31,87372,Bachelor,New York,50,Will buy again,1
+32,153786,High School,LA,52,Will buy again,1
+48,37813,High School,Houston,63,Not as expected,1
+18,61598,High School,New York,87,Average experience,1
+20,123106,PhD,Chicago,99,I love this product,1
+33,57082,High School,Chicago,50,Not as expected,0
+40,59241,PhD,LA,87,I love this product,1
+28,41745,High School,Houston,87,Will buy again,1
+29,56029,High School,Houston,70,Not as expected,0
+27,174097,High School,Houston,97,Not as expected,1
+49,153395,Bachelor,LA,78,This is terrible,1
+33,175360,PhD,Houston,54,Will buy again,1
+25,119186,PhD,Chicago,98,Will buy again,1
+55,167612,High School,New York,59,Not as expected,1
+29,127768,High School,Chicago,77,Will buy again,1
+41,71846,Bachelor,Chicago,70,Not as expected,1
+45,105932,Bachelor,New York,99,This is terrible,1
+25,178554,Bachelor,Chicago,56,Not as expected,1
+45,53411,PhD,LA,52,Will buy again,1
+53,108797,PhD,New York,94,Will buy again,1
+43,82307,PhD,Chicago,96,Not as expected,1
+25,164165,High School,Phoenix,69,Not as expected,1
+67,52042,PhD,Chicago,68,Not as expected,0
+45,82930,Master,LA,84,Average experience,1
+45,127883,Master,Houston,53,Will buy again,1
+54,63756,Bachelor,Chicago,54,Will buy again,1
+58,83268,PhD,Houston,50,Average experience,1
+53,189674,Master,Phoenix,53,Not as expected,1
+44,78901,Bachelor,Chicago,61,This is terrible,1
+34,129986,PhD,New York,76,Not as expected,1
+26,193268,High School,Houston,91,Not as expected,1
+50,158386,Master,Phoenix,72,Average experience,1
+37,35626,High School,New York,74,Will buy again,1
+30,168496,PhD,New York,70,Not as expected,1
+45,42857,Master,New York,73,Will buy again,1
+65,181054,PhD,New York,74,I love this product,1
+46,163052,High School,Chicago,94,Will buy again,1
+30,56431,Master,Chicago,95,This is terrible,1
+63,114976,High School,Chicago,81,This is terrible,1
+52,112711,PhD,Phoenix,81,Not as expected,1
+23,56385,PhD,Phoenix,54,Will buy again,1
+35,199230,High School,Phoenix,85,Not as expected,1
+68,184091,Master,LA,95,Average experience,1
+22,48639,High School,Phoenix,91,This is terrible,1
+64,115530,PhD,Chicago,98,Not as expected,1
+42,51563,High School,Chicago,91,Average experience,1
+19,145672,PhD,LA,88,Not as expected,1
+27,166848,High School,LA,65,Will buy again,1
+47,197516,Master,Phoenix,82,Will buy again,1
+67,169783,Master,Houston,98,Will buy again,0
+62,112970,High School,LA,70,Will buy again,0
+22,115553,High School,New York,58,I love this product,1
+50,191779,Master,Chicago,55,Average experience,1
+18,112879,PhD,New York,94,Average experience,1
+35,199899,Master,Chicago,84,Will buy again,1
+49,166727,PhD,Chicago,88,I love this product,1
+64,74859,High School,LA,71,Will buy again,1
+66,82098,High School,LA,90,I love this product,1
+28,176323,PhD,New York,54,Will buy again,1
+38,152413,High School,Chicago,91,This is terrible,1
+43,30526,PhD,New York,72,This is terrible,1
+42,98760,Bachelor,Houston,66,Not as expected,1
+39,77837,Master,New York,61,Will buy again,1
+44,41536,Bachelor,Phoenix,72,Average experience,1
+66,58541,PhD,New York,65,Not as expected,1
+30,109083,Master,Phoenix,52,This is terrible,0
+50,64531,PhD,Phoenix,79,Will buy again,1
+51,38712,Master,Phoenix,71,Not as expected,1
+58,134101,Master,Houston,58,Will buy again,1
+52,95455,Master,New York,78,This is terrible,1
+18,104744,Master,New York,96,Not as expected,1
+38,159749,PhD,Houston,86,This is terrible,1
+65,35109,Master,Chicago,72,I love this product,1
+23,79268,Master,LA,62,This is terrible,1
+45,84615,Bachelor,New York,81,Will buy again,1
+34,112503,High School,LA,95,Average experience,1
+22,190831,High School,Houston,96,This is terrible,0
+48,115708,Bachelor,Chicago,97,Average experience,1
+22,132471,Bachelor,Chicago,72,I love this product,1
+55,187661,PhD,Chicago,94,Not as expected,1
+20,191087,PhD,Houston,66,Not as expected,1
+40,190081,PhD,Phoenix,89,Average experience,1
+54,113309,Bachelor,Phoenix,70,Not as expected,1
+54,156446,Bachelor,LA,51,This is terrible,1
+27,136661,Master,Phoenix,86,Average experience,1
+27,187215,PhD,Phoenix,55,Will buy again,1
+36,36154,PhD,Chicago,93,This is terrible,1
+34,182876,PhD,Chicago,67,This is terrible,0
+38,94288,High School,LA,79,This is terrible,1
+31,81195,Master,New York,71,Will buy again,1
+26,50581,PhD,LA,82,I love this product,1
+63,60087,PhD,LA,79,Not as expected,1
+18,194053,PhD,Houston,66,Average experience,1
+68,99298,High School,Houston,92,I love this product,1
+62,76167,High School,LA,81,Average experience,1
+30,69499,Bachelor,LA,91,Not as expected,1
+21,155816,Master,LA,63,Will buy again,1
+18,199631,Bachelor,Phoenix,59,This is terrible,1
+66,126347,Master,Houston,96,This is terrible,0
+57,78787,High School,LA,85,Will buy again,1
+49,65488,PhD,Chicago,83,I love this product,1
+51,104441,Bachelor,Chicago,58,I love this product,1
+45,52431,PhD,Phoenix,91,Average experience,1
+48,91681,Bachelor,Phoenix,77,Will buy again,1
+25,152720,High School,New York,60,I love this product,1
+56,79153,High School,New York,63,Will buy again,1
+43,36368,High School,New York,88,Not as expected,1
+51,188496,Bachelor,Phoenix,96,This is terrible,1
+20,142360,Master,Phoenix,68,This is terrible,1
+67,142755,Bachelor,Phoenix,64,This is terrible,1
+29,86985,Master,Chicago,77,Will buy again,1
+18,80069,Bachelor,Phoenix,73,Will buy again,1
+61,82326,Bachelor,Chicago,57,Average experience,1
+22,138737,High School,New York,92,This is terrible,1
+47,184470,PhD,New York,58,Average experience,1
+47,80861,PhD,New York,96,This is terrible,1
+34,105897,Master,LA,82,Average experience,1
+65,157118,PhD,LA,82,Average experience,1
+64,98577,Bachelor,Houston,68,Not as expected,1
+40,39078,Bachelor,Houston,52,Average experience,1
+32,186075,High School,Houston,59,Will buy again,1
+54,92768,High School,LA,89,Average experience,1
+38,81047,PhD,LA,96,This is terrible,1
+31,101626,Master,Houston,91,Average experience,1
+19,87660,PhD,Houston,50,I love this product,0
+28,162997,PhD,Phoenix,78,This is terrible,1
+68,147832,PhD,Houston,99,I love this product,1
+56,160406,PhD,Phoenix,83,This is terrible,1
+55,155150,Bachelor,Chicago,62,Will buy again,1
+51,187087,Master,LA,50,Will buy again,1
+55,63320,Bachelor,Houston,83,Will buy again,1
+67,94881,Master,LA,78,I love this product,1
+51,120827,High School,LA,97,Not as expected,1
+35,132215,PhD,LA,96,This is terrible,1
+47,187361,Bachelor,Chicago,62,Will buy again,1
+32,164461,Master,New York,97,This is terrible,1
+44,186755,High School,Houston,98,I love this product,0
+68,174701,High School,New York,78,Not as expected,1
+51,91550,PhD,New York,88,I love this product,1
+69,54826,Master,New York,73,This is terrible,1
+55,130734,Bachelor,LA,75,Not as expected,0
+50,187702,PhD,Phoenix,66,Not as expected,1
+41,128511,Bachelor,LA,56,I love this product,1
+32,41653,High School,LA,62,Will buy again,0
+47,189033,Bachelor,New York,54,This is terrible,0
+59,111941,Bachelor,LA,75,Average experience,1
+68,63662,PhD,New York,98,Average experience,1
+34,128818,Bachelor,Phoenix,52,I love this product,1
+22,182360,PhD,Houston,56,This is terrible,1
+46,125081,High School,New York,98,This is terrible,1
+21,66877,PhD,Phoenix,88,I love this product,1
+27,141562,PhD,Houston,50,This is terrible,0
+34,176385,Master,Chicago,98,Will buy again,1
+27,102715,Bachelor,New York,66,I love this product,1
+34,171398,High School,New York,92,Will buy again,1
+37,140091,PhD,Chicago,74,This is terrible,1
+41,162632,High School,Chicago,52,I love this product,1
+22,109148,Master,New York,64,This is terrible,1
+51,113186,Bachelor,Chicago,78,I love this product,0
+23,187817,PhD,LA,92,This is terrible,1
+19,192962,Bachelor,Houston,81,Will buy again,1
+30,181094,Master,Houston,75,Will buy again,0
+60,153629,Master,Houston,65,This is terrible,0
+60,100316,High School,LA,74,I love this product,1
+65,58380,PhD,Chicago,77,Average experience,1
+28,140198,High School,Phoenix,58,Will buy again,0
+68,32356,Master,Chicago,50,Will buy again,1
+64,100326,Bachelor,New York,78,Average experience,1
+40,122447,High School,Houston,71,This is terrible,1
+33,144994,High School,Chicago,65,I love this product,1
+48,50049,Bachelor,Phoenix,90,This is terrible,0
+28,135361,High School,New York,93,Not as expected,1
+33,46082,Bachelor,LA,90,Will buy again,1
+25,30661,PhD,LA,56,Not as expected,1
+21,198484,Bachelor,Phoenix,63,Will buy again,1
+57,32920,PhD,New York,78,Will buy again,1
+21,109561,Bachelor,Houston,68,Not as expected,1
+42,38946,Master,Chicago,68,Not as expected,1
+20,46309,Master,New York,51,This is terrible,0
+49,85230,PhD,LA,90,Not as expected,1
+20,141822,PhD,Phoenix,94,This is terrible,1
+44,191099,Master,Phoenix,64,This is terrible,1
+46,142340,PhD,Chicago,52,This is terrible,1
+49,89321,Bachelor,Phoenix,60,Will buy again,1
+67,162028,Bachelor,Phoenix,95,Will buy again,1
+68,104131,Master,New York,79,Not as expected,1
+36,55963,High School,Houston,89,Will buy again,1
+38,131757,Bachelor,Chicago,67,Not as expected,1
+22,129259,PhD,New York,97,Will buy again,1
+35,69063,High School,Houston,51,I love this product,0
+45,144225,High School,New York,81,I love this product,1
+59,146400,Bachelor,New York,57,Not as expected,1
+39,110818,Bachelor,Phoenix,71,Will buy again,1
+38,34703,High School,Houston,55,Will buy again,0
+23,102099,High School,Chicago,61,This is terrible,1
+18,186921,Master,Chicago,96,Average experience,1
+22,192932,PhD,Houston,89,Not as expected,1
+58,61585,Master,Phoenix,85,Average experience,1
+29,183087,Bachelor,LA,64,Average experience,1
+43,73585,Master,New York,77,Not as expected,1
+63,56958,Master,Phoenix,98,Will buy again,1
+51,56017,Master,Houston,94,Not as expected,1
+66,154677,Master,New York,67,Average experience,1
+31,173273,PhD,Chicago,51,Will buy again,0
+43,59426,PhD,LA,62,I love this product,0
+62,47778,High School,Chicago,94,Not as expected,1
+44,72229,Bachelor,Houston,64,Not as expected,1
+26,116652,Master,New York,69,Will buy again,1
+43,158267,High School,Houston,78,I love this product,0
+64,156503,High School,New York,91,I love this product,1
+39,114878,High School,Phoenix,78,Will buy again,1
+64,87056,PhD,LA,52,This is terrible,1
+47,188562,Master,Phoenix,68,Not as expected,1
+60,49975,Master,Phoenix,52,Not as expected,1
+65,187795,Bachelor,Houston,63,Average experience,1
+34,184351,Master,LA,89,Will buy again,1
+43,172633,Master,New York,53,Average experience,1
+53,118397,High School,New York,60,Average experience,1
+18,63142,Bachelor,Chicago,80,I love this product,0
+25,56916,Master,New York,92,Not as expected,1
+66,94324,PhD,Houston,81,Average experience,1
+52,155932,Master,Phoenix,76,I love this product,1
+69,165720,High School,Phoenix,79,Will buy again,1
+32,196205,PhD,Phoenix,92,Average experience,1
+64,126059,High School,LA,51,Not as expected,1
+39,128317,Master,New York,98,Average experience,1
+31,65046,PhD,Houston,58,Will buy again,1
+43,131459,Bachelor,LA,77,Average experience,1
+45,75893,Bachelor,Chicago,80,Not as expected,1
+40,131520,PhD,Houston,83,I love this product,1
+31,155818,PhD,Houston,64,Not as expected,1
+41,91272,High School,Houston,97,I love this product,1
+19,97649,PhD,Phoenix,74,This is terrible,0
+62,94674,High School,Houston,85,Not as expected,1
+43,174832,Master,New York,57,Not as expected,1
+31,182999,High School,Houston,58,Will buy again,1
+68,116475,PhD,Phoenix,86,Average experience,1
+24,91367,PhD,Houston,97,I love this product,1
+20,173660,Master,Chicago,94,I love this product,1
+64,151750,PhD,Chicago,88,Will buy again,1
+40,148154,PhD,Phoenix,81,Will buy again,1
+63,74738,Bachelor,New York,66,Average experience,1
+60,63397,Bachelor,New York,84,Average experience,1
+64,112189,Master,LA,86,Not as expected,0
+62,106367,High School,Phoenix,68,This is terrible,0
+35,150585,Bachelor,Houston,93,Average experience,1
+55,106619,High School,Phoenix,78,Will buy again,1

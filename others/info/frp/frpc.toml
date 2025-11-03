@@ -1,0 +1,11 @@
+# ~/frp/frpc.toml
+serverAddr = "159.255.36.113"
+serverPort = 7000
+
+# Пример: проброс локального Next.js (порт 3000) через TCP
+[[proxies]]
+name = "nextjs"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 3001
+remotePort = 3001
