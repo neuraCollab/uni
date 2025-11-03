@@ -3,3 +3,4 @@ dataset_seg
 neuro-pytorch
 *.zip
 *.tar
+model_unet_seg.tar
