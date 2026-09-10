@@ -31,6 +31,14 @@ checkpoints/
 data/
 datasets/
 
+# Study app (Vite/React) — build/deps, never commit
+node_modules/
+dist/
+*.local
+
+# Local Claude Code session state — not part of the repo
+.claude/
+
 # OS / editor
 .DS_Store
 Thumbs.db

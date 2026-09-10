@@ -23,8 +23,6 @@ Most interview prep material is either too shallow (a flashcard with no reasonin
 | [`machine-learning/`](machine-learning/README.md) | Linear models & regularization, trees/ensembles, clustering, preprocessing, model evaluation, hyperparameter optimization |
 | [`statistics/`](statistics/README.md) | Probability, distributions, hypothesis testing, confidence intervals, A/B testing |
 | [`deep-learning/`](deep-learning/README.md) | PyTorch fundamentals, CNNs/segmentation, RNNs, VAEs, transfer learning, regularization, attention/transformers |
-| [`ml-system-design/`](ml-system-design/README.md) | Data/training/serving pipelines, batch vs online inference, monitoring, drift, versioning |
-| [`ml-engineering/`](ml-engineering/README.md) | Deployment, Docker, APIs, testing, CI/CD, Spark, databases |
 
 Every note that has one follows a similar shape (adapted to the material, never forced): **What is it? → Why? → How does it work? → Example → When to use / when not → Common interview questions → Common mistakes → Related topics.** Algorithm notes specifically follow **Key Clues → Pattern → Algorithm**, because recognizing the pattern *is* the skill being tested.
 
@@ -32,12 +30,11 @@ Every note that has one follows a similar shape (adapted to the material, never 
 
 This repo replaced a university coursework archive. Material that had real interview value was extracted, translated, fixed where buggy, and rewritten as standalone notes — university-specific cruft (lab reports, grades, personal data, generated build artifacts) was removed entirely, not archived. A few notes are explicitly anchored to real bugs found in the original source code during migration (a data-leakage bug, a `StratifiedKFold`-on-regression bug, a crash in a from-scratch clustering algorithm) and kept as worked "spot the mistake" examples — those are marked inline.
 
-Sections with little or no original source material (SQL, Statistics, most of Algorithms, most of Python fundamentals, ML System Design) were written from scratch to fill the gap, since the goal is a complete interview-prep base, not just a repackaged archive.
+Sections with little or no original source material (SQL, Statistics, most of Algorithms, most of Python fundamentals) were written from scratch to fill the gap, since the goal is a complete interview-prep base, not just a repackaged archive.
 
 ## Roadmap / what's thin
 
 - **Algorithms**: pattern notes and data structures are in place; the `leetcode/` folder is scaffolding only — solved problems get added over time.
-- **ML System Design**: currently one broad `README.md`; will split into per-topic notes as it grows.
 - **Deep Learning**: PyTorch-primary; a few notes lean on TensorFlow-sourced material for concepts (regularization, hyperparameter tuning, embeddings) that had no PyTorch source — the ideas are framework-agnostic, noted where that's the case.
 - Cheat sheets (single-page-per-domain condensed versions) haven't been built yet — planned once the underlying notes stabilize.
 

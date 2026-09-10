@@ -66,4 +66,4 @@ The strongest-covered corner of this KB — start here if you only have time for
 
 If you're cramming: **regularization → logistic regression → classification metrics → cross-validation → data leakage → bias-variance → trees/ensembles → clustering overview → hyperparameter optimization.** That's the path most DS/ML interviews actually probe.
 
-Related: [Statistics](../statistics/README.md) for the probability/hypothesis-testing foundations these notes assume · [Deep Learning](../deep-learning/README.md) for neural-network-specific material · [ML System Design](../ml-system-design/README.md) for how a model becomes a production system.
+Related: [Statistics](../statistics/README.md) for the probability/hypothesis-testing foundations these notes assume · [Deep Learning](../deep-learning/README.md) for neural-network-specific material.

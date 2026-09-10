@@ -8,17 +8,17 @@ Build a static, single-page (or statically-routed multi-page) web application th
 
 ## Critical: use the entire repository, not a summary
 
-**Do not summarize this repository and build the interface from the summary.** Parse and ingest every `.md` file under `algorithms/`, `python/`, `sql/`, `machine-learning/`, `statistics/`, `deep-learning/`, `ml-system-design/`, and `ml-engineering/` — all of it, not just the `README.md` index files. The index files are navigation aids, not content; the actual notes are in the leaf files they link to (e.g. `machine-learning/linear-models/regularization.md`, `algorithms/patterns/sliding-window.md`). If you only ingest the READMEs you will produce an app with empty or near-empty content pages — verify your file list against the actual directory tree before generating anything.
+**Do not summarize this repository and build the interface from the summary.** Parse and ingest every `.md` file under `algorithms/`, `python/`, `sql/`, `machine-learning/`, `statistics/`, and `deep-learning/` — all of it, not just the `README.md` index files. The index files are navigation aids, not content; the actual notes are in the leaf files they link to (e.g. `machine-learning/linear-models/regularization.md`, `algorithms/patterns/sliding-window.md`). If you only ingest the READMEs you will produce an app with empty or near-empty content pages — verify your file list against the actual directory tree before generating anything.
 
 Also ingest the code files under each `*/code/` subdirectory (e.g. `machine-learning/clustering/code/*.py`, `deep-learning/pytorch/code/*.py`) — several notes reference specific functions/bugs/fixes in that code by name, and the study interface should be able to show the referenced snippet alongside the note that discusses it, not just link out to a file the user has to open separately.
 
 ## What the repository actually contains (verify this yourself by listing files, don't trust this count staying accurate)
 
-Eight top-level sections, each with a `README.md` index and topic-specific notes below it. Most notes follow (loosely, adapted per topic): **What is it? → Why? → How does it work? → Example → When to use / when not → Common interview questions → Common mistakes → Related topics.** Algorithm pattern notes specifically follow **Recognition (key clues) → Pattern → Template → Example Problems → Common Mistakes → Complexity → Related Patterns.**
+Six top-level sections, each with a `README.md` index and topic-specific notes below it. Most notes follow (loosely, adapted per topic): **What is it? → Why? → How does it work? → Example → When to use / when not → Common interview questions → Common mistakes → Related topics.** Algorithm pattern notes specifically follow **Recognition (key clues) → Pattern → Template → Example Problems → Common Mistakes → Complexity → Related Patterns.**
 
 ## What the interface should do
 
-1. **Navigation matching the repo structure** — the 8 top-level sections as the primary nav, sub-navigation within each matching the actual subdirectories (e.g. inside Machine Learning: Linear Models, Kernel Methods, Trees & Ensembles, Clustering, Preprocessing, Model Evaluation).
+1. **Navigation matching the repo structure** — the 6 top-level sections as the primary nav, sub-navigation within each matching the actual subdirectories (e.g. inside Machine Learning: Linear Models, Kernel Methods, Trees & Ensembles, Clustering, Preprocessing, Model Evaluation).
 2. **Render every note's actual content** — headings, code blocks (with syntax highlighting), tables, and internal links. Internal markdown links between notes (e.g. `[Ridge Regression](../linear-models/regularization.md)`) must resolve to in-app navigation, not broken links or external URLs.
 3. **A "pattern recognition" mode for `algorithms/`** specifically: surface the "Key clues" / "Recognition" section of each pattern note as a quiz — show clues from a problem statement, ask the user to name the pattern, reveal the answer plus the linked template. This is the stated purpose of that section's structure; don't flatten it into a plain document viewer.
 4. **A quick-revision / cram mode** — each section's `README.md` states a "quick revision order"; surface that as a guided sequential review path, not just a link list.
@@ -35,4 +35,4 @@ Eight top-level sections, each with a `README.md` index and topic-specific notes
 
 ## If content looks thin somewhere
 
-Some notes (currently: parts of `ml-system-design/`, the `algorithms/leetcode/` folder) are intentionally smaller/scaffolding — reflect that honestly in the UI (e.g. a "growing" or "in progress" indicator) rather than padding them with invented content to match other sections' length.
+Some notes (currently: the `algorithms/leetcode/` folder) are intentionally smaller/scaffolding — reflect that honestly in the UI (e.g. a "growing" or "in progress" indicator) rather than padding them with invented content to match other sections' length.
