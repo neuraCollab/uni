@@ -4,7 +4,8 @@ Interview-cram notes on neural networks, covering fundamentals, architectures, a
 
 ## Fundamentals
 
-- [Neural Networks & Backpropagation](fundamentals/neural-networks-backprop.md) — forward/backward pass, the chain rule, why non-linear activations matter. Code: [`simple_mlp.py`](pytorch/code/simple_mlp.py).
+- [Neural Networks & Backpropagation](fundamentals/neural-networks-backprop.md) — forward/backward pass, the chain rule, why non-linear activations matter, the precise Jacobian-transpose statement of backprop, activation function reference table.
+- [Weight Initialization](fundamentals/weight-initialization.md) — why all-zeros init fails (symmetry), naive random init's vanishing/exploding problem, Xavier/Glorot, He initialization.
 - [Optimization: SGD, Momentum, RMSprop, Adam](fundamentals/optimization-sgd-adam.md) — gradient descent variants, learning rate schedules, batch size / generalization-gap tradeoff.
 
 ## PyTorch

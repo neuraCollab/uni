@@ -33,6 +33,77 @@ factor related to their average pairwise correlation, not by `1/N` alone.
 Bagging supplies the "many different training sets" half; feature
 subsampling supplies the "and don't let them agree on structure" half.
 
+## The formal bagging argument (why averaging reduces variance)
+
+Bagging (bootstrap aggregation) trains `k` base algorithms `b_i(x, X_i)` on
+`k` bootstrap resamples `X_1, ..., X_k` of the training set and averages
+them:
+
+```
+a(x) = (1/k) * (b_1(x, X_1) + b_2(x, X_2) + ... + b_k(x, X_k))
+```
+
+Two claims follow directly from this construction (see
+[bias-variance-tradeoff.md](../model-evaluation/bias-variance-tradeoff.md)
+for the full formal decomposition these refer to):
+
+- **Bias is unchanged.** Expectation is linear, so `E[a(x, X)]` is just the
+  average of the `k` base models' expectations. Averaging identically
+  distributed estimators doesn't shift their expected value — if each tree
+  is (say) slightly biased downward on average, the average of many such
+  trees is biased downward by the same amount. Bagging never fixes a model
+  that's systematically wrong.
+- **Variance shrinks — if and only if the base models don't correlate.**
+  For `k` i.i.d. random variables with variance `σ²` each, the variance of
+  their average is `σ²/k` — this is the ideal case bagging is chasing.
+  Bagging's implicit assumption is that `cov(b_i(x, X_i), b_j(x, X_j)) ≈ 0`
+  for `i ≠ j`. In the ideal (zero-correlation) case you get the full `1/k`
+  variance reduction; the more correlated the base learners are, the less
+  variance reduction you actually get, because averaging correlated
+  variables can't cancel their shared error component.
+
+**In practice, trees trained on bootstrap resamples of the *same* dataset
+are not independent** — they overlap heavily (each bootstrap sample still
+contains ~63% of the same rows) and, left alone, will tend to rediscover the
+same dominant splits near the root. That's a direct violation of bagging's
+"don't correlate" assumption, and it's exactly why Random Forest adds
+**random feature subsampling on top of bagging**: restricting each split to
+a random subset of `n < N` features forces different trees down different
+structural paths, lowering `cov(b_i, b_j)` and pushing the realized variance
+reduction closer to the ideal `1/k`. Bagging alone gives you *some*
+decorrelation (different resamples); feature subsampling gives you a lot
+more (different candidate splits), which is why RF reliably outperforms
+plain bagged trees.
+
+**The tradeoff this creates:**
+
+- **Tree depth** — deeper trees fit the training data more closely, which
+  lowers each individual tree's bias but raises its variance (a classic
+  single-tree bias-variance tradeoff, see [Decision Trees](decision-trees.md)).
+  RF typically lets trees grow deep/unpruned, because...
+- **...averaging over many trees is what controls variance instead of
+  pruning each tree.** RF intentionally uses high-variance, low-bias base
+  learners (deep trees) and leans on ensemble averaging to bring variance
+  down, rather than constraining each tree individually the way you would a
+  standalone tree.
+- **`n_features` per split (`max_features`)** — fewer candidate features per
+  split means *less correlation between trees* (more decorrelation, closer
+  to the ideal `1/k`), at the cost of each individual split being weaker
+  (a tree might be forced to use a less-informative feature), which can
+  raise the bias of each tree slightly. More candidate features per split
+  means more correlation between trees (closer to plain bagging) but
+  stronger individual splits. `max_features` is the knob that trades off
+  "how decorrelated are the trees" against "how good is each tree on its
+  own."
+- **Number of trees (`n_estimators`)** — more trees only keeps helping
+  while they're not too correlated; past a point extra trees mostly average
+  out sampling noise without reducing variance further, so validation error
+  vs. `n_estimators` plateaus rather than degrading (unlike boosting rounds).
+  In practice: plot validation error against `n_estimators` and pick the
+  point where the curve flattens, then weigh any further tiny gains against
+  training/inference cost — there's rarely a reason to keep adding trees
+  once the curve is flat.
+
 ## Out-of-bag (OOB) error
 
 Because each tree only sees ~63% of rows (bootstrap sampling), the remaining
@@ -134,3 +205,9 @@ print("OOB score:", rf.oob_score_)
 # high-stakes -- it isn't biased toward high-cardinality features.
 result = permutation_importance(rf, X_test, y_test, n_repeats=10, random_state=42)
 ```
+
+See also: [Gradient Boosting](gradient-boosting-catboost-lgbm.md) (sequential
+trees that reduce bias instead of averaging independent ones) and
+[Stacking & Blending](stacking-blending.md) (combining different model
+*types* via a meta-model, rather than many trees of the same type via
+voting/averaging).

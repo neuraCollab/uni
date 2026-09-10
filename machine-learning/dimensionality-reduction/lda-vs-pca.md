@@ -160,3 +160,7 @@ X_lda = lda.fit(X, y).transform(X)
 
 See also: [Classification Metrics](../model-evaluation/classification-metrics.md)
 for evaluating a classifier built on top of either projection.
+
+For the full derivation of LDA/QDA from Bayes' rule and Gaussian
+class-conditional densities, see
+[Generative Classification: GDA, QDA, LDA](../probabilistic-ml/generative-classification-gda-lda.md).

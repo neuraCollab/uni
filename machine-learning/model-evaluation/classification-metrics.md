@@ -114,6 +114,17 @@ disease detection, rare defect classes); weighted if you just want an
 overall picture proportional to real-world class frequency; micro when doing
 multi-label classification.
 
+**Formal definitions** (`K` = number of classes): for **micro-averaging**,
+first average (equivalently, sum) the per-class confusion-matrix counts —
+`TP_micro = (1/K) * sum_k TP_k`, and likewise for `FP`/`FN`/`TN` — then
+compute precision/recall/F1 *once* from those pooled counts. For
+**macro-averaging**, compute precision/recall/F1 separately for each class
+first, then average the `K` resulting scores. The two differ exactly in
+*when* the averaging happens — before or after the ratio is computed — which
+is why macro tanks on a poorly-served minority class while micro barely
+notices it (a small class contributes only a small slice of the pooled
+`TP`/`FP`/`FN` totals).
+
 ### When accuracy is misleading
 
 On an imbalanced dataset, a model that always predicts the majority class
@@ -144,6 +155,141 @@ precision directly, is far more sensitive to exactly this failure mode and
 is the standard recommendation for rare-positive-class problems (fraud,
 disease screening, anomaly detection).
 
+A related reason PR-AUC is preferred under imbalance: a random classifier's
+**PR-AUC baseline equals the fraction of positives in the dataset** (e.g.
+0.01 if 1% of objects are positive), which visibly reflects how hard the
+problem is. A random classifier's **ROC-AUC baseline is always 0.5**,
+regardless of class balance — so 0.5 tells you nothing about how skewed the
+data is, while a low PR-AUC baseline is itself informative.
+
+#### AUC-ROC as a pairwise ranking probability
+
+There's a more precise, threshold-free definition than "the area under the
+ROC curve": **AUC-ROC equals the fraction of (positive, negative) pairs that
+the model ranks correctly** — equivalently, the probability that a randomly
+chosen positive example receives a higher score than a randomly chosen
+negative example:
+
+```
+AUC = sum_i sum_j I[y_i < y_j] * I'[a_i < a_j]
+      -----------------------------------------
+             sum_i sum_j I[y_i < y_j]
+
+I[y_i < y_j]  = 1 if y_i < y_j, else 0       # y in {0, 1}; counts (negative, positive) label pairs
+I'[a_i < a_j] = 1    if a_i < a_j
+              = 0.5  if a_i == a_j
+              = 0    if a_i > a_j
+```
+
+where `a_i` is the model's score on object `i`, `y_i` its true label, and
+`q` the number of test objects. This is exactly the statistic behind the
+Mann-Whitney U test — AUC-ROC is a **rank statistic**, which is why it is
+invariant to any monotonic transformation of the scores (in particular,
+calibrating a model — see [Probability Calibration](calibration.md) — never
+changes its AUC-ROC, since calibration only reshapes the score axis, not the
+ranking).
+
+**Gini coefficient**, sometimes reported alongside AUC-ROC (common in credit
+scoring):
+
+```
+Gini = 2 * AUC_ROC - 1
+```
+
+#### Computing AUC from discrete points: the trapezoidal rule
+
+In practice a ROC or PR curve is a finite set of points (one per distinct
+threshold), not a continuous function, so "area under the curve" is computed
+by summing the trapezoids between consecutive points. For two adjacent
+points `(r_{k-1}, p_{k-1})` and `(r_k, p_k)` on a precision-recall curve, the
+line segment between them is:
+
+```
+p(r) = p_{k-1} + (p_k - p_{k-1}) / (r_k - r_{k-1}) * (r - r_{k-1})
+```
+
+Integrating that line and summing over all `m` segments gives the
+trapezoidal-rule AUC:
+
+```
+AUC = integral_0^1 p(r) dr  ~=  sum_{k=1}^m (p_{k-1} + p_k) / 2 * (r_k - r_{k-1})
+```
+
+The same construction applies to the ROC curve (swap precision/recall for
+TPR/FPR) — it's just "area of a trapezoid," repeated for every pair of
+adjacent threshold points, which is exactly what
+`sklearn.metrics.roc_auc_score` / `auc()` compute under the hood.
+
+#### Average Precision: exact formula
+
+**Average Precision (AP)** approximates the same integral for the PR curve,
+but is built directly from the step function traced out as the
+classification threshold is lowered one prediction at a time — recall only
+increases as the threshold drops (`TP` grows), while precision moves
+non-monotonically:
+
+```
+AP = integral_0^1 p(r) dr  ~=  sum_{k=1}^m p_k * (r_k - r_{k-1})
+```
+
+which is equivalent to averaging precision at the rank position of each true
+positive:
+
+```
+AP = (1/P) * sum_{i=1}^P Precision@k_i
+```
+
+where `P` is the total number of positive examples and `Precision@k_i` is
+precision computed at the rank of the `i`-th positive example, once
+predictions are sorted by descending score. This rank-based form is how
+`sklearn.metrics.average_precision_score` actually computes AP, and it's why
+"AP" and "PR-AUC" are often used interchangeably even though AP is a
+slightly different (unweighted-by-width, left-Riemann-sum-like)
+approximation than the trapezoidal rule above.
+
+### Log-loss (cross-entropy) and probability quality
+
+*How good are the predicted **probabilities**, not just the final class
+label?* Log-loss (a.k.a. binary cross-entropy) scores probabilistic
+predictions directly, and is what logistic regression (and most neural-net
+classifiers) actually optimizes during training:
+
+```
+LogLoss = -(1/N) * sum_i [ y_i * log(y_hat_i) + (1 - y_i) * log(1 - y_hat_i) ]
+```
+
+where `y_hat_i = sigma(z_i)`, `z_i = w^T x_i + b`, and the sigmoid function
+and its derivative are:
+
+```
+sigma(z)  = 1 / (1 + e^(-z))
+sigma'(z) = sigma(z) * (1 - sigma(z))
+```
+
+**Why log-loss, specifically, and not some other penalty for wrong
+probabilities?** Model each label `y_i` as a Bernoulli random variable with
+success probability `y_hat_i`. The likelihood of the observed labels is
+`prod_i y_hat_i^(y_i) * (1 - y_hat_i)^(1 - y_i)`. Taking the negative log
+(to turn the product into a sum, and maximization into minimization) gives
+exactly the log-loss formula above — so **minimizing log-loss is maximum
+likelihood estimation (MLE)** for a Bernoulli/sigmoid model. See
+[MLE and Loss Functions](../probabilistic-ml/mle-and-loss-functions.md) for
+the general MLE-to-loss-function derivation (squared error falls out of a
+Gaussian likelihood the same way log-loss falls out of a Bernoulli one).
+
+The clean derivative `sigma'(z) = sigma(z)(1 - sigma(z))` is why logistic
+regression's gradient has such a simple closed form
+(`gradient = X^T (y_hat - y)`), and it's the same identity reused in
+backprop through any sigmoid output layer.
+
+**Unlike accuracy/precision/recall/F1 or even AUC-ROC**, log-loss is
+sensitive to *how confident* a wrong prediction was — predicting 0.99 for
+the wrong class is punished far more than predicting 0.51. This makes
+log-loss a **calibration-sensitive** metric: a model can have perfect
+ranking (AUC-ROC = 1) and still post a poor log-loss if its predicted
+probabilities are miscalibrated. See [Probability Calibration](calibration.md)
+for how to measure and fix that directly.
+
 ## When to use / when not
 
 Use precision when false positives are the expensive error; recall when
@@ -167,6 +313,14 @@ and you care about ranking quality independent of the operating threshold.
   appropriate? (Pick the point on the PR/ROC curve matching your
   cost-of-error tradeoff, e.g. maximize F1, or fix recall at a business
   requirement and read off precision.)
+- Give the pairwise/probabilistic definition of AUC-ROC. Why is it invariant
+  to monotonic transformations of the model's scores?
+- Why is a random classifier's PR-AUC baseline equal to the positive-class
+  fraction, while its ROC-AUC baseline is always 0.5?
+- Derive log-loss from the Bernoulli likelihood. Why is log-loss described
+  as "MLE for a sigmoid model"?
+- Can a model have AUC-ROC = 1 but bad log-loss? What does that tell you
+  about the model?
 
 ## Common mistakes
 
@@ -200,8 +354,17 @@ print(classification_report(y_val, y_pred))  # precision/recall/F1/support + mac
 
 print("ROC-AUC:", roc_auc_score(y_val, y_proba))
 print("PR-AUC (average precision):", average_precision_score(y_val, y_proba))
+
+from sklearn.metrics import log_loss
+print("Log-loss:", log_loss(y_val, y_proba))
 ```
 
 See also: [Imbalanced Data](../imbalanced-data.md),
 [Cross-Validation](cross-validation.md),
-[Bias-Variance Tradeoff](bias-variance-tradeoff.md).
+[Bias-Variance Tradeoff](bias-variance-tradeoff.md),
+[Regression Metrics](regression-metrics.md) — the continuous-target
+analogue of everything above,
+[Probability Calibration](calibration.md) — for when the actual predicted
+probability value matters, not just ranking,
+[MLE and Loss Functions](../probabilistic-ml/mle-and-loss-functions.md) —
+why log-loss is the "correct" loss for a probabilistic classifier.

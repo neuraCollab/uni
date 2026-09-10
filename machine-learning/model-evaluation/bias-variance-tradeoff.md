@@ -55,6 +55,93 @@ neighbor classifier, or an unregularized high-degree polynomial) has low
 bias (can fit almost anything) but high variance (a different training
 sample gives a very different fitted function).
 
+### The formal decomposition
+
+Let `y(x, ε) = f(x) + ε` be the true (noisy) data-generating process at
+point `x` — `f(x)` is the true deterministic target function and `ε` is
+irreducible label noise. Let `a(x, X)` be a model trained on training set
+`X` and evaluated at point `x`. The expected squared error, averaged over
+both the randomness in the training set `X` and the label noise `ε`, is:
+
+```
+Q(a) = E_x E_{X,ε} [ y(x, ε) - a(x, X) ]²
+```
+
+This decomposes exactly into three additive terms:
+
+```
+Q(a) = E_x[ bias_x(a)² ] + E_x[ Var_x(a(x, X)) ] + σ²
+```
+
+where:
+
+```
+bias_x(a(x, X)) = f(x) - E_X[ a(x, X) ]
+
+Var_x[a(x, X)] = E_X[ (a(x, X) - E_X[a(x, X)])² ]
+
+σ² = E_x E_ε[ (y(x, ε) - f(x))² ]
+```
+
+In plain language:
+
+- **`bias_x`** — the gap between the true function `f(x)` and the *average*
+  prediction the model would make at `x` if you retrained it over and over
+  on fresh training sets drawn from the same distribution. This is
+  systematic error: it doesn't go away no matter how many times you
+  retrain, because it comes from the model family itself being unable to
+  represent `f(x)` (e.g. a linear model trying to fit a curve). More
+  training data doesn't fix it.
+- **`Var_x`** — how much `a(x, X)` itself swings around its own average as
+  `X` varies. This is sensitivity to *which particular training set you
+  happened to draw* — not a property of the model family being wrong, but
+  of the model being unstable given finite, resampled data. More training
+  data shrinks this (less sensitivity to any one sample); more model
+  flexibility (deeper trees, fewer constraints) grows it.
+- **`σ²`** — the variance of the label noise `ε` itself, independent of any
+  model or training set. This is the error floor: even the true function
+  `f(x)` itself, predicted perfectly, still misses `y(x, ε)` by `ε` on
+  average. No amount of modeling, data, or tuning reduces this term — it's
+  a property of the problem, not the model.
+
+Squaring and summing these three (rather than, say, adding `bias` and
+`variance` directly) is exactly why the informal version of this framework
+is usually written `Bias² + Variance + Noise` — the derivation above is
+where that square on `bias` actually comes from.
+
+### Where bagging and boosting sit in this decomposition
+
+This decomposition is also the precise reason bagging and boosting behave
+oppositely on the bias/variance split (see
+[Random Forest](../trees-ensembles/random-forest.md) and
+[Gradient Boosting](../trees-ensembles/gradient-boosting-catboost-lgbm.md)
+for the full derivations):
+
+- **Bagging** (Random Forest) averages `k` base models trained on bootstrap
+  resamples. Averaging is linear, so it doesn't shift `E_X[a(x,X)]` —
+  `bias_x` is untouched. But averaging *does* shrink `Var_x[a(x,X)]`,
+  toward a `1/k` factor under the (approximate) assumption that the base
+  models don't correlate. Net effect: **the variance term shrinks, the
+  bias term is unchanged**, `σ²` is untouched (it's a property of the data,
+  not reachable by any model). This is why bagging almost never hurts and
+  reliably helps a high-variance base learner like an unpruned tree, but
+  can't fix a base learner that's systematically wrong.
+- **Boosting** (gradient boosting/CatBoost/LightGBM/XGBoost) trains each
+  new base learner explicitly to reduce the *remaining* error of the
+  current ensemble (fit to the anti-gradient of the loss). By construction
+  this directly attacks the systematic part of the error each round — it
+  **reduces the bias term**. But because rounds are added greedily and
+  depend on each other, boosting can also inflate variance if left
+  unchecked (too many rounds, too little shrinkage/regularization start
+  fitting noise in the residuals) — which is why boosting needs early
+  stopping and careful regularization in a way bagging doesn't.
+
+This is the clean answer to the classic interview framing "why does
+bagging help with overfitting, but too much boosting can hurt": they're
+acting on different terms of the same decomposition — bagging trades
+nothing for a variance reduction, boosting trades a (controllable) variance
+increase for a bias reduction.
+
 ### What affects each
 
 | Lever | Effect on bias | Effect on variance |

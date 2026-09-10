@@ -19,6 +19,30 @@ Both add a penalty on weight magnitude to the loss, discouraging large weights (
 - **L2 (weight decay)**: penalty `lambda * sum(w^2)`. Shrinks weights smoothly toward zero but rarely exactly to zero. The most common choice for deep nets.
 - **L1**: penalty `lambda * sum(|w|)`. Pushes many weights to exactly zero — produces sparse weight vectors, useful for implicit feature selection.
 
+In "add a penalty term to the loss" form, weight decay is written directly as:
+
+```
+L_new = L + λ||W||_2
+```
+
+Note on notation: some sources (and the terse form above) write the penalty as `||W||_2`, the norm itself; in practice essentially every framework implements the *squared* L2 norm, `||W||_2^2 = sum(w^2)` (i.e. the `lambda * sum(w^2)` above) — its gradient is the simple, everywhere-differentiable `2*w`, whereas the un-squared norm has an undefined gradient at `W = 0`. When someone says "L2 regularization" or "weight decay" in an interview, they mean the squared form unless they say otherwise.
+
+### Activation-based (sparsity) regularization
+
+A less commonly taught alternative/supplement to dropout: instead of penalizing weight magnitude, penalize a hidden unit's *average activation* for deviating from some target sparsity level `p` (a small number, e.g. `0.05`) — pushing each unit to fire rarely rather than on most inputs:
+
+```
+L_new = L - λ * Σ_k [ p * log(p̂_k) ]
+```
+
+where `p̂_k = f(x_i, θ)` is unit `k`'s average activation over the batch (or a running estimate over training). This is a simplified/one-sided version of the fuller KL-divergence sparsity penalty used in sparse autoencoders:
+
+```
+Σ_k [ p*log(p/p̂_k) + (1-p)*log((1-p)/(1-p̂_k)) ]     # KL(Bernoulli(p) || Bernoulli(p̂_k)), summed over hidden units
+```
+
+which penalizes both "unit fires too often" (`p̂_k` too high) and "unit fires too rarely" (`p̂_k` too low) relative to the target `p`. Less common than dropout/weight-decay in modern practice, but worth recognizing — it's the standard regularizer in sparse autoencoders and shows up in interview questions about representation learning.
+
 Source example (Keras):
 ```python
 layers.Dense(512, activation='elu', kernel_regularizer=regularizers.l2(0.001))
@@ -71,6 +95,37 @@ This is exactly how the archived Tiny/Small/Medium/Large comparison avoids each 
 ### Data augmentation
 
 Applying label-preserving random transformations to training inputs (crops, flips, color jitter for images; synonym replacement/back-translation for text) so the model sees more effective variation without collecting more labeled data. Directly attacks overfitting by making memorization harder — the model rarely sees the exact same input twice.
+
+### Batch normalization — the exact mechanics
+
+BatchNorm is two steps applied per-channel/per-feature, not one. Given a mini-batch with mean `μ` and variance `σ²` (computed over the batch, for a given channel):
+
+**Step 1 — normalize** to zero mean / unit variance:
+
+```
+x^(k+1) = (x^k - μ) / sqrt(σ² + ε)
+```
+
+(`ε` is a small constant for numerical stability, avoiding division by zero.)
+
+**Step 2 — running statistics for inference.** Training sees only mini-batch statistics, but at inference time there may be no batch (or a batch of 1) to compute `μ`/`σ²` from — so during training, BatchNorm also maintains an exponential moving average of the batch statistics, updated at *every* training forward pass:
+
+```
+μ*  = λ * μ*  + (1 - λ) * μ
+σ*² = λ * σ*² + (1 - λ) * σ²
+```
+
+where `λ` is a momentum hyperparameter of the layer. At inference time, the layer normalizes using the stored `μ*`/`σ*²` instead of recomputing batch statistics. **This is exactly why `model.eval()` matters for BatchNorm, not just Dropout** (see the train/eval section above) — in eval mode, BatchNorm switches from "normalize using this batch's own mean/variance" to "normalize using the running `μ*`/`σ*²` accumulated during training." Forgetting `model.eval()` means BatchNorm keeps normalizing against whatever tiny/skewed batch happens to be in front of it at inference.
+
+**Step 3 — learned affine scale-and-shift.** This is the detail most often left out when people explain BatchNorm in interviews: normalization doesn't end at step 1. A learned, per-channel affine transform is applied *after* normalizing:
+
+```
+y = γ * x_norm + β
+```
+
+`γ` (scale) and `β` (shift) are learned parameters, one pair per channel/feature, trained by backprop exactly like any other weight (in PyTorch, `BatchNorm1d/2d/3d.weight` is `γ` and `.bias` is `β`). This gives the network an escape hatch: if forcing a channel to exactly zero-mean/unit-variance is *not* actually optimal, the network can learn a `γ`/`β` that undoes the normalization (e.g. `γ = sqrt(σ²+ε)`, `β = μ` recovers the original scale/shift exactly). So BatchNorm is "normalize, then let the network learn whatever mean/scale it actually wants" — not a hard constraint to zero-mean/unit-variance.
+
+(Notation note: some handwritten/lecture sources write this step as `x^(k+2) = β·x^(k+1) + γ`, i.e. with `β` as the multiplicative/scale term and `γ` as the additive/shift term — the reverse of the naming convention above. The names are arbitrary; what's invariant is that there's one learned multiplicative and one learned additive parameter per channel, applied after normalization. This note uses the more common `γ`-scale/`β`-shift convention, matching the original BatchNorm paper and PyTorch's attribute names.)
 
 ### Batch normalization as an implicit regularizer
 

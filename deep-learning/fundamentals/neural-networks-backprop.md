@@ -38,6 +38,63 @@ Each layer only needs to know the gradient flowing in from the layer *after* it 
 
 **Why activations must be non-linear.** If every activation were the identity (or any linear function), the whole network would collapse algebraically into a single linear transform: `W2 @ (W1 @ x) = (W2 @ W1) @ x = W_combined @ x`. No matter how many layers you stack, the network could only ever represent what a single linear layer represents. Non-linearities (ReLU, tanh, sigmoid, GELU, ...) are what let depth actually buy you extra representational power.
 
+### The precise statement: backprop is the chain rule via transposed Jacobians
+
+The hand-wavy "each layer only needs its local derivative and the upstream gradient" claim above has an exact statement behind it. Consider a composition `f = g ∘ h`: `h` maps a point `x0` to `h(x0)`, and `g` is applied after it. Write `D_{x0}h` for the Jacobian of `h` at `x0` (a linear map). The first-order approximation of the composition near `x0` is:
+
+```
+[D_{h(x0)}g]([D_{x0}h](x - x0))
+  = < ∇_{h(x0)}g, [D_{x0}h](x - x0) >        # a directional derivative equals the inner product with the gradient
+  = < [D_{x0}h]ᵀ ∇_{h(x0)}g, x - x0 >         # move the linear map [D_{x0}h] to the other operand of the inner product — that move is exactly what "transpose" means
+```
+
+Matching this against the definition of the gradient of `f` at `x0` gives:
+
+```
+∇_{x0} f = [D_{x0}h]ᵀ ∇_{h(x0)}g
+```
+
+In words: **the gradient flowing backward through a layer is that layer's local Jacobian, transposed, applied to the gradient flowing in from the layer after it.** ("Transpose" here is really the adjoint of the linear map `D_{x0}h`; in finite dimensions with the standard inner product, the adjoint of a linear map is just its matrix transpose — which is why this is stated as "transpose the local Jacobian.") Every line in the informal derivation above is an instance of this — `dL/dz = dL/dy_hat * activation'(z)` is `Jᵀ∇g` for a diagonal (elementwise) Jacobian, and `dL/da1 = W2^T @ dL/dz2` is `Jᵀ∇g` for the Jacobian of a linear layer, which is just the weight matrix itself — hence the `W2^T`.
+
+**The general backprop algorithm, stated precisely:**
+
+1. **Forward pass**: compute and store every intermediate representation `x = x_0, x_1, ..., x_m = y`. These stored activations are needed again during step 2 — this is exactly why activation memory (not just parameter count) drives training memory usage.
+2. **Backward pass**: compute every gradient by walking the graph in reverse (from the loss back to the inputs), applying `∇f = Jᵀ∇g` at each node using that node's local Jacobian.
+3. **Optimization step**: hand the computed gradients to an optimizer (SGD, Adam, ...) to update the parameters — see [`optimization-sgd-adam.md`](optimization-sgd-adam.md).
+
+### Worked example: a small computational graph
+
+Take input `X` (shape `n×D` — `n` examples, `D` features), a first weight matrix `U` (`D×k`), an elementwise nonlinearity `g`, a second weight vector `W` (`k×1`), a second elementwise nonlinearity `h`, and a loss `L`:
+
+**Forward pass** (shapes annotated at each node):
+
+```
+X (n×D) --·U (D×k)--> XU (n×k) --g--> g(XU) (n×k) --·W (k×1)--> g(XU)W (n×1) --h--> h(g(XU)W) (n×1) --L(·,y)--> loss (scalar)
+```
+
+**Backward pass** — walk the same graph right to left. At each node, apply that node's local Jacobian, transposed, to the gradient arriving from its right — a matrix-multiply Jacobian transposes to the matrix transpose (`Wᵀ`, `Uᵀ`); an elementwise-nonlinearity Jacobian is diagonal, so "transpose and multiply" reduces to an elementwise product (`⊙`):
+
+```
+∇_ŷ L                                  gradient of the loss w.r.t. ŷ = h(g(XU)W)
+  δ := ∇_ŷL ⊙ h'(g(XU)W)               back through h: elementwise product with h's local derivative      (n×1)
+  dL/dW      = g(XU)ᵀ δ                back through "·W": local Jacobian is W itself → transpose to g(XU)ᵀ  (k×1, matches W)
+  dL/d[g(XU)] = δ Wᵀ                   back through "·W" the other way: gradient w.r.t. the left operand   (n×k)
+  dL/d[XU]    = [δ Wᵀ] ⊙ g'(XU)        back through g: elementwise product with g's local derivative        (n×k)
+  dL/dU       = Xᵀ [dL/d[XU]]          back through "·U": local Jacobian is U itself → transpose to Xᵀ      (D×k, matches U)
+```
+
+Every arrow above is literally `∇f = Jᵀ∇g` from the previous section: `Wᵀ` and `Uᵀ` are exact transposes of the forward-pass weight matrices, and the `⊙ g'(·)` / `⊙ h'(·)` terms are the (diagonal) Jacobians of the elementwise nonlinearities — a diagonal matrix transposed is itself, which is why those steps collapse to plain elementwise multiplication.
+
+## Activation functions reference
+
+| Function | Formula | Notes |
+|---|---|---|
+| Sigmoid | `1 / (1 + e^-x)` | Saturates for large `\|x\|` → vanishing gradient far from 0. Still the standard choice for binary-classification output layers (squashes to a `(0,1)` probability). |
+| ReLU | `max(0, x)` | No saturation for `x > 0`, cheap to compute and differentiate. Suffers from "dying ReLU": if a neuron's input is always negative, its gradient is always exactly 0 and it never updates again. |
+| Leaky ReLU | `max(αx, x)`, with `0 < α < 1` a **fixed hyperparameter** | Fixes dying ReLU by giving a small nonzero gradient on the negative side; `α` is chosen ahead of time, not learned. |
+| PReLU (Parametric ReLU) | `max(αx, x)`, with `0 < α < 1` | Same functional form as Leaky ReLU, but `α` is a **learned parameter**, trained via backprop like any weight (typically one `α` per channel) — the network picks its own negative-side slope instead of it being fixed. |
+| Tanh | `(e^x - e^-x) / (e^x + e^-x)` | Zero-centered (unlike sigmoid), but still saturates at both ends → vanishing gradient for large `\|x\|`. |
+
 ## Example
 
 ```python

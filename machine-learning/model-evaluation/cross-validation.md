@@ -18,6 +18,49 @@ you use nearly all the data for both training and evaluation across folds.
 
 ## How does it work?
 
+### Hold-out (train/test split)
+
+The simplest form of validation: split the data once into a training set
+and a test set (a common default is 80% train / 20% test), fit on the
+training set, score once on the test set.
+
+```python
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, shuffle=True, random_state=42
+)
+```
+
+`shuffle=True` is the **default** because most tabular datasets are treated
+as i.i.d. rows with no meaningful order — shuffling before splitting avoids
+handing the test set a biased slice (e.g. if the data happens to be sorted
+by label, by time, or by some other column). **Turn it off
+(`shuffle=False`) only for time-ordered data.** For a time series,
+shuffling before splitting lets rows from *after* the test period land in
+the training set — the model ends up training on the future and being
+evaluated on the past it has effectively already seen, which produces an
+optimistic, leaky estimate. Use a fixed chronological cutoff instead (or
+[`TimeSeriesSplit`](#time-series-split-walk-forward-validation) below).
+
+In practice a three-way split (`train` / `val` / `test`) is the more useful
+default once you're tuning anything at all:
+
+- **`train`** — fit the model's parameters.
+- **`val`** — the "practice test," used repeatedly while developing: to
+  select hyperparameters, compare architectures/preprocessing choices, and
+  decide when to stop. You're allowed to look at this score as many times
+  as you like.
+- **`test`** — touched exactly once, at the very end, to report the number
+  you'll actually trust as an estimate of real-world generalization.
+  Because no decision was ever made based on it, it isn't biased by the
+  tuning process the way the val score is.
+
+Tuning against `val` and then *also* reporting `val` as your final
+performance number gives an optimistically biased estimate — see [Data
+Leakage](data-leakage.md) and [Nested CV](#nested-cv) below for the
+cross-validation version of the same problem.
+
 ### K-Fold
 
 Split the data into `k` equal-ish chunks ("folds"). For each of the `k`
@@ -32,6 +75,40 @@ from sklearn.model_selection import KFold, cross_val_score
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
 scores = cross_val_score(model, X, y, cv=kf, scoring="neg_root_mean_squared_error")
 ```
+
+#### What do you do with the K trained models?
+
+Running K-Fold leaves you with `k` trained models and `k` scores — but
+usually you need a single final artifact (or a single final prediction).
+There are three options here, and they answer different questions:
+
+1. **Pick the best-scoring hyperparameter config, then retrain one model on
+   the full dataset.** This is the standard move when CV is being used for
+   **hyperparameter tuning**: the `k` folds exist purely to get a
+   low-variance *estimate* of how well a given configuration generalizes —
+   not to produce `k` models you intend to keep. Once you know which
+   configuration scored best on average, discard the `k` fold-restricted
+   models and refit that exact configuration on 100% of the training data;
+   more data almost always beats keeping a model that only saw `(k-1)/k` of
+   it. This is what `GridSearchCV`/`RandomizedSearchCV` do automatically
+   under `refit=True`.
+2. **Average the predictions of all `k` models** (or otherwise ensemble
+   them). This treats CV as a mini-bagging technique: each fold's model saw
+   a different slice of the training data, so their errors are partially
+   decorrelated, and averaging reduces prediction variance the same way
+   bagging does. This is the more common choice in Kaggle-style pipelines,
+   where the deliverable is *predictions on a fixed test set* rather than a
+   single reusable model object, and the small ensembling bump is worth
+   paying `k`x the inference cost for.
+3. **Just keep one of the fold models** (e.g. the first one). Occasionally
+   used as a cheap shortcut when a full refit is expensive and fold-to-fold
+   variance is known to be small — but it throws away the other `k-1`
+   folds' worth of training signal and is rarely the right default; treat
+   it as a fallback, not a strategy.
+
+Rule of thumb: **tuning hyperparameters → retrain one final model on all the
+data (option 1). Optimizing leaderboard/production predictions directly →
+average or ensemble the fold models (option 2).**
 
 ### Stratified K-Fold
 
@@ -122,7 +199,11 @@ print("Honest generalization estimate:", nested_scores.mean())
 
 ## When to use / when not
 
-Use K-Fold/Stratified K-Fold as the default for i.i.d. tabular data. Use LOO
+A plain hold-out split is fine for large datasets and quick iteration where
+a single val score is enough to compare candidates cheaply. Use
+K-Fold/Stratified K-Fold as the default for i.i.d. tabular data when the
+dataset is small enough that a single split's variance would be misleading.
+Use LOO
 only on small datasets or when a cheap closed-form exists. Use time-series
 split whenever rows are temporally ordered — never plain shuffled K-Fold.
 Use nested CV whenever you need a defensible, non-overoptimistic estimate of
@@ -133,6 +214,10 @@ iteration where a slightly optimistic estimate doesn't matter yet.
 ## Common interview questions
 
 - Why does a single train/test split give a noisier estimate than K-Fold CV?
+- Why is `shuffle=True` the default for `train_test_split`/`KFold`, and when
+  would you explicitly turn it off?
+- After running K-Fold CV, do you keep all `k` models, retrain one on
+  everything, or average their predictions? What determines which?
 - When would you use Stratified K-Fold instead of plain K-Fold?
 - What goes wrong if you use `StratifiedKFold` on a regression target?
 - Why can't you shuffle time-series data before cross-validating?

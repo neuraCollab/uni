@@ -34,6 +34,93 @@ threshold, and pick the split that most improves a purity criterion:
 Recurse on each child until a stopping condition is hit (max depth, minimum
 samples per leaf/split, or no split improves purity).
 
+### Impurity criteria — the exact math
+
+A node `Xm` is split into a left/right child `Xl`, `Xr`. The split quality
+(how much a candidate split improves purity) is:
+
+```
+Q(Xm, split) = H(Xm) - (|Xl| / |Xm|) * H(Xl) - (|Xr| / |Xm|) * H(Xr)
+```
+
+i.e. impurity of the parent minus the size-weighted impurity of the children.
+The algorithm searches over features and thresholds for the split that
+maximizes `Q`. `H(Xm)` itself is defined differently for regression and
+classification:
+
+**Regression — variance of the targets in the node.** Predicting a constant
+`c` for every point in `Xm`, the MSE-minimizing constant is the node mean
+`ȳ_m`, so plugging it back in gives:
+
+```
+H(Xm) = (1 / |Xm|) * Σ_{(xi, yi) ∈ Xm} (yi - ȳ_m)²,   ȳ_m = (1/|Xm|) * Σ yi
+```
+
+This is exactly the variance-reduction / MSE criterion already listed above,
+just written out with the node mean made explicit.
+
+**Classification — everything is a function of `p_k`.** Let `p_k` be the
+fraction of class-`k` points in the current node:
+
+```
+p_k = (1 / |Xm|) * Σ_{(xi, yi) ∈ Xm} [yi = k]
+```
+
+- **Misclassification error**: predict the majority class, so the error rate
+  is `1 - p_k*` where `p_k* = max_k p_k`:
+
+  ```
+  H(Xm) = 1 - p_k*
+  ```
+
+- **Entropy**: fit a categorical distribution `c_1, ..., c_K` (`Σ c_k = 1`) to
+  the node by maximum likelihood — minimize the average negative
+  log-likelihood of the labels under `c`:
+
+  ```
+  H(Xm) = min_{Σ c_k = 1}  -(1/|Xm|) * Σ_{(xi,yi)∈Xm} Σ_k [yi=k] * log(c_k)
+  ```
+
+  The minimizer is `c_k = p_k` (the empirical class frequencies), which gives
+  the classical Shannon entropy:
+
+  ```
+  H(Xm) = -Σ_{k=1}^K p_k * log(p_k)
+  ```
+
+- **Gini criterion**: instead of a log-likelihood objective, treat each
+  class indicator `[yi = k]` as a regression target and fit a constant `c_k`
+  per class by least squares (again `Σ c_k = 1`):
+
+  ```
+  H(Xm) = min_{Σ c_k = 1}  (1/|Xm|) * Σ_{(xi,yi)∈Xm} Σ_k (c_k - [yi=k])²
+  ```
+
+  The minimizer is again `c_k = p_k`, which gives:
+
+  ```
+  H(Xm) = Σ_{k=1}^K p_k * (1 - p_k)   (= 1 - Σ p_k²)
+  ```
+
+  matching the Gini formula above. So Gini is literally the squared-error
+  relaxation of the same fitting problem entropy solves with a log-loss
+  relaxation — both are smooth surrogates for the 0/1 misclassification
+  objective, fit via a "predict the class probabilities in this node"
+  sub-problem.
+
+**Why entropy/Gini instead of raw misclassification error?** All three are
+zero for a pure node and maximal for a 50/50 node, but misclassification
+error is piecewise-linear in `p_k` and often *flat* between two candidate
+splits that both keep the majority class the same — it can't tell a split
+that pushes the minority class from 40% to 30% apart from one that pushes it
+from 40% to 10%, even though the second is clearly better progress. Entropy
+and Gini are strictly concave in `p_k`, so they're strictly sensitive to any
+change in the class-probability mix, which makes them decrease monotonically
+as a split gets purer and gives the tree-growing search a usable gradient
+signal to optimize instead of a flat one. In practice Gini and entropy pick
+almost identical splits; misclassification error is mostly used as the
+*final reported metric*, not as the *split-selection criterion*.
+
 **Overfitting and pruning** — an unconstrained tree grows until every leaf is
 pure (often one training point per leaf), which memorizes noise. Controls:
 
