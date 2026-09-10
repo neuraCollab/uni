@@ -1,123 +1,46 @@
-## «Большие данные и распределённая цифровая платформа» (2024–2027)
+# Interview Prep
 
- Фокус на практических решениях: ML пайплайны, алгоритмы и визуализация, системное программирование под Linux, функциональные и сетевые приложения на Python.
+A personal knowledge base for ML / Data Science / Python / SQL / Algorithms interviews — not a course, not a textbook, not a university archive. Every note is written to be re-read in under two minutes the morning of an interview.
 
+## Why this exists
 
+Most interview prep material is either too shallow (a flashcard with no reasoning) or too deep (a 40-page paper you won't re-read). This repo aims for the middle: enough to actually explain *why* something works, short enough that you'll actually come back to it. It's built from real code — working implementations, real bugs found and fixed along the way, not just theory copied from a textbook.
 
----
+## How to use it
 
-## Структура репозитория
-- `AI/` — ML‑лабы: конкурсные задачи, текстовая классификация, тюнинг (LightGBM, CatBoost)
-- `algos/` — алгоритмы и проекты: C++ классика + Python GUI/Streamlit (TSP, кластеризация)
-- `functional_prog/` — функциональное и параллельное программирование, асинхронный чат, рекомендательная система
-- `linux/` — системное программирование: демон бэкапа (systemd), мониторинг сети/процессов
+1. **Cramming for a specific topic?** Jump straight to the section below.
+2. **Systematic review?** Follow the "quick revision order" listed at the top of each section's `README.md`.
+3. **Given a problem and unsure what to do?** Start at [`algorithms/README.md`](algorithms/README.md) — its clue-to-pattern lookup table is built exactly for that moment.
+4. **Solving LeetCode-style problems as you go?** Use [`algorithms/leetcode/template.md`](algorithms/leetcode/template.md) to write them up — the point is training pattern recognition, not accumulating solved-problem count.
 
+## Structure
 
----
+| Section | What's there |
+|---|---|
+| [`algorithms/`](algorithms/README.md) | Patterns (two pointers, sliding window, DP, backtracking, graphs, ...) organized around *recognizing* a pattern from a problem statement, plus data structures, sorting, and metaheuristics |
+| [`python/`](python/README.md) | OOP, iterators/generators, decorators, context managers, typing, memory model, concurrency/async, common traps |
+| [`sql/`](sql/README.md) | Joins, window functions, CTEs, query execution order, indexing, classic interview problems |
+| [`machine-learning/`](machine-learning/README.md) | Linear models & regularization, trees/ensembles, clustering, preprocessing, model evaluation, hyperparameter optimization |
+| [`statistics/`](statistics/README.md) | Probability, distributions, hypothesis testing, confidence intervals, A/B testing |
+| [`deep-learning/`](deep-learning/README.md) | PyTorch fundamentals, CNNs/segmentation, RNNs, VAEs, transfer learning, regularization, attention/transformers |
+| [`ml-system-design/`](ml-system-design/README.md) | Data/training/serving pipelines, batch vs online inference, monitoring, drift, versioning |
+| [`ml-engineering/`](ml-engineering/README.md) | Deployment, Docker, APIs, testing, CI/CD, Spark, databases |
 
-## Что смотреть в первую очередь (для hr/developers)
-- `algos/4 sem/5 lab/code/clustering_project/` — законченное Streamlit‑приложение с пайплайном и метриками
-- `algos/4 sem/3 lab/code/` — TSP GUI с эвристиками и структурой модулей
-- `AI/` — полный цикл ML: от препроцессинга до сабмитов и моделей
-- `linux/1 lab` и `linux/2 lab` — работа с `systemd`, `scapy`, `iptables`, GUI
+Every note that has one follows a similar shape (adapted to the material, never forced): **What is it? → Why? → How does it work? → Example → When to use / when not → Common interview questions → Common mistakes → Related topics.** Algorithm notes specifically follow **Key Clues → Pattern → Algorithm**, because recognizing the pattern *is* the skill being tested.
 
-Если нужна быстрая демонстрация — напишите, пришлю скринкасты/демо. (контакты внизу страницы)
+## Where the content comes from
 
----
+This repo replaced a university coursework archive. Material that had real interview value was extracted, translated, fixed where buggy, and rewritten as standalone notes — university-specific cruft (lab reports, grades, personal data, generated build artifacts) was removed entirely, not archived. A few notes are explicitly anchored to real bugs found in the original source code during migration (a data-leakage bug, a `StratifiedKFold`-on-regression bug, a crash in a from-scratch clustering algorithm) and kept as worked "spot the mistake" examples — those are marked inline.
 
-## Выделенные проекты (быстрый просмотр)
+Sections with little or no original source material (SQL, Statistics, most of Algorithms, most of Python fundamentals, ML System Design) were written from scratch to fill the gap, since the goal is a complete interview-prep base, not just a repackaged archive.
 
-### 1) AI — учебные ML‑проекты
-Расположение: `AI/`
-- Линейные модели для House Prices, LightGBM с пайплайном и лог‑трансформацией
-- Бинарная классификация (CatBoost/LightGBM) с тюнингом в Optuna
-- Текстовая классификация (TF‑IDF + LogisticRegression), сохранение артефактов `joblib`
+## Roadmap / what's thin
 
-Быстрый старт (Windows PowerShell):
-```powershell
-cd AI
-py -m venv .venv
-./.venv/Scripts/Activate.ps1
-pip install -r requirements.txt
+- **Algorithms**: pattern notes and data structures are in place; the `leetcode/` folder is scaffolding only — solved problems get added over time.
+- **ML System Design**: currently one broad `README.md`; will split into per-topic notes as it grows.
+- **Deep Learning**: PyTorch-primary; a few notes lean on TensorFlow-sourced material for concepts (regularization, hyperparameter tuning, embeddings) that had no PyTorch source — the ideas are framework-agnostic, noted where that's the case.
+- Cheat sheets (single-page-per-domain condensed versions) haven't been built yet — planned once the underlying notes stabilize.
 
-# Примеры запусков
-py "1 lab/linear.py"
-py "1 lab/h2.py"
-py "2 lab/hp.py"
-py "3 lab/tf-idf.py"
-```
+## For AI Studio / auto-generated study interface
 
-### 2) Algos — TSP GUI и Streamlit‑кластерайзер
-Расположение: `algos/4 sem/`
-- `3 lab/code/` — настольный TSP на Tkinter с набором эвристик
-- `5 lab/code/clustering_project/` — Streamlit‑приложение для сравнения алгоритмов кластеризации (CURE, FOREL, ISODATA и др.), метрики Rand/Jaccard/F‑M, YAML‑конфиги
-
-Запуск Streamlit‑проекта:
-```powershell
-cd "algos/4 sem/5 lab/code/clustering_project"
-python -m venv .venv
-./.venv/Scripts/Activate.ps1
-pip install -r requirements.txt
-streamlit run app_streamlit.py
-```
-
-### 3) Linux — демон бэкапа и мониторинг
-Расположение: `linux/`
-- `1 lab/code/backup_daemon.py` + `backup_daemon.service` — пример systemd‑сервиса, конфиг через INI
-- `2 lab/code/checker.py` — мониторинг сети (Scapy + Tkinter) с блокировкой IP через `iptables`
-- `3 lab/code/main.py` — дашборд процессов (psutil + Matplotlib)
-
-Запуск демона (локально):
-```bash
-cd "linux/1 lab/code"
-python backup_config_control.py display       # посмотреть конфиг
-python backup_daemon.py                       # запустить демон
-```
-
-Установка как systemd‑сервис (Linux):
-```bash
-sudo cp backup_daemon.service /etc/systemd/system/backup_daemon.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now backup_daemon.service
-sudo systemctl status backup_daemon.service
-```
-
-Запуск сетевого чекера (требует root):
-```bash
-cd "linux/2 lab/code"
-sudo -E python checker.py
-```
-
----
-
-## Технологии
-- Python 3.10+: NumPy, pandas, scikit‑learn, LightGBM, CatBoost, Optuna, matplotlib, seaborn, psutil, scapy, Tkinter
-- C++17 (STL)
-- Streamlit, Tkinter GUI, YAML‑конфиги
-
----
-
-## Как работать с репозиторием
-Клонирование полностью:
-```bash
-git clone https://github.com/neuraCollab/uni.git
-```
-
-Выборочное клонирование папки (sparse‑checkout), пример для `algos`:
-```bash
-git init uni && cd uni
-git remote add -f origin https://github.com/neuraCollab/uni.git
-git sparse-checkout init --cone
-git sparse-checkout set algos
-git pull origin main
-```
-
-Рекомендации по окружению:
-- Для каждого Python‑подпроекта создавайте отдельный `venv`
-- В Windows используйте PowerShell; в Linux/macOS заменяйте на `python3`/`source`
-
----
-
-## Контакты: 
-- telegram `@vbjgfc`
-- email mihialpersonalemai@gmail.com (редко читаю)
+If you're an AI system generating a study web app from this repository: read **[`AI_STUDIO_PROMPT.md`](AI_STUDIO_PROMPT.md)** first — it specifies how to use the full repository contents, not a summary.

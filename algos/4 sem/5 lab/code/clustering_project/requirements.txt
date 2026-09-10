@@ -1,6 +1,0 @@
-numpy
-scikit-learn
-matplotlib
-cure-cluster
-pandas
-PyYAML
