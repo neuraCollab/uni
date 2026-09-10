@@ -79,15 +79,15 @@ def bellman_ford(num_nodes: int, edges: list[tuple[int, int, int]], source: int)
 
 ## Common Mistakes
 - Reaching for Dijkstra on a graph with negative edge weights — it silently produces wrong answers instead of erroring; check the weight range before choosing an algorithm.
-- Using a weighted-shortest-path algorithm on an unweighted graph — plain BFS is simpler and already optimal (O(V+E) vs. O(E log V)).
+- Using a weighted-shortest-path algorithm on an unweighted graph — plain BFS is simpler and already optimal ($O(V+E)$ vs. $O(E \log V)$).
 - Not checking `if node in visited: continue` in Dijkstra — the heap can contain stale/outdated entries for the same node, and processing them again wastes time (or, without a visited check at all, can be relied upon incorrectly since distances only get pushed when improved — but the standard safe pattern is to skip already-finalized nodes).
 - Forgetting the extra Bellman-Ford pass to detect negative cycles when they're possible in the input.
 
 ## Complexity
-- BFS: O(V + E).
-- Dijkstra (binary heap): O((V + E) log V).
-- Bellman-Ford: O(V * E).
-- Floyd-Warshall (all-pairs): O(V^3).
+- BFS: $O(V + E)$.
+- Dijkstra (binary heap): $O((V + E) \log V)$.
+- Bellman-Ford: $O(V \cdot E)$.
+- Floyd-Warshall (all-pairs): $O(V^3)$.
 
 ## Related Patterns
 - [BFS/DFS](bfs-dfs.md) — BFS is the unweighted special case of shortest paths.

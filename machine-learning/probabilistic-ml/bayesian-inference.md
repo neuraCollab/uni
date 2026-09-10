@@ -2,40 +2,37 @@
 
 ## The frequentist-vs-Bayesian shift
 
-Classical ("frequentist") estimation treats a model parameter `theta` as a
+Classical ("frequentist") estimation treats a model parameter $\theta$ as a
 single fixed but unknown true value, and looks for the one point estimate
 that best explains the data (e.g. maximum likelihood). The Bayesian
 approach makes a fundamental philosophical move: instead of hunting for one
-"correct" value of `theta`, treat `theta` itself as a **random variable**
+"correct" value of $\theta$, treat $\theta$ itself as a **random variable**
 and maintain a full **distribution** over which values are plausible.
 
-- **Prior**, `p(theta)` (also written `p(omega)`, or `p(theta, b)` when the
+- **Prior**, $p(\theta)$ (also written $p(\omega)$, or $p(\theta, b)$ when the
   parameter set includes multiple pieces like weights and a bias): your
-  belief about `theta` *before* seeing any data.
-- **Posterior**, `p(theta | data)`: your updated belief about `theta`
+  belief about $\theta$ *before* seeing any data.
+- **Posterior**, $p(\theta \mid \text{data})$: your updated belief about $\theta$
   *after* seeing data — which values are plausible, and which aren't, given
   what was observed.
 
-Rather than compute one "correct" `theta`, you build the whole distribution
-`p(theta | data)`, and can answer questions like "how confident are we?" or
+Rather than compute one "correct" $\theta$, you build the whole distribution
+$p(\theta \mid \text{data})$, and can answer questions like "how confident are we?" or
 "what's the range of plausible predictions?" — not just "what's the single
 best guess?"
 
 ## Bayes' rule for parameters
 
-```
-p(theta | data) proportional_to  p(data | theta) * p(theta)
-                                  (likelihood)     (prior)
-```
+$$p(\theta \mid \text{data}) \propto \underbrace{p(\text{data} \mid \theta)}_{\text{likelihood}} \, \underbrace{p(\theta)}_{\text{prior}}$$
 
-(The proportionality hides the normalizer `p(data) = integral p(data|theta)
-p(theta) d theta`, which doesn't depend on `theta` and is often the hard
+(The proportionality hides the normalizer $p(\text{data}) = \int p(\text{data}\mid\theta)
+p(\theta)\, d\theta$, which doesn't depend on $\theta$ and is often the hard
 part to compute — see Bayesian model selection below.)
 
 ## Conjugate priors
 
-A prior `p(theta)` is **conjugate** to a likelihood `p(data|theta)` if the
-resulting posterior `p(theta|data)` is in the *same family* of
+A prior $p(\theta)$ is **conjugate** to a likelihood $p(\text{data}\mid\theta)$ if the
+resulting posterior $p(\theta\mid\text{data})$ is in the *same family* of
 distributions as the prior. This matters practically because it turns
 Bayesian updating into simple closed-form arithmetic on the family's own
 parameters, instead of an intractable integral.
@@ -46,7 +43,7 @@ the **exponential family** (see
 for the general exponential-family form and why it's the natural class of
 distributions to reason about here). For a likelihood of exponential-family
 form, you can construct a matching prior with the same functional
-signature — `p(theta) proportional_to (1/h(theta)) * exp(eta^T * theta)` —
+signature — $p(\theta) \propto \frac{1}{h(\theta)} \exp(\eta^\top \theta)$ —
 by a specific recipe tied to the likelihood's sufficient statistics. This
 prior is guaranteed to combine with the likelihood to produce a posterior
 in that same family — a conjugate pair. Classic examples: Beta prior +
@@ -63,16 +60,11 @@ Because the posterior only depends on the prior and the likelihood of the
 data actually seen, Bayesian updating composes naturally: today's posterior
 becomes tomorrow's prior when new data arrives.
 
-```
-p(omega | {x_i, y_i}_{i=1}^M)
-  =  p( {y_i}_{i=N+1}^M | {x_i}_{i=N+1}^M, omega )  *  p(omega | {x_i, y_i}_{i=1}^N)
-     -------------------------------------------------------------------------------
-                          p( {y_i}_{i=N+1}^M | {x_i}_{i=N+1}^M )
-```
+$$p(\omega \mid \{x_i, y_i\}_{i=1}^M) = \frac{p(\{y_i\}_{i=N+1}^M \mid \{x_i\}_{i=N+1}^M, \omega) \cdot p(\omega \mid \{x_i, y_i\}_{i=1}^N)}{p(\{y_i\}_{i=N+1}^M \mid \{x_i\}_{i=N+1}^M)}$$
 
-i.e. the posterior after seeing all `M` points equals: take the posterior
-after the first `N` points as your new *prior*, then apply Bayes' rule
-again using only the likelihood of the *new* batch (`N+1` through `M`).
+i.e. the posterior after seeing all $M$ points equals: take the posterior
+after the first $N$ points as your new *prior*, then apply Bayes' rule
+again using only the likelihood of the *new* batch ($N+1$ through $M$).
 
 An important consistency property falls out of this: the final posterior is
 the **same** regardless of whether you update on the whole dataset at once,
@@ -89,31 +81,26 @@ can afford to compute/store). **Maximum A Posteriori (MAP)** estimation
 collapses the posterior back down to a single point estimate — the most
 probable parameter value under the posterior:
 
-```
-theta_MAP = argmax_theta p(theta | y) = argmax_theta  p(y | theta) * p(theta)
-```
+$$\theta_{\text{MAP}} = \arg\max_\theta p(\theta \mid y) = \arg\max_\theta\, p(y \mid \theta) \cdot p(\theta)$$
 
 This is a direct generalization of maximum likelihood estimation: **MAP
-with a flat (uninformative) prior is exactly MLE** — if `p(theta)` is
-constant, maximizing `p(y|theta)*p(theta)` reduces to maximizing
-`p(y|theta)` alone.
+with a flat (uninformative) prior is exactly MLE** — if $p(\theta)$ is
+constant, maximizing $p(y\mid\theta)p(\theta)$ reduces to maximizing
+$p(y\mid\theta)$ alone.
 
 ### The regularization connection (a favorite interview insight)
 
-Taking `-log` of the MAP objective turns the product into a sum, and turns
-`argmax` into `argmin`:
+Taking $-\log$ of the MAP objective turns the product into a sum, and turns
+$\arg\max$ into $\arg\min$:
 
-```
-theta_MAP = argmin_theta  [ -log p(y|theta) - log p(theta) ]
-                              (data term)      (prior term)
-```
+$$\theta_{\text{MAP}} = \arg\min_\theta \left[ \underbrace{-\log p(y\mid\theta)}_{\text{data term}} \underbrace{- \log p(\theta)}_{\text{prior term}} \right]$$
 
-- If the prior `p(theta)` is **Gaussian** (zero-mean, isotropic), `-log
-  p(theta)` is proportional to `||theta||_2^2` — so MAP under a Gaussian
+- If the prior $p(\theta)$ is **Gaussian** (zero-mean, isotropic), $-\log
+  p(\theta)$ is proportional to $\|\theta\|_2^2$ — so MAP under a Gaussian
   prior is **exactly** equivalent to **L2 / Ridge regularization**, with
   the prior's variance controlling the effective regularization strength.
-- If the prior `p(theta)` is **Laplace** (zero-mean), `-log p(theta)` is
-  proportional to `||theta||_1` — so MAP under a Laplace prior is
+- If the prior $p(\theta)$ is **Laplace** (zero-mean), $-\log p(\theta)$ is
+  proportional to $\|\theta\|_1$ — so MAP under a Laplace prior is
   **exactly** equivalent to **L1 / Lasso regularization**.
 
 This is the cleanest bridge between the Bayesian framework and classical
@@ -128,26 +115,22 @@ Bayesian regression model built on this idea.
 ## Bayesian model selection
 
 The same machinery extends from choosing parameters within a model to
-choosing *between models*. Let `J` be a family of candidate models indexed
-by a discrete `j`. The posterior probability of model `j` given the data is
+choosing *between models*. Let $J$ be a family of candidate models indexed
+by a discrete $j$. The posterior probability of model $j$ given the data is
 
-```
-p(j | y, X) = p(y | X, j) * p(j) / sum_{j' in J} p(j', y | X)
-```
+$$p(j \mid y, X) = \frac{p(y \mid X, j) \cdot p(j)}{\sum_{j' \in J} p(j', y \mid X)}$$
 
 Pick the model with the highest posterior probability as the best. If every
-model is treated as equally likely a priori (`p(j)` uniform over `J`), this
+model is treated as equally likely a priori ($p(j)$ uniform over $J$), this
 reduces to maximizing what's called the **evidence** or **marginal
 likelihood**:
 
-```
-p_j(y | X) = integral  p_j(y | X, omega) * p_j(omega)  d omega
-```
+$$p_j(y \mid X) = \int p_j(y \mid X, \omega) \, p_j(\omega) \, d\omega$$
 
-Crucially, this integrates the model parameters `omega` **out** entirely —
-it is not "plug in the best point estimate `omega_hat` and evaluate the
-likelihood," it's "average the likelihood over every possible `omega`,
-weighted by how plausible that `omega` is under the prior." This integral
+Crucially, this integrates the model parameters $\omega$ **out** entirely —
+it is not "plug in the best point estimate $\hat{\omega}$ and evaluate the
+likelihood," it's "average the likelihood over every possible $\omega$,
+weighted by how plausible that $\omega$ is under the prior." This integral
 is often intractable in closed form, so in practice it's approximated —
 e.g. via a Taylor expansion of the log-likelihood around its mode (the
 **Laplace approximation**).
@@ -159,28 +142,26 @@ stand-in for full evidence-based model comparison — a "penalized
 likelihood" score you compute directly from a fitted model, no integral
 required:
 
-```
-BIC = D * log(N) - 2 * log( p(y | X, omega_hat) )
-```
+$$\text{BIC} = D \log(N) - 2 \log\left( p(y \mid X, \hat{\omega}) \right)$$
 
-- `D` — number of model parameters. The `D * log(N)` term is the
+- $D$ — number of model parameters. The $D \log(N)$ term is the
   **complexity penalty**: more parameters costs more, and the penalty grows
-  with the log of the sample size `N`.
-- `-2 * log p(y|X, omega_hat)` — the **goodness-of-fit** term, evaluated at
-  the fitted (MLE) parameters `omega_hat`: a better fit lowers this term.
+  with the log of the sample size $N$.
+- $-2 \log p(y\mid X, \hat{\omega})$ — the **goodness-of-fit** term, evaluated at
+  the fitted (MLE) parameters $\hat{\omega}$: a better fit lowers this term.
 
 **Lower BIC is better** — you're trading off fit quality against model
 complexity, and BIC formalizes exactly how much fit improvement is "worth"
-one extra parameter as `N` grows.
+one extra parameter as $N$ grows.
 
 **BIC vs. AIC:** the Akaike Information Criterion is a close cousin,
-`AIC = 2*D - 2*log p(y|X,omega_hat)` — same goodness-of-fit term, but a
-complexity penalty of `2*D` instead of `D*log(N)`. Since `log(N) > 2`
-whenever `N > 7`, BIC penalizes extra parameters more harshly than AIC for
-essentially any realistic dataset size, and the gap grows as `N` grows — so
+$\text{AIC} = 2D - 2\log p(y\mid X,\hat{\omega})$ — same goodness-of-fit term, but a
+complexity penalty of $2D$ instead of $D\log(N)$. Since $\log(N) > 2$
+whenever $N > 7$, BIC penalizes extra parameters more harshly than AIC for
+essentially any realistic dataset size, and the gap grows as $N$ grows — so
 BIC systematically favors simpler models more than AIC does, especially on
 large datasets. (AIC is derived from an information-theoretic/predictive
-argument; BIC is derived as a large-`N` approximation to the Bayesian
+argument; BIC is derived as a large-$N$ approximation to the Bayesian
 evidence — different motivations that happen to produce similarly-shaped
 penalized-likelihood formulas.)
 

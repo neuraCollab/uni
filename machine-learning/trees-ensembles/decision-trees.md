@@ -21,9 +21,9 @@ monotonic transforms of a feature don't change anything.
 **Growing the tree** — at each node, try every feature and every candidate
 threshold, and pick the split that most improves a purity criterion:
 
-- **Gini impurity** (classification): `1 - Σ p_i²` over classes in the node.
+- **Gini impurity** (classification): $1 - \sum_i p_i^2$ over classes in the node.
   0 when the node is pure, higher when classes are mixed.
-- **Entropy** (classification): `-Σ p_i log2(p_i)`. Similar shape to Gini,
+- **Entropy** (classification): $-\sum_i p_i \log_2(p_i)$. Similar shape to Gini,
   slightly more expensive to compute, splits chosen are usually near-identical
   in practice.
 - **Information gain** = impurity(parent) − weighted-average impurity(children).
@@ -36,71 +36,55 @@ samples per leaf/split, or no split improves purity).
 
 ### Impurity criteria — the exact math
 
-A node `Xm` is split into a left/right child `Xl`, `Xr`. The split quality
+A node $X_m$ is split into a left/right child $X_l$, $X_r$. The split quality
 (how much a candidate split improves purity) is:
 
-```
-Q(Xm, split) = H(Xm) - (|Xl| / |Xm|) * H(Xl) - (|Xr| / |Xm|) * H(Xr)
-```
+$$Q(X_m, \text{split}) = H(X_m) - \frac{|X_l|}{|X_m|} H(X_l) - \frac{|X_r|}{|X_m|} H(X_r)$$
 
 i.e. impurity of the parent minus the size-weighted impurity of the children.
 The algorithm searches over features and thresholds for the split that
-maximizes `Q`. `H(Xm)` itself is defined differently for regression and
+maximizes $Q$. $H(X_m)$ itself is defined differently for regression and
 classification:
 
 **Regression — variance of the targets in the node.** Predicting a constant
-`c` for every point in `Xm`, the MSE-minimizing constant is the node mean
-`ȳ_m`, so plugging it back in gives:
+$c$ for every point in $X_m$, the MSE-minimizing constant is the node mean
+$\bar{y}_m$, so plugging it back in gives:
 
-```
-H(Xm) = (1 / |Xm|) * Σ_{(xi, yi) ∈ Xm} (yi - ȳ_m)²,   ȳ_m = (1/|Xm|) * Σ yi
-```
+$$H(X_m) = \frac{1}{|X_m|} \sum_{(x_i, y_i) \in X_m} (y_i - \bar{y}_m)^2, \quad \bar{y}_m = \frac{1}{|X_m|} \sum y_i$$
 
 This is exactly the variance-reduction / MSE criterion already listed above,
 just written out with the node mean made explicit.
 
-**Classification — everything is a function of `p_k`.** Let `p_k` be the
-fraction of class-`k` points in the current node:
+**Classification — everything is a function of $p_k$.** Let $p_k$ be the
+fraction of class-$k$ points in the current node:
 
-```
-p_k = (1 / |Xm|) * Σ_{(xi, yi) ∈ Xm} [yi = k]
-```
+$$p_k = \frac{1}{|X_m|} \sum_{(x_i, y_i) \in X_m} \mathbb{1}[y_i = k]$$
 
 - **Misclassification error**: predict the majority class, so the error rate
-  is `1 - p_k*` where `p_k* = max_k p_k`:
+  is $1 - p_k^*$ where $p_k^* = \max_k p_k$:
 
-  ```
-  H(Xm) = 1 - p_k*
-  ```
+  $$H(X_m) = 1 - p_k^*$$
 
-- **Entropy**: fit a categorical distribution `c_1, ..., c_K` (`Σ c_k = 1`) to
+- **Entropy**: fit a categorical distribution $c_1, \ldots, c_K$ ($\sum_k c_k = 1$) to
   the node by maximum likelihood — minimize the average negative
-  log-likelihood of the labels under `c`:
+  log-likelihood of the labels under $c$:
 
-  ```
-  H(Xm) = min_{Σ c_k = 1}  -(1/|Xm|) * Σ_{(xi,yi)∈Xm} Σ_k [yi=k] * log(c_k)
-  ```
+  $$H(X_m) = \min_{\sum_k c_k = 1} \left( -\frac{1}{|X_m|} \sum_{(x_i,y_i)\in X_m} \sum_k \mathbb{1}[y_i=k] \log(c_k) \right)$$
 
-  The minimizer is `c_k = p_k` (the empirical class frequencies), which gives
+  The minimizer is $c_k = p_k$ (the empirical class frequencies), which gives
   the classical Shannon entropy:
 
-  ```
-  H(Xm) = -Σ_{k=1}^K p_k * log(p_k)
-  ```
+  $$H(X_m) = -\sum_{k=1}^{K} p_k \log(p_k)$$
 
 - **Gini criterion**: instead of a log-likelihood objective, treat each
-  class indicator `[yi = k]` as a regression target and fit a constant `c_k`
-  per class by least squares (again `Σ c_k = 1`):
+  class indicator $\mathbb{1}[y_i = k]$ as a regression target and fit a constant $c_k$
+  per class by least squares (again $\sum_k c_k = 1$):
 
-  ```
-  H(Xm) = min_{Σ c_k = 1}  (1/|Xm|) * Σ_{(xi,yi)∈Xm} Σ_k (c_k - [yi=k])²
-  ```
+  $$H(X_m) = \min_{\sum_k c_k = 1} \frac{1}{|X_m|} \sum_{(x_i,y_i)\in X_m} \sum_k (c_k - \mathbb{1}[y_i=k])^2$$
 
-  The minimizer is again `c_k = p_k`, which gives:
+  The minimizer is again $c_k = p_k$, which gives:
 
-  ```
-  H(Xm) = Σ_{k=1}^K p_k * (1 - p_k)   (= 1 - Σ p_k²)
-  ```
+  $$H(X_m) = \sum_{k=1}^{K} p_k(1 - p_k) \quad \left(= 1 - \sum_k p_k^2\right)$$
 
   matching the Gini formula above. So Gini is literally the squared-error
   relaxation of the same fitting problem entropy solves with a log-loss
@@ -110,11 +94,11 @@ p_k = (1 / |Xm|) * Σ_{(xi, yi) ∈ Xm} [yi = k]
 
 **Why entropy/Gini instead of raw misclassification error?** All three are
 zero for a pure node and maximal for a 50/50 node, but misclassification
-error is piecewise-linear in `p_k` and often *flat* between two candidate
+error is piecewise-linear in $p_k$ and often *flat* between two candidate
 splits that both keep the majority class the same — it can't tell a split
 that pushes the minority class from 40% to 30% apart from one that pushes it
 from 40% to 10%, even though the second is clearly better progress. Entropy
-and Gini are strictly concave in `p_k`, so they're strictly sensitive to any
+and Gini are strictly concave in $p_k$, so they're strictly sensitive to any
 change in the class-probability mix, which makes them decrease monotonically
 as a split gets purer and gives the tree-growing search a usable gradient
 signal to optimize instead of a flat one. In practice Gini and entropy pick

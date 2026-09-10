@@ -17,20 +17,22 @@ corrects for this by down-weighting terms that show up everywhere.
 
 ## How does it work?
 
-For a term `t` in document `d`, within a corpus of `N` documents:
+For a term $t$ in document $d$, within a corpus of $N$ documents:
 
-```
-TF(t, d)  = (count of t in d) / (total terms in d)          # how locally important
-IDF(t)    = log( N / (1 + count of documents containing t) )  # how globally rare
-TF-IDF(t, d) = TF(t, d) * IDF(t)
-```
+$$
+\begin{aligned}
+TF(t, d) &= \frac{\text{count of } t \text{ in } d}{\text{total terms in } d} \quad \text{(how locally important)} \\
+IDF(t) &= \log\left(\frac{N}{1 + \text{count of documents containing } t}\right) \quad \text{(how globally rare)} \\
+\text{TF-IDF}(t, d) &= TF(t, d) \cdot IDF(t)
+\end{aligned}
+$$
 
 (scikit-learn's exact smoothing/normalization defaults differ slightly —
 `+1` smoothing on the denominator and log terms to avoid division by zero
 and to keep IDF from being undefined for terms in zero documents — but the
 core idea is the same.)
 
-**Why log-scale IDF:** raw inverse document frequency (`N / df`) would let a
+**Why log-scale IDF:** raw inverse document frequency ($N / df$) would let a
 term that appears in only 1 document out of a million dominate with a weight
 of a million, while a term in half the documents gets a weight of 2 — wildly
 disproportionate to the actual difference in "rarity." The log compresses

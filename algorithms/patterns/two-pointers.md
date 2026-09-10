@@ -6,13 +6,13 @@
 - Asked to find a **pair/triplet** with a target sum, difference, or product.
 - Asked to **remove duplicates in place**, partition, or merge two sorted sequences.
 - Palindrome checks (pointers converging from both ends).
-- "In-place", O(1) extra space is required or implied.
+- "In-place", $O(1)$ extra space is required or implied.
 
 ## Pattern
 Use two indices that move through the array (toward each other, or both forward at different speeds) instead of nested loops, exploiting sortedness or a monotonic relationship to eliminate a whole branch of the search space on each step.
 
 ## Why this works
-On a sorted array, if `a[left] + a[right] > target`, no pair involving the current `right` and anything to its left of `left` can work better than moving `right` down — so we can safely discard one end instead of checking all pairs. This turns an O(n^2) pair search into O(n).
+On a sorted array, if `a[left] + a[right] > target`, no pair involving the current `right` and anything to its left of `left` can work better than moving `right` down — so we can safely discard one end instead of checking all pairs. This turns an $O(n^2)$ pair search into $O(n)$.
 
 ## Template
 ```python
@@ -55,12 +55,12 @@ def remove_duplicates(a: list[int]) -> int:
 - Trapping Rain Water (two pointers variant)
 
 ## Common Mistakes
-- Forgetting the array must be sorted (or sorting it first) before applying the converging-pointer technique — sorting costs O(n log n) and can change the answer if original indices matter (keep an index-value pairing if you need original positions).
+- Forgetting the array must be sorted (or sorting it first) before applying the converging-pointer technique — sorting costs $O(n \log n)$ and can change the answer if original indices matter (keep an index-value pairing if you need original positions).
 - Off-by-one on the `while left < right` vs `left <= right` boundary.
 - Not skipping duplicate values in `3Sum`-style problems, causing duplicate triplets in the output.
 
 ## Complexity
-Time O(n) (or O(n log n) if a sort is required first). Space O(1) extra (excluding output).
+Time $O(n)$ (or $O(n \log n)$ if a sort is required first). Space $O(1)$ extra (excluding output).
 
 ## Related Patterns
 - [Sliding Window](sliding-window.md) — same-direction two pointers with a "window" invariant.

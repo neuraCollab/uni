@@ -17,9 +17,9 @@ fitting this exact kind of transformer in the wrong place.
 
 | Scaler | Transform | Sensitive to outliers? | When to use |
 |---|---|---|---|
-| `StandardScaler` | `(x - mean) / std` → mean 0, unit variance | Yes — mean/std are both pulled by outliers | Default choice for roughly-normal data, most linear models/neural nets |
-| `MinMaxScaler` | `(x - min) / (max - min)` → range [0, 1] | Very — a single extreme value compresses the rest of the range | Bounded-input models (e.g. some neural net activations), when you need a known fixed range |
-| `RobustScaler` | `(x - median) / IQR` | No — uses median and interquartile range, both outlier-resistant | Data with real outliers you don't want to remove but don't want dominating the scale |
+| `StandardScaler` | $\dfrac{x - \text{mean}}{\text{std}}$ → mean 0, unit variance | Yes — mean/std are both pulled by outliers | Default choice for roughly-normal data, most linear models/neural nets |
+| `MinMaxScaler` | $\dfrac{x - \min}{\max - \min}$ → range [0, 1] | Very — a single extreme value compresses the rest of the range | Bounded-input models (e.g. some neural net activations), when you need a known fixed range |
+| `RobustScaler` | $\dfrac{x - \text{median}}{\text{IQR}}$ | No — uses median and interquartile range, both outlier-resistant | Data with real outliers you don't want to remove but don't want dominating the scale |
 
 **When scaling matters:**
 - **Distance-based models** — kNN (see [kNN](../knn.md)), k-means and other

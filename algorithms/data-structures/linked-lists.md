@@ -1,8 +1,8 @@
 # Linked Lists
 
 ## Singly vs. doubly linked
-- **Singly linked**: each node holds a value and a `next` pointer. O(1) insert/delete at the head; O(n) to reach an arbitrary node or the tail (unless a tail pointer is kept); traversal is one-directional.
-- **Doubly linked**: each node also holds a `prev` pointer. O(1) insert/delete given a reference to the node (no need to find its predecessor), and bidirectional traversal — at the cost of extra memory per node and more pointer bookkeeping. `collections.deque` in Python is backed by a doubly linked list of blocks (see [`stacks-queues-deque.md`](stacks-queues-deque.md)).
+- **Singly linked**: each node holds a value and a `next` pointer. $O(1)$ insert/delete at the head; $O(n)$ to reach an arbitrary node or the tail (unless a tail pointer is kept); traversal is one-directional.
+- **Doubly linked**: each node also holds a `prev` pointer. $O(1)$ insert/delete given a reference to the node (no need to find its predecessor), and bidirectional traversal — at the cost of extra memory per node and more pointer bookkeeping. `collections.deque` in Python is backed by a doubly linked list of blocks (see [`stacks-queues-deque.md`](stacks-queues-deque.md)).
 
 ```python
 class ListNode:
@@ -12,11 +12,11 @@ class ListNode:
 ```
 
 ## Common operations
-- Traverse: O(n).
-- Insert/delete at head: O(1).
-- Insert/delete at tail: O(1) with a tail pointer (singly), O(n) without.
-- Insert/delete given a node reference (doubly linked): O(1).
-- Search by value: O(n) — no random access, unlike arrays (see [`arrays-strings.md`](arrays-strings.md) for the array-side comparison).
+- Traverse: $O(n)$.
+- Insert/delete at head: $O(1)$.
+- Insert/delete at tail: $O(1)$ with a tail pointer (singly), $O(n)$ without.
+- Insert/delete given a node reference (doubly linked): $O(1)$.
+- Search by value: $O(n)$ — no random access, unlike arrays (see [`arrays-strings.md`](arrays-strings.md) for the array-side comparison).
 
 ## Classic interview tricks
 
@@ -35,7 +35,7 @@ def has_cycle(head: ListNode | None) -> bool:
 ```
 
 ### Reversing a linked list
-Iterative (O(1) space):
+Iterative ($O(1)$ space):
 ```python
 def reverse_list(head: ListNode | None) -> ListNode | None:
     prev = None
@@ -43,7 +43,7 @@ def reverse_list(head: ListNode | None) -> ListNode | None:
         head.next, prev, head = prev, head, head.next
     return prev
 ```
-Recursive (O(n) call stack space, but often the cleaner answer to write first):
+Recursive ($O(n)$ call stack space, but often the cleaner answer to write first):
 ```python
 def reverse_list_recursive(head: ListNode | None) -> ListNode | None:
     if head is None or head.next is None:
@@ -55,7 +55,7 @@ def reverse_list_recursive(head: ListNode | None) -> ListNode | None:
 ```
 
 ### Finding the middle node
-Same fast/slow pointer idea, no cycle needed: when `fast` reaches the end, `slow` is at the middle. One pass, O(1) space — avoids a first pass just to count length.
+Same fast/slow pointer idea, no cycle needed: when `fast` reaches the end, `slow` is at the middle. One pass, $O(1)$ space — avoids a first pass just to count length.
 ```python
 def middle_node(head: ListNode) -> ListNode:
     slow = fast = head
@@ -95,7 +95,7 @@ def merge_two_lists(a: ListNode | None, b: ListNode | None) -> ListNode | None:
 - Forgetting to null out `.next` on the final reversed node (leaves a stray forward link, or in cycle-adjacent problems, can accidentally recreate a cycle).
 
 ## Complexity
-Traversal-based operations are O(n) time; the pointer tricks above are O(n) time, O(1) extra space (except recursive reversal, which is O(n) space on the call stack).
+Traversal-based operations are $O(n)$ time; the pointer tricks above are $O(n)$ time, $O(1)$ extra space (except recursive reversal, which is $O(n)$ space on the call stack).
 
 ## Related Patterns
 - [Two Pointers](../patterns/two-pointers.md) — fast/slow is a same-direction, different-speed variant of two pointers.

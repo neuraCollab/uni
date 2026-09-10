@@ -6,9 +6,9 @@ Standard k-means assigns every point to exactly one cluster — a **hard**
 assignment. But real data is often ambiguous: a point near the boundary
 between two clusters plausibly belongs to *both*, to different degrees.
 Models with **latent (hidden) variables** generalize k-means-style
-clustering to **soft** assignment: instead of "object `i` belongs to
-cluster `k`," you get "object `i` belongs `70%` to cluster `k` and `30%` to
-cluster `k'`." The EM algorithm is, informally, "k-means plus soft
+clustering to **soft** assignment: instead of "object $i$ belongs to
+cluster $k$," you get "object $i$ belongs 70% to cluster $k$ and 30% to
+cluster $k'$." The EM algorithm is, informally, "k-means plus soft
 distribution over classes."
 
 ## Mixture models
@@ -16,42 +16,38 @@ distribution over classes."
 A **mixture of distributions** models the overall density as a weighted
 sum of component densities:
 
-```
-p(x) = sum_{k=1}^K  pi_k * p_k(x)
+$$p(x) = \sum_{k=1}^K \pi_k \, p_k(x)$$
 
-subject to:  sum_{k=1}^K pi_k = 1,   pi_k >= 0
-```
+subject to: $\sum_{k=1}^K \pi_k = 1, \quad \pi_k \geq 0$
 
-- `K` — number of mixture components.
-- `pi_k` — the mixing weight / prior probability of component `k` (how
+- $K$ — number of mixture components.
+- $\pi_k$ — the mixing weight / prior probability of component $k$ (how
   common that component is overall).
-- `p_k(x)` — the density (continuous case) or probability mass function
-  (discrete case) of component `k`.
+- $p_k(x)$ — the density (continuous case) or probability mass function
+  (discrete case) of component $k$.
 
 The canonical example is the **Gaussian Mixture Model (GMM)**: each
-`p_k(x)` is a multivariate Gaussian with its own mean `mu_k` and covariance
-`Sigma_k`. Fitting a GMM means estimating all of `{pi_k, mu_k, Sigma_k}`
-for `k = 1..K` from data — and, implicitly, recovering a soft cluster
+$p_k(x)$ is a multivariate Gaussian with its own mean $\mu_k$ and covariance
+$\Sigma_k$. Fitting a GMM means estimating all of $\{\pi_k, \mu_k, \Sigma_k\}$
+for $k = 1, \ldots, K$ from data — and, implicitly, recovering a soft cluster
 assignment for every point.
 
 ## Why direct maximum likelihood is hard
 
 If you knew which component generated each point (a latent/hidden variable
-`Z`, one per data point), maximizing the **complete-data** log-likelihood
-`log p(X, Z | theta)` would decompose into simple, independent per-component
+$Z$, one per data point), maximizing the **complete-data** log-likelihood
+$\log p(X, Z \mid \theta)$ would decompose into simple, independent per-component
 problems — same as the per-class MLE in
 [Generative Classification: GDA, QDA, LDA](generative-classification-gda-lda.md).
-The problem is that `Z` is **unobserved**. Maximizing the actual
-(incomplete-data) log-likelihood requires marginalizing `Z` out first:
+The problem is that $Z$ is **unobserved**. Maximizing the actual
+(incomplete-data) log-likelihood requires marginalizing $Z$ out first:
 
-```
-log p(X | theta) = log sum_Z p(X, Z | theta)
-```
+$$\log p(X \mid \theta) = \log \sum_Z p(X, Z \mid \theta)$$
 
-The `log` of a **sum** over the unknown `Z` doesn't decompose into a nice
-sum of logs the way `log` of a **product** would. So there is no simple
-closed form for the joint maximizer over both `theta` (component
-parameters) and the hidden assignments `Z` simultaneously — you'd have to
+The $\log$ of a **sum** over the unknown $Z$ doesn't decompose into a nice
+sum of logs the way $\log$ of a **product** would. So there is no simple
+closed form for the joint maximizer over both $\theta$ (component
+parameters) and the hidden assignments $Z$ simultaneously — you'd have to
 jointly search a combinatorially large space of assignments and a
 continuous parameter space at once.
 
@@ -64,47 +60,53 @@ assignments, re-estimate the parameters.
 
 A first, naive way to do this would be to alternate **point estimates**:
 
-```
-1.1:  Z*      = argmax_Z      p(Z | X, theta_old)   =  argmax_Z p(X, Z | theta_old)
-1.2:  theta_new = argmax_theta p(X, Z* | theta)
-```
+$$
+\begin{aligned}
+1.1:\quad Z^* &= \arg\max_Z\, p(Z \mid X, \theta_{\text{old}}) = \arg\max_Z\, p(X, Z \mid \theta_{\text{old}}) \\
+1.2:\quad \theta_{\text{new}} &= \arg\max_\theta\, p(X, Z^* \mid \theta)
+\end{aligned}
+$$
 
-...but committing to a single hardest-guess `Z*` at each step throws away
+...but committing to a single hardest-guess $Z^*$ at each step throws away
 uncertainty and tends to get stuck. EM instead keeps the **full posterior
 distribution** over the hidden variable at each step, rather than
 collapsing it to a point — this is what makes it "soft."
 
 ### E-step
 
-Given the current parameter estimate `theta_old`, compute the posterior
-distribution over the hidden variables, `p(Z | X, theta_old)` — these are
+Given the current parameter estimate $\theta_{\text{old}}$, compute the posterior
+distribution over the hidden variables, $p(Z \mid X, \theta_{\text{old}})$ — these are
 the **responsibilities**: for each data point, how much of it "belongs" to
 each mixture component under the current parameters. Then form the
-**expected complete-data log-likelihood**, averaging `log p(X,Z|theta)`
+**expected complete-data log-likelihood**, averaging $\log p(X,Z\mid\theta)$
 over that posterior:
 
-```
-Q(theta, theta_old) = E_{Z ~ p(Z|X,theta_old)} [ log p(X, Z | theta) ]
-                     = sum_Z  p(Z | X, theta_old) * log p(X, Z | theta)
-```
+$$
+\begin{aligned}
+Q(\theta, \theta_{\text{old}}) &= \mathbb{E}_{Z \sim p(Z\mid X,\theta_{\text{old}})} \left[ \log p(X, Z \mid \theta) \right] \\
+&= \sum_Z p(Z \mid X, \theta_{\text{old}}) \, \log p(X, Z \mid \theta)
+\end{aligned}
+$$
 
-`Q` is a function of the *free* variable `theta` (the parameters you're
-about to re-optimize), with `theta_old` and the responsibilities held
-fixed as constants inside it. Computing `Q` — i.e., computing the current
+$Q$ is a function of the *free* variable $\theta$ (the parameters you're
+about to re-optimize), with $\theta_{\text{old}}$ and the responsibilities held
+fixed as constants inside it. Computing $Q$ — i.e., computing the current
 responsibilities — is the entirety of the E-step.
 
 ### M-step
 
-Maximize `Q(theta, theta_old)` over `theta` to get the next parameter
+Maximize $Q(\theta, \theta_{\text{old}})$ over $\theta$ to get the next parameter
 estimate:
 
-```
-theta_new = argmax_theta  Q(theta, theta_old)
-          = argmax_theta  sum_Z  p(Z | X, theta_old) * log p(X, Z | theta)
-```
+$$
+\begin{aligned}
+\theta_{\text{new}} &= \arg\max_\theta\, Q(\theta, \theta_{\text{old}}) \\
+&= \arg\max_\theta \sum_Z p(Z \mid X, \theta_{\text{old}}) \, \log p(X, Z \mid \theta)
+\end{aligned}
+$$
 
-Because `Q` involves `log p(X,Z|theta)` — the complete-data log-likelihood,
-as if `Z` *were* observed (just weighted by how likely each `Z` value is)
+Because $Q$ involves $\log p(X,Z\mid\theta)$ — the complete-data log-likelihood,
+as if $Z$ *were* observed (just weighted by how likely each $Z$ value is)
 — this maximization is typically as easy as ordinary MLE: for a GMM, the
 M-step update for each component's mean/covariance/weight looks just like
 the weighted version of the per-class MLE formulas from GDA, weighted by
@@ -119,19 +121,19 @@ until the parameters (or the log-likelihood) stop changing appreciably.
 ## Why EM works: the monotonic-improvement guarantee
 
 Each full EM iteration is **guaranteed to never decrease** the true
-(incomplete-data) log-likelihood `log p(X|theta)`, even though what's
-actually being maximized at each step is the surrogate `Q`, not
-`log p(X|theta)` directly.
+(incomplete-data) log-likelihood $\log p(X\mid\theta)$, even though what's
+actually being maximized at each step is the surrogate $Q$, not
+$\log p(X\mid\theta)$ directly.
 
-**Intuition (Jensen's-inequality mechanism, without the full proof):** `Q`
+**Intuition (Jensen's-inequality mechanism, without the full proof):** $Q$
 can be shown to be a lower bound on the true log-likelihood that is
-**tight** at `theta = theta_old` — the bound touches the true objective
-exactly at the point you expanded it around. So any `theta_new` that
-increases `Q` above `Q(theta_old, theta_old)` must also increase the true
-log-likelihood `log p(X|theta)` above `log p(X|theta_old)`, because the true
+**tight** at $\theta = \theta_{\text{old}}$ — the bound touches the true objective
+exactly at the point you expanded it around. So any $\theta_{\text{new}}$ that
+increases $Q$ above $Q(\theta_{\text{old}}, \theta_{\text{old}})$ must also increase the true
+log-likelihood $\log p(X\mid\theta)$ above $\log p(X\mid\theta_{\text{old}})$, because the true
 curve lies at-or-above the bound everywhere and coincides with it at
-`theta_old`. This is exactly what licenses optimizing the easier surrogate
-`Q` in place of the hard-to-touch true objective at each step.
+$\theta_{\text{old}}$. This is exactly what licenses optimizing the easier surrogate
+$Q$ in place of the hard-to-touch true objective at each step.
 
 ## Practical caveats
 

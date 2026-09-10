@@ -75,14 +75,14 @@ keyword-only args without collecting them (`def f(a, *, b): ...`).
 ## String immutability performance
 
 Strings are immutable — repeated concatenation in a loop creates a new
-string object every time (potentially O(n²) total work):
+string object every time (potentially $O(n^2)$ total work):
 
 ```python
 s = ""
 for word in words:
     s += word + " "        # O(n) new string allocated each iteration
 ```
-Fix: accumulate in a list and `"".join(...)` once — O(n) total:
+Fix: accumulate in a list and `"".join(...)` once — $O(n)$ total:
 ```python
 s = " ".join(words)
 ```

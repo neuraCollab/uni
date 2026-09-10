@@ -16,25 +16,25 @@ matrix (TP/FP/FN/TN over *pairs*, not over individual points).
 - **FN**: pair is together in true labels but not predicted labels.
 - **TN**: pair is apart in both.
 
-**Rand Index** (`rand_index`) — `(TP + TN) / (TP + FP + FN + TN)`: fraction
+**Rand Index** (`rand_index`) — $\dfrac{TP + TN}{TP + FP + FN + TN}$: fraction
 of all pairs the two labelings agree on. Simple and intuitive, but **not
 corrected for chance** — two random labelings of many small clusters will
 still score a deceptively high Rand Index, because most random pairs of
 points land in different clusters by chance alone (that agreement inflates
 TN). Use sklearn's `adjusted_rand_score` when chance-correction matters.
 
-**Jaccard Index** (`jaccard_index`) — `TP / (TP + FP + FN)`: like Rand but
+**Jaccard Index** (`jaccard_index`) — $\dfrac{TP}{TP + FP + FN}$: like Rand but
 **ignores true negatives** entirely. Harsher whenever most pairs are
 "different cluster" by chance (many small clusters among many points), since
 it doesn't let a clustering get credit just for correctly keeping unrelated
 points apart.
 
 **Fowlkes-Mallows Index** (`fowlkes_mallows_index`) —
-`TP / sqrt((TP+FP)(TP+FN))`: the geometric mean of pairwise precision and
+$\dfrac{TP}{\sqrt{(TP+FP)(TP+FN)}}$: the geometric mean of pairwise precision and
 recall. Less sensitive to cluster-size imbalance than Rand Index.
 
 **Phi index / pairwise Matthews correlation** (`phi_index`) —
-`(TP*TN - FP*FN) / sqrt((TP+FP)(TP+FN)(TN+FP)(TN+FN))`, ranging **-1 to 1**.
+$\dfrac{TP \cdot TN - FP \cdot FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}$, ranging **-1 to 1**.
 Unlike the other three, it uses all four confusion cells in a
 chance-corrected-ish way and can go **negative** for a labeling that actively
 disagrees with the ground truth more than random chance would — the other
@@ -60,14 +60,12 @@ separated simultaneously.
 ## Silhouette score (not in this codebase, but the metric interviewers ask
 about most)
 
-For each point `i`: let `a(i)` = mean distance to other points in its own
-cluster (intra-cluster distance — like a per-point compactness), and `b(i)`
+For each point $i$: let $a(i)$ = mean distance to other points in its own
+cluster (intra-cluster distance — like a per-point compactness), and $b(i)$
 = mean distance to points in the *nearest other* cluster (nearest-neighboring
 inter-cluster distance). Then:
 
-```
-silhouette(i) = (b(i) - a(i)) / max(a(i), b(i))
-```
+$$\text{silhouette}(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}$$
 
 Ranges -1 to 1: close to 1 means the point is well inside its own cluster and
 far from the next-nearest one; close to 0 means it sits near a cluster
@@ -116,7 +114,7 @@ separated clusters) — always sanity-check against domain knowledge too.
   mostly driven by TN inflation.
 - Using compactness alone to pick the number of clusters — it monotonically
   improves as `k` increases (more, smaller clusters are always "tighter"),
-  so it will always favor `k = n`. Pair it with separation, or use
+  so it will always favor $k = n$. Pair it with separation, or use
   silhouette/elbow instead.
 - Treating external metrics as available by default — in most real
   unsupervised projects you won't have ground-truth labels at all.

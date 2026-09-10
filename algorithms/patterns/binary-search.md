@@ -3,7 +3,7 @@
 ## Recognition
 ### Key clues
 - Input is **sorted** (or has a monotonic/"boolean" structure — a predicate that's `False` then `True` across the range).
-- Asked for O(log n) on a search/lookup problem.
+- Asked for $O(\log n)$ on a search/lookup problem.
 - "Find the minimum/maximum X such that condition holds" — **binary search on the answer**, not necessarily on a sorted array.
 - Rotated sorted array, or "search in a matrix sorted row-wise and column-wise".
 
@@ -11,7 +11,7 @@
 Repeatedly halve the search space by checking the midpoint against a monotonic predicate, discarding the half that can't contain the answer.
 
 ## Why this works
-If a predicate `P(x)` is `False` for all `x < threshold` and `True` for all `x >= threshold` (monotonic), checking the midpoint tells you which half of the remaining range can possibly contain the threshold — so each check eliminates half the candidates, giving O(log n) checks total.
+If a predicate `P(x)` is `False` for all `x < threshold` and `True` for all `x >= threshold` (monotonic), checking the midpoint tells you which half of the remaining range can possibly contain the threshold — so each check eliminates half the candidates, giving $O(\log n)$ checks total.
 
 ## Template
 ```python
@@ -77,7 +77,7 @@ Python's `bisect` module (`bisect_left`, `bisect_right`, `insort`) implements th
 - Confusing `bisect_left` (leftmost insertion point) with `bisect_right` (rightmost) when looking for first vs. last occurrence.
 
 ## Complexity
-Time O(log n) per search. Space O(1) iterative (O(log n) if recursive, due to call stack).
+Time $O(\log n)$ per search. Space $O(1)$ iterative ($O(\log n)$ if recursive, due to call stack).
 
 ## Related Patterns
 - [Two Pointers](two-pointers.md)

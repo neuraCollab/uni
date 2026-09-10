@@ -28,9 +28,7 @@ For binary classification (positive class = the class of interest):
 
 *Of everything the model called positive, how much actually was?*
 
-```
-Precision = TP / (TP + FP)
-```
+$$\text{Precision} = \frac{TP}{TP + FP}$$
 
 High precision → few false alarms. Matters when a false positive is costly
 (e.g. flagging a legitimate transaction as fraud, or a healthy patient as
@@ -40,9 +38,7 @@ sick).
 
 *Of everything that actually was positive, how much did the model catch?*
 
-```
-Recall = TP / (TP + FN)
-```
+$$\text{Recall} = \frac{TP}{TP + FN}$$
 
 High recall → few missed positives. Matters when a false negative is costly
 (e.g. missing an actual fraud case, or an actual disease).
@@ -56,13 +52,11 @@ out (see below).
 The harmonic mean of precision and recall — penalizes a large gap between
 the two more than a simple average would:
 
-```
-F1 = 2 * (Precision * Recall) / (Precision + Recall)
-```
+$$F_1 = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$$
 
 Use F1 when you want a single number balancing both error types and don't
-have a strong reason to weight one more than the other. `F_beta` generalizes
-this to weight recall `beta` times as much as precision.
+have a strong reason to weight one more than the other. $F_\beta$ generalizes
+this to weight recall $\beta$ times as much as precision.
 
 ### Support
 
@@ -88,7 +82,7 @@ weighted avg       0.97      0.97      0.97       200
 - Class 1: 98% precision, 96% recall — the mirror image, as is typical in
   binary classification (raising one class's threshold-implied recall tends
   to lower the other class's precision).
-- Overall accuracy: `(TP_0 + TP_1) / 200 = 0.97`.
+- Overall accuracy: $(TP_0 + TP_1) / 200 = 0.97$.
 
 ### Macro vs. weighted vs. micro averaging
 
@@ -114,12 +108,12 @@ disease detection, rare defect classes); weighted if you just want an
 overall picture proportional to real-world class frequency; micro when doing
 multi-label classification.
 
-**Formal definitions** (`K` = number of classes): for **micro-averaging**,
+**Formal definitions** ($K$ = number of classes): for **micro-averaging**,
 first average (equivalently, sum) the per-class confusion-matrix counts —
-`TP_micro = (1/K) * sum_k TP_k`, and likewise for `FP`/`FN`/`TN` — then
+$TP_{\text{micro}} = \frac{1}{K}\sum_k TP_k$, and likewise for `FP`/`FN`/`TN` — then
 compute precision/recall/F1 *once* from those pooled counts. For
 **macro-averaging**, compute precision/recall/F1 separately for each class
-first, then average the `K` resulting scores. The two differ exactly in
+first, then average the $K$ resulting scores. The two differ exactly in
 *when* the averaging happens — before or after the ratio is computed — which
 is why macro tanks on a poorly-served minority class while micro barely
 notices it (a small class contributes only a small slice of the pooled
@@ -141,7 +135,7 @@ Both summarize a classifier's ranking quality *across all thresholds*
 (rather than at one fixed threshold like precision/recall/F1 above).
 
 - **ROC curve**: true positive rate (recall) vs. false positive rate
-  (`FP / (FP + TN)`) as the threshold varies. **AUC** = probability a
+  ($\frac{FP}{FP + TN}$) as the threshold varies. **AUC** = probability a
   randomly chosen positive is ranked above a randomly chosen negative.
 - **PR curve**: precision vs. recall as the threshold varies. **PR-AUC**
   (a.k.a. average precision) summarizes that curve.
@@ -170,19 +164,14 @@ the model ranks correctly** — equivalently, the probability that a randomly
 chosen positive example receives a higher score than a randomly chosen
 negative example:
 
-```
-AUC = sum_i sum_j I[y_i < y_j] * I'[a_i < a_j]
-      -----------------------------------------
-             sum_i sum_j I[y_i < y_j]
+$$AUC = \frac{\sum_i \sum_j \mathbb{1}[y_i < y_j] \cdot \mathbb{1}'[a_i < a_j]}{\sum_i \sum_j \mathbb{1}[y_i < y_j]}$$
 
-I[y_i < y_j]  = 1 if y_i < y_j, else 0       # y in {0, 1}; counts (negative, positive) label pairs
-I'[a_i < a_j] = 1    if a_i < a_j
-              = 0.5  if a_i == a_j
-              = 0    if a_i > a_j
-```
+$$\mathbb{1}[y_i < y_j] = \begin{cases} 1 & \text{if } y_i < y_j \\ 0 & \text{otherwise} \end{cases} \quad (y \in \{0,1\}; \text{ counts (negative, positive) label pairs})$$
 
-where `a_i` is the model's score on object `i`, `y_i` its true label, and
-`q` the number of test objects. This is exactly the statistic behind the
+$$\mathbb{1}'[a_i < a_j] = \begin{cases} 1 & \text{if } a_i < a_j \\ 0.5 & \text{if } a_i = a_j \\ 0 & \text{if } a_i > a_j \end{cases}$$
+
+where $a_i$ is the model's score on object $i$, $y_i$ its true label, and
+$q$ the number of test objects. This is exactly the statistic behind the
 Mann-Whitney U test — AUC-ROC is a **rank statistic**, which is why it is
 invariant to any monotonic transformation of the scores (in particular,
 calibrating a model — see [Probability Calibration](calibration.md) — never
@@ -192,28 +181,22 @@ ranking).
 **Gini coefficient**, sometimes reported alongside AUC-ROC (common in credit
 scoring):
 
-```
-Gini = 2 * AUC_ROC - 1
-```
+$$\text{Gini} = 2 \cdot \text{AUC-ROC} - 1$$
 
 #### Computing AUC from discrete points: the trapezoidal rule
 
 In practice a ROC or PR curve is a finite set of points (one per distinct
 threshold), not a continuous function, so "area under the curve" is computed
 by summing the trapezoids between consecutive points. For two adjacent
-points `(r_{k-1}, p_{k-1})` and `(r_k, p_k)` on a precision-recall curve, the
+points $(r_{k-1}, p_{k-1})$ and $(r_k, p_k)$ on a precision-recall curve, the
 line segment between them is:
 
-```
-p(r) = p_{k-1} + (p_k - p_{k-1}) / (r_k - r_{k-1}) * (r - r_{k-1})
-```
+$$p(r) = p_{k-1} + \frac{p_k - p_{k-1}}{r_k - r_{k-1}} (r - r_{k-1})$$
 
-Integrating that line and summing over all `m` segments gives the
+Integrating that line and summing over all $m$ segments gives the
 trapezoidal-rule AUC:
 
-```
-AUC = integral_0^1 p(r) dr  ~=  sum_{k=1}^m (p_{k-1} + p_k) / 2 * (r_k - r_{k-1})
-```
+$$AUC = \int_0^1 p(r)\,dr \approx \sum_{k=1}^{m} \frac{p_{k-1}+p_k}{2}(r_k - r_{k-1})$$
 
 The same construction applies to the ROC curve (swap precision/recall for
 TPR/FPR) — it's just "area of a trapezoid," repeated for every pair of
@@ -228,19 +211,15 @@ classification threshold is lowered one prediction at a time — recall only
 increases as the threshold drops (`TP` grows), while precision moves
 non-monotonically:
 
-```
-AP = integral_0^1 p(r) dr  ~=  sum_{k=1}^m p_k * (r_k - r_{k-1})
-```
+$$AP = \int_0^1 p(r)\,dr \approx \sum_{k=1}^{m} p_k (r_k - r_{k-1})$$
 
 which is equivalent to averaging precision at the rank position of each true
 positive:
 
-```
-AP = (1/P) * sum_{i=1}^P Precision@k_i
-```
+$$AP = \frac{1}{P} \sum_{i=1}^{P} \text{Precision@}k_i$$
 
-where `P` is the total number of positive examples and `Precision@k_i` is
-precision computed at the rank of the `i`-th positive example, once
+where $P$ is the total number of positive examples and $\text{Precision@}k_i$ is
+precision computed at the rank of the $i$-th positive example, once
 predictions are sorted by descending score. This rank-based form is how
 `sklearn.metrics.average_precision_score` actually computes AP, and it's why
 "AP" and "PR-AUC" are often used interchangeably even though AP is a
@@ -254,22 +233,22 @@ label?* Log-loss (a.k.a. binary cross-entropy) scores probabilistic
 predictions directly, and is what logistic regression (and most neural-net
 classifiers) actually optimizes during training:
 
-```
-LogLoss = -(1/N) * sum_i [ y_i * log(y_hat_i) + (1 - y_i) * log(1 - y_hat_i) ]
-```
+$$\text{LogLoss} = -\frac{1}{N} \sum_i \left[ y_i \log(\hat{y}_i) + (1 - y_i)\log(1 - \hat{y}_i) \right]$$
 
-where `y_hat_i = sigma(z_i)`, `z_i = w^T x_i + b`, and the sigmoid function
+where $\hat{y}_i = \sigma(z_i)$, $z_i = w^\top x_i + b$, and the sigmoid function
 and its derivative are:
 
-```
-sigma(z)  = 1 / (1 + e^(-z))
-sigma'(z) = sigma(z) * (1 - sigma(z))
-```
+$$
+\begin{aligned}
+\sigma(z) &= \frac{1}{1 + e^{-z}} \\
+\sigma'(z) &= \sigma(z)(1 - \sigma(z))
+\end{aligned}
+$$
 
 **Why log-loss, specifically, and not some other penalty for wrong
-probabilities?** Model each label `y_i` as a Bernoulli random variable with
-success probability `y_hat_i`. The likelihood of the observed labels is
-`prod_i y_hat_i^(y_i) * (1 - y_hat_i)^(1 - y_i)`. Taking the negative log
+probabilities?** Model each label $y_i$ as a Bernoulli random variable with
+success probability $\hat{y}_i$. The likelihood of the observed labels is
+$\prod_i \hat{y}_i^{y_i} (1-\hat{y}_i)^{1-y_i}$. Taking the negative log
 (to turn the product into a sum, and maximization into minimization) gives
 exactly the log-loss formula above — so **minimizing log-loss is maximum
 likelihood estimation (MLE)** for a Bernoulli/sigmoid model. See
@@ -277,9 +256,9 @@ likelihood estimation (MLE)** for a Bernoulli/sigmoid model. See
 the general MLE-to-loss-function derivation (squared error falls out of a
 Gaussian likelihood the same way log-loss falls out of a Bernoulli one).
 
-The clean derivative `sigma'(z) = sigma(z)(1 - sigma(z))` is why logistic
+The clean derivative $\sigma'(z) = \sigma(z)(1 - \sigma(z))$ is why logistic
 regression's gradient has such a simple closed form
-(`gradient = X^T (y_hat - y)`), and it's the same identity reused in
+($\text{gradient} = X^\top (\hat{y} - y)$), and it's the same identity reused in
 backprop through any sigmoid output layer.
 
 **Unlike accuracy/precision/recall/F1 or even AUC-ROC**, log-loss is

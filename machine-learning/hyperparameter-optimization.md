@@ -30,7 +30,7 @@ search = GridSearchCV(model, param_grid, cv=5, scoring="neg_log_loss")
 ```
 
 **Cost grows exponentially** with the number of hyperparameters — a grid
-over 5 parameters with 5 values each is `5⁵ = 3125` fits (times `cv` folds).
+over 5 parameters with 5 values each is $5^5 = 3125$ fits (times `cv` folds).
 Exhaustive, but only practical for a small number of parameters/values.
 
 ### Random search
@@ -61,31 +61,29 @@ more pronounced as the number of hyperparameters grows.
 **Why random search is theoretically justified — a coverage-probability
 argument.** Say the top 5% of the hyperparameter space (by score) counts as
 "good enough" — you don't need the single global optimum, just a config in
-that region. Sample `n` configurations independently and uniformly at
+that region. Sample $n$ configurations independently and uniformly at
 random. For any one sample, the probability it lands *outside* the top-5%
-region is `1 - 0.05 = 0.95`. Assuming independence, the probability that
-**none** of the `n` samples lands in the top 5% is:
+region is $1 - 0.05 = 0.95$. Assuming independence, the probability that
+**none** of the $n$ samples lands in the top 5% is:
 
-```
-P(none in top 5%) = (1 - 0.05)^n
-```
+$$P(\text{none in top 5\%}) = (1 - 0.05)^n$$
 
 So the probability that **at least one** sample lands in the top 5% is its
 complement:
 
-```
-P(at least one in top 5%) = 1 - (1 - 0.05)^n
-```
+$$P(\text{at least one in top 5\%}) = 1 - (1 - 0.05)^n$$
 
-Solve for the `n` that gets this to at least 95% confidence:
+Solve for the $n$ that gets this to at least 95% confidence:
 
-```
-1 - (1 - 0.05)^n >= 0.95
-(0.95)^n <= 0.05
-n * ln(0.95) <= ln(0.05)
-n >= ln(0.05) / ln(0.95)   (inequality flips — dividing by a negative number)
-n >= 58.4  ->  n = 59
-```
+$$
+\begin{aligned}
+1 - (1 - 0.05)^n &\geq 0.95 \\
+(0.95)^n &\leq 0.05 \\
+n \ln(0.95) &\leq \ln(0.05) \\
+n &\geq \frac{\ln(0.05)}{\ln(0.95)} \quad \text{(inequality flips — dividing by a negative number)} \\
+n &\geq 58.4 \ \Rightarrow\ n = 59
+\end{aligned}
+$$
 
 So **~59 random samples give a ≥95% chance that at least one of them lands
 in the top 5% of the search space** — regardless of how many dimensions the
@@ -94,7 +92,7 @@ is the concrete answer to "why does random search work theoretically": it
 doesn't need to cover the space, it needs enough independent draws that
 missing the good region on every single one becomes unlikely — and that
 count grows only logarithmically as you demand a smaller target region or
-higher confidence (`n >= ln(1 - confidence) / ln(1 - region_size)`).
+higher confidence ($n \geq \frac{\ln(1 - \text{confidence})}{\ln(1 - \text{region\_size})}$).
 
 ### Bayesian optimization
 
@@ -110,41 +108,39 @@ It has two core components:
 
 1. **A surrogate model** — a probabilistic model that approximates the true
    objective given the (hyperparameters, score) pairs observed so far. A
-   **Gaussian Process** is the classic choice: at any point `x` it predicts
-   both a mean score `μ(x)` and an uncertainty `σ(x)`, where `σ(x)` shrinks
+   **Gaussian Process** is the classic choice: at any point $x$ it predicts
+   both a mean score $\mu(x)$ and an uncertainty $\sigma(x)$, where $\sigma(x)$ shrinks
    near points that have already been evaluated and stays wide in
    unexplored regions.
-2. **An acquisition function** `a(x)` — decides, using the surrogate's
+2. **An acquisition function** $a(x)$ — decides, using the surrogate's
    current mean/uncertainty, which point to try next. It has to balance:
-   - **exploitation** — favor points where the surrogate's mean `μ(x)` is
+   - **exploitation** — favor points where the surrogate's mean $\mu(x)$ is
      already good, versus
    - **exploration** — favor points where the surrogate's uncertainty
-     `σ(x)` is large, because an unexplored region might hide something
+     $\sigma(x)$ is large, because an unexplored region might hide something
      better than anything seen so far.
 
    A simple, common acquisition function is **Upper Confidence Bound
    (UCB)**:
 
-   ```
-   a(x) = μ(x) + β·σ(x)
-   ```
+   $$a(x) = \mu(x) + \beta \cdot \sigma(x)$$
 
-   `μ(x)` is the exploit term, `β·σ(x)` is the explore term, and `β` is a
+   $\mu(x)$ is the exploit term, $\beta \cdot \sigma(x)$ is the explore term, and $\beta$ is a
    tunable knob for how much to weight exploration. Other standard choices
    are **Expected Improvement (EI)** and **Probability of Improvement
    (PI)**, which instead ask "how much (or how likely) is this point to
    beat the best score observed so far."
 
-**The algorithm loop.** Let `S_t` be the set of observations gathered so
-far, `S_t = {(x_1, f(x_1)), ..., (x_t, f(x_t))}`:
+**The algorithm loop.** Let $S_t$ be the set of observations gathered so
+far, $S_t = \{(x_1, f(x_1)), \ldots, (x_t, f(x_t))\}$:
 
-1. At iteration `t+1`, pick the next point by maximizing the acquisition
+1. At iteration $t+1$, pick the next point by maximizing the acquisition
    function over the search space, conditioned on what's been observed so
-   far: `x_{t+1} = argmax_{x in X} a(x | S_t)`.
-2. Evaluate the true objective at that point — `f(x_{t+1})` — i.e. actually
+   far: $x_{t+1} = \arg\max_{x \in X} a(x \mid S_t)$.
+2. Evaluate the true objective at that point — $f(x_{t+1})$ — i.e. actually
    train and validate a model with those hyperparameters.
-3. Update the observed set: `S_{t+1} = S_t ∪ {(x_{t+1}, f(x_{t+1}))}`.
-4. Update (refit) the surrogate model on the enlarged `S_{t+1}` and repeat.
+3. Update the observed set: $S_{t+1} = S_t \cup \{(x_{t+1}, f(x_{t+1}))\}$.
+4. Update (refit) the surrogate model on the enlarged $S_{t+1}$ and repeat.
 
 Bayesian methods typically need far fewer trials than grid/random search to
 reach a comparable or better optimum, because each trial is chosen using
@@ -156,7 +152,7 @@ and maximizing the acquisition function over the surrogate at each step.
 
 Optuna's default sampler, and the algorithm most people are actually
 running when they say "Bayesian hyperparameter optimization" in practice.
-Classic Bayesian optimization (above) models `P(score | hyperparameters)`
+Classic Bayesian optimization (above) models $P(\text{score} \mid \text{hyperparameters})$
 directly through the surrogate. **TPE inverts this**: rather than modeling
 how the score depends on the hyperparameters, it models how the
 *hyperparameters themselves* are distributed, separately, conditioned on
@@ -169,18 +165,18 @@ How it works:
    hierarchical search spaces](#conditional--hierarchical-search-spaces)
    below): a branch of the tree is simply never visited for trials where
    its parent parameter took a different value.
-2. Generate `n` sampled trials, and split the observed trials into a "good"
+2. Generate $n$ sampled trials, and split the observed trials into a "good"
    group and a "bad" group by a fixed quantile cutoff on their scores — the
    top ~20% by score become the "good" group, the rest become the "bad"
    group.
-3. Fit a density estimate over each group separately: `l(x) = P(x | good)`
-   and `g(x) = P(x | bad)`.
-4. Score candidate points by the **ratio `l(x) / g(x)`** — a point is
+3. Fit a density estimate over each group separately: $l(x) = P(x \mid \text{good})$
+   and $g(x) = P(x \mid \text{bad})$.
+4. Score candidate points by the **ratio $l(x) / g(x)$** — a point is
    promising if it's much more likely under the "good" density than under
    the "bad" one — and sample the next trial from where this ratio is high.
 
-This density-ratio formulation (`l(x)/g(x)`, in place of modeling
-`P(score | x)` directly) is why TPE scales better than a classic
+This density-ratio formulation ($l(x)/g(x)$, in place of modeling
+$P(\text{score} \mid x)$ directly) is why TPE scales better than a classic
 Gaussian-Process-based Bayesian optimizer to high-dimensional and
 conditional search spaces: it never needs to fit one joint surrogate over
 the whole (possibly branching) space — just two independent, per-parameter
@@ -298,9 +294,9 @@ well-regularized by defaults and the marginal gain isn't worth the compute.
 ## Common interview questions
 
 - Why does random search often outperform grid search for the same budget?
-- Derive: with `n` random samples, what's the probability at least one
-  lands in the top 5% of the search space, and how large does `n` need to
-  be for 95% confidence? (`1 - (1-0.05)^n >= 0.95` -> `n >= 59`.)
+- Derive: with $n$ random samples, what's the probability at least one
+  lands in the top 5% of the search space, and how large does $n$ need to
+  be for 95% confidence? ($1 - (1-0.05)^n \geq 0.95 \Rightarrow n \geq 59$.)
 - What are the two core components of Bayesian optimization, and what does
   the acquisition function balance?
 - What does Optuna's TPE sampler actually model, and how does that differ

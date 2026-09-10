@@ -8,23 +8,19 @@ A linear model for **classification** that predicts the probability of a class v
 
 ### Binary case
 
-Linear score (logit): `z = w·x + b`.
+Linear score (logit): $z = w \cdot x + b$.
 
 **Sigmoid function** maps the score to a probability in (0, 1):
 
-```
-p = sigma(z) = 1 / (1 + exp(-z))
-```
+$$p = \sigma(z) = \frac{1}{1 + \exp(-z)}$$
 
-**Decision boundary:** predict class 1 if `p >= 0.5`, i.e. `z >= 0` — a **linear** decision boundary (a hyperplane) in feature space, since `z = w·x + b = 0` is linear in `x`.
+**Decision boundary:** predict class 1 if $p \geq 0.5$, i.e. $z \geq 0$ — a **linear** decision boundary (a hyperplane) in feature space, since $z = w \cdot x + b = 0$ is linear in $x$.
 
-**Loss: log-loss (binary cross-entropy).** For a single example with true label `y in {0, 1}` and predicted probability `p`:
+**Loss: log-loss (binary cross-entropy).** For a single example with true label $y \in \{0, 1\}$ and predicted probability $p$:
 
-```
-L(y, p) = -[ y*ln(p) + (1-y)*ln(1-p) ]
-```
+$$L(y, p) = -\left[ y \ln(p) + (1-y)\ln(1-p) \right]$$
 
-**Why log-loss, not squared error?** Log-loss comes from maximizing the likelihood of a Bernoulli-distributed target — `p` is literally the Bernoulli parameter, and `-log p(y | x)` is exactly this expression. It's also convex in `w` for the logistic model (squared error on top of a sigmoid is not, which would make optimization harder), and it penalizes confident-wrong predictions much more heavily than squared error would (as `p -> 1` while `y = 0`, loss `-> infinity`).
+**Why log-loss, not squared error?** Log-loss comes from maximizing the likelihood of a Bernoulli-distributed target — $p$ is literally the Bernoulli parameter, and $-\log p(y \mid x)$ is exactly this expression. It's also convex in $w$ for the logistic model (squared error on top of a sigmoid is not, which would make optimization harder), and it penalizes confident-wrong predictions much more heavily than squared error would (as $p \to 1$ while $y = 0$, loss $\to \infty$).
 
 This unit deviance is also the **Bernoulli deviance** from the GLM framework — logistic regression is the Bernoulli-family GLM with a logit link (see [Generalized Linear Models](generalized-linear-models.md)).
 
@@ -33,11 +29,9 @@ This unit deviance is also the **Bernoulli deviance** from the GLM framework —
 Two standard strategies:
 
 - **One-vs-Rest (OvR):** train one binary logistic classifier per class (class `k` vs. everyone else), predict the class whose classifier gives the highest score/probability. Simple, but the per-class probabilities aren't guaranteed to sum to 1 without renormalizing.
-- **Softmax (multinomial) regression:** a direct generalization — one linear score `z_k` per class, then
+- **Softmax (multinomial) regression:** a direct generalization — one linear score $z_k$ per class, then
 
-```
-p_k = exp(z_k) / sum_j exp(z_j)
-```
+$$p_k = \frac{\exp(z_k)}{\sum_j \exp(z_j)}$$
 
 which *does* produce a valid probability distribution over all classes simultaneously, and is trained by minimizing multiclass cross-entropy. This is what `LogisticRegression(multi_class='multinomial')` uses (and is the default in modern sklearn for most solvers).
 
@@ -47,11 +41,11 @@ which *does* produce a valid probability distribution over all classes simultane
 - `penalty='l2'` (default) — Ridge-style, smooth shrinkage.
 - `penalty='l1'` — Lasso-style, sparse coefficients, needs `solver='liblinear'` or `'saga'`.
 - `penalty='elasticnet'` — mix of both, needs `solver='saga'`, with `l1_ratio` controlling the mix.
-- Note sklearn parametrizes strength via `C = 1/alpha` (inverse regularization strength) — **larger `C` means weaker regularization**, the opposite convention from `Ridge`/`Lasso`'s `alpha`.
+- Note sklearn parametrizes strength via $C = 1/\alpha$ (inverse regularization strength) — **larger $C$ means weaker regularization**, the opposite convention from `Ridge`/`Lasso`'s $\alpha$.
 
 ### Interpreting coefficients: log-odds
 
-Because `z = w·x + b = ln(p / (1-p))` (the **logit**, or log-odds), each coefficient `w_j` is the change in **log-odds** of the positive class per one-unit increase in `x_j`, holding other features fixed. Equivalently, `exp(w_j)` is the multiplicative change in the **odds** (`p / (1-p)`) per unit increase in `x_j`. This is different from a linear-regression coefficient, which is a direct change in the *predicted value* — logistic coefficients act on the *log-odds scale*, not the probability scale directly (the effect on probability itself is nonlinear, largest near `p=0.5`).
+Because $z = w \cdot x + b = \ln\left(\frac{p}{1-p}\right)$ (the **logit**, or log-odds), each coefficient $w_j$ is the change in **log-odds** of the positive class per one-unit increase in $x_j$, holding other features fixed. Equivalently, $\exp(w_j)$ is the multiplicative change in the **odds** ($\frac{p}{1-p}$) per unit increase in $x_j$. This is different from a linear-regression coefficient, which is a direct change in the *predicted value* — logistic coefficients act on the *log-odds scale*, not the probability scale directly (the effect on probability itself is nonlinear, largest near $p=0.5$).
 
 ### class_weight vs. sample_weight
 
@@ -79,7 +73,7 @@ sample_weight = np.array([1, 1, 5, 1, 10, ...])  # per-example multiplier, len =
 - Difference between One-vs-Rest and softmax/multinomial for multiclass?
 - How do you interpret a logistic regression coefficient?
 - What's the difference between `class_weight` and `sample_weight`?
-- Why does `LogisticRegression` use `C` instead of `alpha`, and how does it relate to `Ridge`'s `alpha`?
+- Why does `LogisticRegression` use $C$ instead of $\alpha$, and how does it relate to `Ridge`'s $\alpha$?
 - Is logistic regression a linear or nonlinear model? *(Linear decision boundary in the original feature space; the sigmoid is a nonlinear squashing function on top, but it doesn't change the linearity of the boundary itself.)*
 
 ## Common mistakes

@@ -32,9 +32,7 @@ to the specific training sample (high variance / overfitting)?
 
 For a model's expected squared error at a point, one standard decomposition is:
 
-```
-Expected Error = Bias² + Variance + Irreducible Noise
-```
+$$\text{Expected Error} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Noise}$$
 
 - **Bias** — error from the model's own simplifying assumptions being wrong
   (e.g. assuming a linear relationship when the truth is nonlinear). High
@@ -57,56 +55,52 @@ sample gives a very different fitted function).
 
 ### The formal decomposition
 
-Let `y(x, ε) = f(x) + ε` be the true (noisy) data-generating process at
-point `x` — `f(x)` is the true deterministic target function and `ε` is
-irreducible label noise. Let `a(x, X)` be a model trained on training set
-`X` and evaluated at point `x`. The expected squared error, averaged over
-both the randomness in the training set `X` and the label noise `ε`, is:
+Let $y(x, \varepsilon) = f(x) + \varepsilon$ be the true (noisy) data-generating process at
+point $x$ — $f(x)$ is the true deterministic target function and $\varepsilon$ is
+irreducible label noise. Let $a(x, X)$ be a model trained on training set
+$X$ and evaluated at point $x$. The expected squared error, averaged over
+both the randomness in the training set $X$ and the label noise $\varepsilon$, is:
 
-```
-Q(a) = E_x E_{X,ε} [ y(x, ε) - a(x, X) ]²
-```
+$$Q(a) = \mathbb{E}_x \mathbb{E}_{X,\varepsilon} \left[ y(x, \varepsilon) - a(x, X) \right]^2$$
 
 This decomposes exactly into three additive terms:
 
-```
-Q(a) = E_x[ bias_x(a)² ] + E_x[ Var_x(a(x, X)) ] + σ²
-```
+$$Q(a) = \mathbb{E}_x\left[ \text{bias}_x(a)^2 \right] + \mathbb{E}_x\left[ \text{Var}_x(a(x, X)) \right] + \sigma^2$$
 
 where:
 
-```
-bias_x(a(x, X)) = f(x) - E_X[ a(x, X) ]
-
-Var_x[a(x, X)] = E_X[ (a(x, X) - E_X[a(x, X)])² ]
-
-σ² = E_x E_ε[ (y(x, ε) - f(x))² ]
-```
+$$
+\begin{aligned}
+\text{bias}_x(a(x, X)) &= f(x) - \mathbb{E}_X[ a(x, X) ] \\[4pt]
+\text{Var}_x[a(x, X)] &= \mathbb{E}_X\left[ (a(x, X) - \mathbb{E}_X[a(x, X)])^2 \right] \\[4pt]
+\sigma^2 &= \mathbb{E}_x \mathbb{E}_\varepsilon\left[ (y(x, \varepsilon) - f(x))^2 \right]
+\end{aligned}
+$$
 
 In plain language:
 
-- **`bias_x`** — the gap between the true function `f(x)` and the *average*
-  prediction the model would make at `x` if you retrained it over and over
+- **$\text{bias}_x$** — the gap between the true function $f(x)$ and the *average*
+  prediction the model would make at $x$ if you retrained it over and over
   on fresh training sets drawn from the same distribution. This is
   systematic error: it doesn't go away no matter how many times you
   retrain, because it comes from the model family itself being unable to
-  represent `f(x)` (e.g. a linear model trying to fit a curve). More
+  represent $f(x)$ (e.g. a linear model trying to fit a curve). More
   training data doesn't fix it.
-- **`Var_x`** — how much `a(x, X)` itself swings around its own average as
-  `X` varies. This is sensitivity to *which particular training set you
+- **$\text{Var}_x$** — how much $a(x, X)$ itself swings around its own average as
+  $X$ varies. This is sensitivity to *which particular training set you
   happened to draw* — not a property of the model family being wrong, but
   of the model being unstable given finite, resampled data. More training
   data shrinks this (less sensitivity to any one sample); more model
   flexibility (deeper trees, fewer constraints) grows it.
-- **`σ²`** — the variance of the label noise `ε` itself, independent of any
+- **$\sigma^2$** — the variance of the label noise $\varepsilon$ itself, independent of any
   model or training set. This is the error floor: even the true function
-  `f(x)` itself, predicted perfectly, still misses `y(x, ε)` by `ε` on
+  $f(x)$ itself, predicted perfectly, still misses $y(x, \varepsilon)$ by $\varepsilon$ on
   average. No amount of modeling, data, or tuning reduces this term — it's
   a property of the problem, not the model.
 
 Squaring and summing these three (rather than, say, adding `bias` and
 `variance` directly) is exactly why the informal version of this framework
-is usually written `Bias² + Variance + Noise` — the derivation above is
+is usually written $\text{Bias}^2 + \text{Variance} + \text{Noise}$ — the derivation above is
 where that square on `bias` actually comes from.
 
 ### Where bagging and boosting sit in this decomposition
@@ -117,12 +111,12 @@ oppositely on the bias/variance split (see
 [Gradient Boosting](../trees-ensembles/gradient-boosting-catboost-lgbm.md)
 for the full derivations):
 
-- **Bagging** (Random Forest) averages `k` base models trained on bootstrap
-  resamples. Averaging is linear, so it doesn't shift `E_X[a(x,X)]` —
-  `bias_x` is untouched. But averaging *does* shrink `Var_x[a(x,X)]`,
-  toward a `1/k` factor under the (approximate) assumption that the base
+- **Bagging** (Random Forest) averages $k$ base models trained on bootstrap
+  resamples. Averaging is linear, so it doesn't shift $\mathbb{E}_X[a(x,X)]$ —
+  $\text{bias}_x$ is untouched. But averaging *does* shrink $\text{Var}_x[a(x,X)]$,
+  toward a $1/k$ factor under the (approximate) assumption that the base
   models don't correlate. Net effect: **the variance term shrinks, the
-  bias term is unchanged**, `σ²` is untouched (it's a property of the data,
+  bias term is unchanged**, $\sigma^2$ is untouched (it's a property of the data,
   not reachable by any model). This is why bagging almost never hurts and
   reliably helps a high-variance base learner like an unpruned tree, but
   can't fix a base learner that's systematically wrong.

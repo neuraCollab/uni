@@ -2,7 +2,7 @@
 
 ## What is it?
 
-A generalization of linear regression that allows the target `y` to follow **any distribution from the exponential dispersion family** (Gaussian, Bernoulli/Binomial, Poisson, Gamma, Tweedie, ...) instead of assuming Gaussian noise, and replaces squared-error loss with a distribution-appropriate loss called **deviance**.
+A generalization of linear regression that allows the target $y$ to follow **any distribution from the exponential dispersion family** (Gaussian, Bernoulli/Binomial, Poisson, Gamma, Tweedie, ...) instead of assuming Gaussian noise, and replaces squared-error loss with a distribution-appropriate loss called **deviance**.
 
 ## Why?
 
@@ -19,32 +19,28 @@ For these targets, squared-error loss either allows nonsensical predictions (neg
 
 ## How does it work?
 
-**Deviance** replaces `(y - y_hat)^2` as the thing being minimized. For a distribution in the exponential dispersion family:
+**Deviance** replaces $(y - \hat{y})^2$ as the thing being minimized. For a distribution in the exponential dispersion family:
 
-```
-D(y, mu) = 2 * [ ll(y; y) - ll(y; mu) ]
-```
+$$D(y, \mu) = 2 \left[ \text{ll}(y; y) - \text{ll}(y; \mu) \right]$$
 
-where `ll(y; theta)` is the log-likelihood, `mu = y` is the **saturated model** (a hypothetical model that fits each observation exactly), and `mu` is the model's actual prediction. Deviance measures how far the actual model's log-likelihood is from the best-possible (saturated) log-likelihood — the smaller, the better the fit.
+where $\text{ll}(y; \theta)$ is the log-likelihood, $\mu = y$ is the **saturated model** (a hypothetical model that fits each observation exactly), and $\mu$ is the model's actual prediction. Deviance measures how far the actual model's log-likelihood is from the best-possible (saturated) log-likelihood — the smaller, the better the fit.
 
-The **unit deviance** `d(y, mu)` is one observation's contribution: `D = sum_i d(y_i, mu_i)`.
+The **unit deviance** $d(y, \mu)$ is one observation's contribution: $D = \sum_i d(y_i, \mu_i)$.
 
-| Family | Unit deviance `d(y, mu)` | Use case |
+| Family | Unit deviance $d(y, \mu)$ | Use case |
 |---|---|---|
-| Gaussian | `(y - mu)^2` | reduces to ordinary squared loss |
-| Bernoulli (y in {0,1}) | `-2[y*ln(mu) + (1-y)*ln(1-mu)]` | binary classification (this is log-loss) |
-| Poisson | `2[y*ln(y/mu) - (y - mu)]` | non-negative integer counts |
-| Gamma | `2[(y-mu)/mu - ln(y/mu)]` | positive, right-skewed continuous values |
+| Gaussian | $(y - \mu)^2$ | reduces to ordinary squared loss |
+| Bernoulli ($y \in \{0,1\}$) | $-2[y \ln(\mu) + (1-y)\ln(1-\mu)]$ | binary classification (this is log-loss) |
+| Poisson | $2\left[y \ln\left(\frac{y}{\mu}\right) - (y - \mu)\right]$ | non-negative integer counts |
+| Gamma | $2\left[\frac{y-\mu}{\mu} - \ln\left(\frac{y}{\mu}\right)\right]$ | positive, right-skewed continuous values |
 
 GLM fitting minimizes:
 
-```
-(1 / 2n) * sum_i d(y_i, y_hat_i)  +  (alpha / 2) * ||w||_2^2
-```
+$$\frac{1}{2n} \sum_i d(y_i, \hat{y}_i) + \frac{\alpha}{2} \|w\|_2^2$$
 
 i.e. average unit deviance plus an (optional) L2 penalty — equivalent to maximizing a regularized likelihood under the chosen distribution.
 
-A **link function** `g` connects the linear predictor to the mean: `g(mu) = Xw`. The canonical choice for Poisson/Gamma is the **log link** (`mu = exp(Xw)`), which automatically keeps predictions positive — solving the "negative predicted count" problem outright.
+A **link function** $g$ connects the linear predictor to the mean: $g(\mu) = Xw$. The canonical choice for Poisson/Gamma is the **log link** ($\mu = \exp(Xw)$), which automatically keeps predictions positive — solving the "negative predicted count" problem outright.
 
 ## When to use / when not to use
 
@@ -87,78 +83,62 @@ A GLM is built from exactly three pieces:
 
 1. **Random component.** Assume the target, conditional on the input, follows *some* distribution from the exponential family:
 
-   ```
-   y | x  ~  ExponentialFamily(θ)
-   ```
+   $$y \mid x \sim \text{ExponentialFamily}(\theta)$$
 
    This isn't an arbitrary restriction — the exponential family is specifically the class of *maximum-entropy* distributions under fixed-moment constraints (Koopman-Pitman-Darmois theorem; see [Entropy and KL Divergence](../probabilistic-ml/entropy-and-kl-divergence.md) for the full statement and derivation). If all you're willing to assume about your noise is a handful of moments, the exponential family is the least-additional-assumption, most "honest" choice consistent with that — which is why GLM restricts to it rather than allowing arbitrary distributions.
 
 2. **Linear predictor.** A linear combination of the features, with unrestricted range over the reals:
 
-   ```
-   η = <x, ω>
-   ```
+   $$\eta = \langle x, \omega \rangle$$
 
-3. **Link function.** A function `g` that connects the linear predictor `η` to the distribution's mean `μ = E[y]`:
+3. **Link function.** A function $g$ that connects the linear predictor $\eta$ to the distribution's mean $\mu = \mathbb{E}[y]$:
 
-   ```
-   g(μ) = η = <x, ω>     ⟺     μ = g^{-1}(η)
-   ```
+   $$g(\mu) = \eta = \langle x, \omega \rangle \quad \Longleftrightarrow \quad \mu = g^{-1}(\eta)$$
 
-   The link function's job is purely to translate the unrestricted range of `η` (all of `ℝ`) into whatever valid range `μ` must actually live in — positive for Poisson counts, `(0,1)` for a Bernoulli probability, and so on.
+   The link function's job is purely to translate the unrestricted range of $\eta$ (all of $\mathbb{R}$) into whatever valid range $\mu$ must actually live in — positive for Poisson counts, $(0,1)$ for a Bernoulli probability, and so on.
 
 ### Canonical parameterization
 
-Rewrite the exponential family in its **canonical (natural) parameterization**, isolating a single scalar parameter `θ` that determines the location of the distribution:
+Rewrite the exponential family in its **canonical (natural) parameterization**, isolating a single scalar parameter $\theta$ that determines the location of the distribution:
 
-```
-p(y | θ, φ) = exp( (y·θ - a(θ)) / φ + b(y, φ) )
-```
+$$p(y \mid \theta, \phi) = \exp\left( \frac{y\theta - a(\theta)}{\phi} + b(y, \phi) \right)$$
 
-- **`θ`** — the natural/canonical parameter: it's what controls "where the distribution is centered" (the analogue of a mean parameter). This is the piece that will eventually get tied to `x` and `ω`.
-- **`φ`** — a dispersion/scale parameter (e.g. variance-like). Often fixed in advance (e.g. `φ = 1`, as for Bernoulli/Poisson).
-- **`a(θ)`** — a function specific to each distribution in the family, chosen so the density normalizes to integrate to 1.
-- **`b(y, φ)`** — does not depend on `θ`; needed for normalization, but doesn't affect how the density depends on `θ`.
+- **$\theta$** — the natural/canonical parameter: it's what controls "where the distribution is centered" (the analogue of a mean parameter). This is the piece that will eventually get tied to $x$ and $\omega$.
+- **$\phi$** — a dispersion/scale parameter (e.g. variance-like). Often fixed in advance (e.g. $\phi = 1$, as for Bernoulli/Poisson).
+- **$a(\theta)$** — a function specific to each distribution in the family, chosen so the density normalizes to integrate to 1.
+- **$b(y, \phi)$** — does not depend on $\theta$; needed for normalization, but doesn't affect how the density depends on $\theta$.
 
-**The mean as a function of θ.** By the moment-generating structure of the exponential family (a consequence of the Koopman-Pitman-Darmois result — see [Entropy and KL Divergence](../probabilistic-ml/entropy-and-kl-divergence.md)):
+**The mean as a function of $\theta$.** By the moment-generating structure of the exponential family (a consequence of the Koopman-Pitman-Darmois result — see [Entropy and KL Divergence](../probabilistic-ml/entropy-and-kl-divergence.md)):
 
-```
-μ = E[y] = φ · E[u₁(y)] = φ · ∂/∂θ ( a(θ) / φ ) = a'(θ)
-```
+$$\mu = \mathbb{E}[y] = \phi \cdot \mathbb{E}[u_1(y)] = \phi \cdot \frac{\partial}{\partial \theta}\left( \frac{a(\theta)}{\phi} \right) = a'(\theta)$$
 
-i.e. the mean is simply the derivative of the normalizing function `a` with respect to the natural parameter `θ`.
+i.e. the mean is simply the derivative of the normalizing function $a$ with respect to the natural parameter $\theta$.
 
 ### Deriving the canonical link function
 
-Now introduce the dependence on `x` by setting the natural parameter equal to the linear predictor — the simplest, most direct way to let the features influence the distribution:
+Now introduce the dependence on $x$ by setting the natural parameter equal to the linear predictor — the simplest, most direct way to let the features influence the distribution:
 
-```
-θ = <x, ω>
-```
+$$\theta = \langle x, \omega \rangle$$
 
-GLM defines the link function `g` by requiring it to connect `x, ω` to the mean:
+GLM defines the link function $g$ by requiring it to connect $x, \omega$ to the mean:
 
-```
-g( E[y|x] ) = <x, ω>     ⟹     E[y|x] = g^{-1}(<x, ω>)
-```
+$$g( \mathbb{E}[y|x] ) = \langle x, \omega \rangle \quad \Longrightarrow \quad \mathbb{E}[y|x] = g^{-1}(\langle x, \omega \rangle)$$
 
-But we also know, from the canonical-parameterization derivation above, that `E[y] = a'(θ) = a'(<x, ω>)`. Combining these two expressions for `E[y|x]` pins down `g` uniquely:
+But we also know, from the canonical-parameterization derivation above, that $\mathbb{E}[y] = a'(\theta) = a'(\langle x, \omega \rangle)$. Combining these two expressions for $\mathbb{E}[y|x]$ pins down $g$ uniquely:
 
-```
-g = (a')^{-1}
-```
+$$g = (a')^{-1}$$
 
-i.e. `g(μ) = θ` where `μ = a'(θ)`. This `g` is called the **canonical link function**.
+i.e. $g(\mu) = \theta$ where $\mu = a'(\theta)$. This $g$ is called the **canonical link function**.
 
-**Why the canonical link is the default (but not mandatory).** Using `θ = <x, ω>` directly — i.e. letting the linear predictor *be* the natural parameter — is the simplest possible way to hook the features into the exponential family, and it has real practical payoffs: the resulting log-likelihood is concave in `ω`, giving clean convergence guarantees for Newton's method / IRLS (iteratively reweighted least squares), and it yields clean sufficient statistics. But it is a choice, not a requirement — any exponential-family random component can be paired with *any* valid link function, canonical or not. A standard example: **probit regression** pairs a Bernoulli random component with the inverse-Gaussian-CDF link (`Φ^{-1}`) instead of the canonical logit link — a non-canonical but perfectly valid GLM.
+**Why the canonical link is the default (but not mandatory).** Using $\theta = \langle x, \omega \rangle$ directly — i.e. letting the linear predictor *be* the natural parameter — is the simplest possible way to hook the features into the exponential family, and it has real practical payoffs: the resulting log-likelihood is concave in $\omega$, giving clean convergence guarantees for Newton's method / IRLS (iteratively reweighted least squares), and it yields clean sufficient statistics. But it is a choice, not a requirement — any exponential-family random component can be paired with *any* valid link function, canonical or not. A standard example: **probit regression** pairs a Bernoulli random component with the inverse-Gaussian-CDF link ($\Phi^{-1}$) instead of the canonical logit link — a non-canonical but perfectly valid GLM.
 
 **Canonical links for the common cases:**
 
-| Family | Canonical link `g` | `μ = g^{-1}(η)` | Model |
+| Family | Canonical link $g$ | $\mu = g^{-1}(\eta)$ | Model |
 |---|---|---|---|
-| Gaussian | identity: `g(μ) = μ` | `μ = η` | Ordinary linear regression — GLM's simplest case |
-| Bernoulli | logit: `g(μ) = ln(μ/(1-μ))` | `μ = σ(η) = 1/(1+e^{-η})` | Logistic regression |
-| Poisson | log: `g(μ) = ln(μ)` | `μ = e^η` | Poisson regression (see above) |
+| Gaussian | identity: $g(\mu) = \mu$ | $\mu = \eta$ | Ordinary linear regression — GLM's simplest case |
+| Bernoulli | logit: $g(\mu) = \ln\left(\frac{\mu}{1-\mu}\right)$ | $\mu = \sigma(\eta) = \frac{1}{1+e^{-\eta}}$ | Logistic regression |
+| Poisson | log: $g(\mu) = \ln(\mu)$ | $\mu = e^{\eta}$ | Poisson regression (see above) |
 
 (See [Logistic Regression](logistic-regression.md) for the Bernoulli case in depth, and the deviance table above for how the loss side of each of these looks.)
 

@@ -58,7 +58,7 @@ def min_coins_greedy(coins: list[int], amount: int) -> int | None:
 - Not handling ties correctly in the sort/comparison, which can silently break the greedy invariant.
 
 ## Complexity
-Typically O(n log n) (dominated by the initial sort) + O(n) for the greedy pass. Space O(1) to O(n) depending on whether sorting is in place.
+Typically $O(n \log n)$ (dominated by the initial sort) + $O(n)$ for the greedy pass. Space $O(1)$ to $O(n)$ depending on whether sorting is in place.
 
 ## Related Patterns
 - [Dynamic Programming](dynamic-programming.md) — the fallback when greedy can't be proven correct.

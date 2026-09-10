@@ -114,7 +114,7 @@ squares_gen  = (x * x for x in range(1_000_000))    # builds nothing yet — laz
 
 | | List comprehension | Generator expression |
 |---|---|---|
-| Memory | O(n) — all at once | O(1) — one item at a time |
+| Memory | $O(n)$ — all at once | $O(1)$ — one item at a time |
 | Speed to first result | slower (builds everything) | instant |
 | Reusable / indexable | yes | no — single-pass, exhausts |
 | When to use | need `len()`, indexing, multiple passes, or it's small | large/unbounded data, feeding straight into `sum()`/`for`/another generator |

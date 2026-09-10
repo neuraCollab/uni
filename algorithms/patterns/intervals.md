@@ -62,7 +62,7 @@ def min_meeting_rooms(intervals: list[list[int]]) -> int:
 - Mutating the input list of intervals in place when the caller doesn't expect it.
 
 ## Complexity
-Time O(n log n) for the sort, O(n) for the pass — O(n log n) overall. Space O(n) for the output (O(1) extra if merging in place after sorting).
+Time $O(n \log n)$ for the sort, $O(n)$ for the pass — $O(n \log n)$ overall. Space $O(n)$ for the output ($O(1)$ extra if merging in place after sorting).
 
 ## Related Patterns
 - [Greedy](greedy.md) — interval scheduling (max non-overlapping subset) is a greedy application.

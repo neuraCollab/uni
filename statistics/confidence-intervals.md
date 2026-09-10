@@ -10,7 +10,7 @@ For a 95% confidence interval:
 
 > If you repeated the sampling process many times and computed a 95% CI each time, approximately 95% of those intervals would contain the true population parameter.
 
-The randomness is in the **interval** (it's a function of the random sample), not in the fixed, unknown true parameter. Once you've computed one specific interval from one specific sample — say `[42.1, 47.9]` — the true mean either *is* or *isn't* in that particular interval; there's no probability left to talk about for that single realized interval under the frequentist framework.
+The randomness is in the **interval** (it's a function of the random sample), not in the fixed, unknown true parameter. Once you've computed one specific interval from one specific sample — say $[42.1, 47.9]$ — the true mean either *is* or *isn't* in that particular interval; there's no probability left to talk about for that single realized interval under the frequentist framework.
 
 ### The wrong (but extremely common) interpretation
 
@@ -22,25 +22,21 @@ This sounds almost like the correct statement but isn't, in the strict frequenti
 
 ## How it's built (parametric case, e.g. a mean)
 
-```
-CI = point estimate  ±  critical value × standard error
-```
+$$CI = \text{point estimate} \pm \text{critical value} \times \text{standard error}$$
 
 For a sample mean with known/estimated variance:
 
-```
-x̄  ±  z(or t) × (s / √n)
-```
+$$\bar{x} \pm z (\text{or } t) \times \frac{s}{\sqrt{n}}$$
 
-- **Point estimate**: `x̄`, the sample mean.
-- **Standard error**: `s/√n` — shrinks as `√n` grows (straight from the CLT, see [`distributions-clt.md`](./distributions-clt.md)).
-- **Critical value**: `z` (standard normal quantile) if population variance is known or `n` is large; `t` (Student's t-distribution quantile, heavier tails) if estimating variance from a small sample — see [`t-test-anova-chi-square.md`](./t-test-anova-chi-square.md).
+- **Point estimate**: $\bar{x}$, the sample mean.
+- **Standard error**: $s/\sqrt{n}$ — shrinks as $\sqrt{n}$ grows (straight from the CLT, see [`distributions-clt.md`](./distributions-clt.md)).
+- **Critical value**: $z$ (standard normal quantile) if population variance is known or $n$ is large; $t$ (Student's t-distribution quantile, heavier tails) if estimating variance from a small sample — see [`t-test-anova-chi-square.md`](./t-test-anova-chi-square.md).
 
 ## How CI width relates to sample size and confidence level
 
-- **Sample size `n` ↑ → width ↓**: standard error scales as `1/√n`, so width shrinks — but with diminishing returns (quadrupling `n` only halves the width).
-- **Confidence level ↑ → width ↑**: demanding more confidence (e.g. 99% instead of 95%) requires a wider net to keep the long-run coverage guarantee — the critical value (`z` or `t`) grows as the confidence level increases. There's an inherent tradeoff: a narrower interval is more useful/precise but gives a weaker coverage guarantee, and vice versa.
-- **Variance in the underlying data ↑ → width ↑**: noisier data means less certainty about the mean for the same `n`.
+- **Sample size $n$ ↑ → width ↓**: standard error scales as $1/\sqrt{n}$, so width shrinks — but with diminishing returns (quadrupling $n$ only halves the width).
+- **Confidence level ↑ → width ↑**: demanding more confidence (e.g. 99% instead of 95%) requires a wider net to keep the long-run coverage guarantee — the critical value ($z$ or $t$) grows as the confidence level increases. There's an inherent tradeoff: a narrower interval is more useful/precise but gives a weaker coverage guarantee, and vice versa.
+- **Variance in the underlying data ↑ → width ↑**: noisier data means less certainty about the mean for the same $n$.
 
 Rule of thumb table (two-tailed z critical values):
 
@@ -55,7 +51,7 @@ Rule of thumb table (two-tailed z critical values):
 **Idea**: instead of relying on a parametric formula (which assumes a known sampling distribution, e.g. normal via CLT), simulate the sampling distribution directly by resampling the *observed* data.
 
 **Procedure**:
-1. From your original sample of size `n`, draw a new sample of size `n` **with replacement** (a "bootstrap resample").
+1. From your original sample of size $n$, draw a new sample of size $n$ **with replacement** (a "bootstrap resample").
 2. Compute the statistic of interest (mean, median, correlation, model coefficient — anything) on that resample.
 3. Repeat steps 1–2 many times (e.g. 1,000–10,000 times) to build an empirical distribution of the statistic.
 4. The CI is read off the percentiles of that empirical distribution — e.g. the 2.5th and 97.5th percentiles give a 95% "percentile bootstrap" CI.
@@ -67,7 +63,7 @@ Rule of thumb table (two-tailed z critical values):
 | Assumes a known sampling distribution (normal via CLT, t, etc.) | Yes | No — empirical |
 | Works for arbitrary statistics (median, ratio, model coefficient, correlation) | Only if a formula exists (often doesn't) | Yes, generically |
 | Computationally cheap | Yes (closed form) | More expensive (needs many resamples) |
-| Reliable with small `n` or skewed data | Can break down (CLT needs `n` large enough) | Generally more robust, though still needs a "large enough" original sample to represent the population well |
+| Reliable with small $n$ or skewed data | Can break down (CLT needs $n$ large enough) | Generally more robust, though still needs a "large enough" original sample to represent the population well |
 
 Use bootstrap when: the statistic has no clean analytic standard-error formula (e.g. median, a ratio of two sample means, a specific model's coefficient), or you're not confident CLT-based normality kicks in yet (small/skewed samples). Use a parametric CI when: a well-established formula exists (mean, proportion) and you want a fast, standard, easily-communicated result.
 
@@ -78,14 +74,14 @@ Use bootstrap when: the statistic has no clean analytic standard-error formula (
 3. How would you construct a confidence interval for the median of a dataset? (Answer: bootstrap — no simple closed-form standard error for the median.)
 4. Explain the bootstrap procedure for building a CI.
 5. Contrast a frequentist confidence interval with a Bayesian credible interval.
-6. If a 95% CI for a difference in means is `[-2, 5]`, what would you conclude about statistical significance at α = 0.05? (Answer: fails to reject `H₀: difference = 0`, since 0 is inside the interval — this CI/hypothesis-test duality is a common follow-up.)
+6. If a 95% CI for a difference in means is $[-2, 5]$, what would you conclude about statistical significance at α = 0.05? (Answer: fails to reject $H_0: \text{difference} = 0$, since 0 is inside the interval — this CI/hypothesis-test duality is a common follow-up.)
 
 ## Common mistakes
 
 - Saying "95% probability the true parameter is in this specific interval" (misapplies the long-run frequency guarantee to a single realized interval).
 - Believing a narrower interval is always "better" without noting it comes from lower confidence, larger sample size, or lower variance — not a free lunch.
 - Forgetting that CI width depends on the *number of bootstrap resamples being large enough* to stabilize the percentile estimates, not on it magically fixing a too-small original sample.
-- Using a `z` critical value when sample size is small and population variance is unknown (should use `t` instead — see [`t-test-anova-chi-square.md`](./t-test-anova-chi-square.md)).
+- Using a $z$ critical value when sample size is small and population variance is unknown (should use $t$ instead — see [`t-test-anova-chi-square.md`](./t-test-anova-chi-square.md)).
 
 ## See also
 

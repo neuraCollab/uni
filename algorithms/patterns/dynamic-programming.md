@@ -12,7 +12,7 @@
 Break the problem into a sequence of overlapping subproblems defined by some state (often an index, or index + remaining capacity/target). Solve each state once, either top-down with memoization (recursion + cache) or bottom-up by filling a table in an order that guarantees dependencies are solved first.
 
 ## Why this works
-Without memoization, a naive recursive solution can be exponential because the same subproblem is recomputed on every path that reaches it (classic example: naive Fibonacci is O(2^n)). Caching each state's result the first time it's computed turns that into O(number of distinct states * work per state).
+Without memoization, a naive recursive solution can be exponential because the same subproblem is recomputed on every path that reaches it (classic example: naive Fibonacci is $O(2^n)$). Caching each state's result the first time it's computed turns that into $O(\text{number of distinct states} \times \text{work per state})$.
 
 ## Template
 ```python
@@ -75,7 +75,7 @@ def longest_common_subsequence(a: str, b: str) -> int:
 - Using recursion without memoization ("I'll just write the recursive version") on a problem that clearly has overlapping subproblems — always state the complexity of the naive approach to justify why memoization is needed.
 
 ## Complexity
-Time O(number of distinct states * transition cost) — e.g. O(n) for 1D DP, O(n*m) for 2D DP like LCS/edit distance, O(n*capacity) for knapsack. Space can often be reduced from O(n) or O(n*m) to O(1) or O(m) via rolling arrays when only the previous row/state is needed.
+Time $O(\text{number of distinct states} \times \text{transition cost})$ — e.g. $O(n)$ for 1D DP, $O(n \cdot m)$ for 2D DP like LCS/edit distance, $O(n \cdot \text{capacity})$ for knapsack. Space can often be reduced from $O(n)$ or $O(n \cdot m)$ to $O(1)$ or $O(m)$ via rolling arrays when only the previous row/state is needed.
 
 ## Related Patterns
 - [Backtracking](backtracking.md) — DP is backtracking/recursion + memoization when subproblems overlap.

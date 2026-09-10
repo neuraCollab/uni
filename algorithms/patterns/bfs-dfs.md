@@ -11,7 +11,7 @@
 Systematically visit every reachable node exactly once, tracking visited state to avoid infinite loops. **BFS** explores level by level using a queue (FIFO) — the first time you reach a node is via a shortest path in hop count. **DFS** explores as deep as possible before backtracking, using a stack (explicit or the call stack via recursion) — natural for exhaustive exploration, cycle detection, and problems structured as decision trees.
 
 ## Why this works
-Both are exhaustive-but-non-repeating traversals: marking a node visited the moment it's discovered guarantees O(V + E) total work (each node visited once, each edge examined once/twice). BFS's queue ordering specifically guarantees the *first* visit to any node is via the fewest edges, which is exactly what "shortest path in an unweighted graph" needs.
+Both are exhaustive-but-non-repeating traversals: marking a node visited the moment it's discovered guarantees $O(V + E)$ total work (each node visited once, each edge examined once/twice). BFS's queue ordering specifically guarantees the *first* visit to any node is via the fewest edges, which is exactly what "shortest path in an unweighted graph" needs.
 
 ## Template
 ```python
@@ -100,7 +100,7 @@ def num_islands(grid: list[list[str]]) -> int:
 - Not handling disconnected graphs — a single traversal from one start node won't visit everything; loop over all nodes and traverse from each unvisited one when asked about the *whole* graph (e.g. counting all connected components).
 
 ## Complexity
-Time O(V + E) for both. Space O(V) for the visited set/queue/stack (plus O(V) recursion stack for recursive DFS in the worst case).
+Time $O(V + E)$ for both. Space $O(V)$ for the visited set/queue/stack (plus $O(V)$ recursion stack for recursive DFS in the worst case).
 
 ## Related Patterns
 - [Shortest Paths](shortest-paths.md) — BFS is the unweighted special case.

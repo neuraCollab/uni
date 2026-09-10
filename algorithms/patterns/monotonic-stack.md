@@ -4,14 +4,14 @@
 ### Key clues
 - "Next greater/smaller element" to the left or right of each position.
 - Histogram-style problems: largest rectangle, trapping rain water, daily temperatures.
-- Asked for, per element, the nearest element satisfying some comparison — naive approach is O(n^2) with a nested loop.
+- Asked for, per element, the nearest element satisfying some comparison — naive approach is $O(n^2)$ with a nested loop.
 - Stock span, or any "how far back/forward until X changes" question.
 
 ## Pattern
 Maintain a stack of indices (or values) that is kept strictly increasing or decreasing as you scan the array. When the current element breaks the monotonic invariant, pop from the stack — each pop resolves the "next greater/smaller" answer for the popped element.
 
 ## Why this works
-Each element is pushed once and popped at most once, so total work across all pushes/pops is O(n) even though it replaces what looks like an O(n^2) "compare every pair" problem. The stack only ever holds elements that are still "waiting" for their answer.
+Each element is pushed once and popped at most once, so total work across all pushes/pops is $O(n)$ even though it replaces what looks like an $O(n^2)$ "compare every pair" problem. The stack only ever holds elements that are still "waiting" for their answer.
 
 ## Template
 ```python
@@ -62,7 +62,7 @@ def daily_temperatures(temps: list[int]) -> list[int]:
 - Forgetting elements left on the stack at the end never found their answer (correctly left at the default, e.g. -1 or 0) — don't force-pop them incorrectly.
 
 ## Complexity
-Time O(n) amortized (each element pushed/popped once). Space O(n) for the stack.
+Time $O(n)$ amortized (each element pushed/popped once). Space $O(n)$ for the stack.
 
 ## Related Patterns
 - [Binary Search](binary-search.md)

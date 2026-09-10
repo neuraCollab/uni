@@ -17,11 +17,11 @@ XGBoost).
 
 ## Gradient boosting core idea
 
-Build an additive ensemble `F(x) = f_1(x) + f_2(x) + ... + f_M(x)` one tree at
-a time. At step `m`, instead of refitting the target, fit a new tree `f_m` to
+Build an additive ensemble $F(x) = f_1(x) + f_2(x) + \ldots + f_M(x)$ one tree at
+a time. At step $m$, instead of refitting the target, fit a new tree $f_m$ to
 the **negative gradient of the loss function** with respect to the current
 ensemble's predictions (the "pseudo-residuals") — for squared-error loss this
-gradient is literally `y - F_{m-1}(x)`, i.e. the plain residual, which is why
+gradient is literally $y - F_{m-1}(x)$, i.e. the plain residual, which is why
 "fit each tree to the previous tree's errors" is the common shorthand. For
 other losses (logloss, etc.) it's the gradient of that loss, scaled by a
 learning rate (`shrinkage`) so no single tree dominates the ensemble.
@@ -34,40 +34,41 @@ to bagging's independent, identically-targeted trees (see
 [bias-variance-tradeoff.md](../model-evaluation/bias-variance-tradeoff.md)).
 
 **Step 1 — start from squared-error regression, where the target is
-obvious.** With `L(y, b(x)) = (y - b(x))²`, fit base learners one at a time:
+obvious.** With $L(y, b(x)) = (y - b(x))^2$, fit base learners one at a time:
 
-```
-b1(x) = argmin_{b∈B} L(yi, b(xi))
-a1(x) = b1(x)
+$$
+\begin{aligned}
+b_1(x) &= \arg\min_{b \in B} L(y_i, b(x_i)) \\
+a_1(x) &= b_1(x) \\[4pt]
+s_i &= y_i - \sum_{j=1}^{k} b_j(x_i) = y_i - a_k(x_i) \quad \text{(residual after } k \text{ rounds)} \\[4pt]
+b_{k+1}(x) &= \arg\min_{b \in B} L(s_i, b(x_i)) \quad \text{(fit next tree to the residual)} \\
+a_{k+1}(x) &= a_k(x) + b_{k+1}(x)
+\end{aligned}
+$$
 
-s_i = yi - Σ_{j=1}^{k} b_j(xi) = yi - a_k(xi)     # residual after k rounds
-
-b_{k+1}(x) = argmin_{b∈B} L(s_i, b(xi))            # fit next tree to the residual
-a_{k+1}(x) = a_k(x) + b_{k+1}(x)
-```
-
-At each step, the current ensemble `a_k(x)` under-predicts or over-predicts
-by `s_i = yi - a_k(xi)`, and the next base learner is trained to predict
+At each step, the current ensemble $a_k(x)$ under-predicts or over-predicts
+by $s_i = y_i - a_k(x_i)$, and the next base learner is trained to predict
 exactly that leftover residual, closing the gap. This is the "first
 approximation": it works, but it's phrased in terms of *residuals*, which
 only makes sense for squared-error loss.
 
 **Step 2 — generalize: move in the direction of the anti-gradient.** The
-residual `yi - a_k(xi)` is not a special quantity in general — it's what the
+residual $y_i - a_k(x_i)$ is not a special quantity in general — it's what the
 negative gradient of squared-error loss happens to equal. The correct
 generalization to *any* differentiable loss is to fit each new tree to the
 **anti-gradient (negative gradient) of the loss with respect to the current
 prediction**, evaluated pointwise at each training example:
 
-```
-g_i^k = ∂L(yi, z) / ∂z  |  z = a_k(xi)
+$$
+\begin{aligned}
+g_i^k &= \left.\frac{\partial L(y_i, z)}{\partial z}\right|_{z = a_k(x_i)} \\[4pt]
+b_{k+1}(x) &= \arg\min_{b \in B} L(-g_i^k, b(x_i)) \quad \text{(fit tree to } -g_i^k\text{)} \\
+a_{k+1}(x) &= a_k(x) + b_{k+1}(x)
+\end{aligned}
+$$
 
-b_{k+1}(x) = argmin_{b∈B} L(-g_i^k, b(xi))          # fit tree to -g_i^k
-a_{k+1}(x) = a_k(x) + b_{k+1}(x)
-```
-
-For squared-error loss `L = (y - z)²`, `∂L/∂z = -2(y - z)`, so
-`-g_i^k = 2(yi - a_k(xi))` — proportional to the plain residual, recovering
+For squared-error loss $L = (y - z)^2$, $\partial L/\partial z = -2(y - z)$, so
+$-g_i^k = 2(y_i - a_k(x_i))$ — proportional to the plain residual, recovering
 Step 1 exactly. That's the point: **residual-fitting is the MSE special
 case of anti-gradient fitting**, not a separate technique. Framing boosting
 as functional gradient descent (take a step, in function space, in the
@@ -80,11 +81,9 @@ error.
 learning-to-rank fits trees to the anti-gradient of a *pairwise* loss
 instead of a pointwise one. One common pairwise loss (Pair Logit) is:
 
-```
-Pair Logit = -(1/|pairs|) * Σ_{(p,n)∈pairs}  log( 1 / (1 + e^(-(a_p - a_n))) )
-```
+$$\text{Pair Logit} = -\frac{1}{|\text{pairs}|} \sum_{(p,n)\in \text{pairs}} \log\left(\frac{1}{1 + e^{-(a_p - a_n)}}\right)$$
 
-where `a_p`, `a_n` are the current model's predictions for a relevant (`p`)
+where $a_p$, $a_n$ are the current model's predictions for a relevant (`p`)
 and less-relevant (`n`) document/item in a labeled pair. This is a logistic
 loss over the *difference* of two predictions rather than over a single
 target, and gradient boosting still applies unchanged — compute its
@@ -94,14 +93,14 @@ optimization scheme, not a regression-specific trick.
 
 ### Training the base tree at each step
 
-Given the per-example anti-gradients `-g_i^k` (some texts denote this
-`h_i = -g_i^k`), building the actual base learner at round `k` is a
+Given the per-example anti-gradients $-g_i^k$ (some texts denote this
+$h_i = -g_i^k$), building the actual base learner at round $k$ is a
 two-step recipe:
 
 1. Compute the anti-gradient of the loss function at every training point,
    evaluated at the current ensemble's predictions:
-   `h_i = -g_i^k = -∂L(yi, z)/∂z |_{z = a_k(xi)}`.
-2. On the training set `(x_i, h_i)`, fit a regression tree that minimizes
+   $h_i = -g_i^k = -\left.\dfrac{\partial L(y_i, z)}{\partial z}\right|_{z = a_k(x_i)}$.
+2. On the training set $(x_i, h_i)$, fit a regression tree that minimizes
    whichever *evaluation function* is chosen for the tree itself (typically
    squared error over the `h_i` targets, regardless of what the outer loss
    `L` is) — i.e. the base learner is always a plain regression tree, even
@@ -185,13 +184,13 @@ threshold (e.g. "is `x_5 >= 6.5`?" at every node of level 3), not just the
 same feature. This is a much stronger symmetry constraint than XGBoost's
 level-wise growth (which balances tree *shape* but still lets each node
 pick its own best feature/threshold). Growing a full oblivious tree of
-depth `d` this way is equivalent to evaluating `d` shared yes/no predicates
-and looking up the resulting `2^d`-way leaf — which makes prediction very
-fast (just `d` comparisons, no tree traversal) and acts as an implicit
+depth $d$ this way is equivalent to evaluating $d$ shared yes/no predicates
+and looking up the resulting $2^d$-way leaf — which makes prediction very
+fast (just $d$ comparisons, no tree traversal) and acts as an implicit
 regularizer, since a single split predicate has to work reasonably well
 across the *entire* level rather than being locally optimized for one
 node's subset of data. A side effect: because the split is shared, some of
-the `2^d` leaf combinations may end up with no training examples routed
+the $2^d$ leaf combinations may end up with no training examples routed
 into them at all — those subtrees/leaves simply see zero training points.
 Combined with **ordered boosting** (described above, which fixes the
 target-leakage issue from computing a point's own gradient using a model
@@ -220,7 +219,7 @@ automatically and is the standard way to prevent boosting from overfitting.
 - **SHAP values (modern standard, not used in this repo's code but worth
   knowing)** — a game-theoretic per-prediction attribution: for each
   individual prediction, SHAP assigns each feature a signed contribution that
-  sums to `prediction - baseline`. Averaging `|SHAP|` across all predictions
+  sums to $\text{prediction} - \text{baseline}$. Averaging $|\text{SHAP}|$ across all predictions
   gives a global importance ranking that's more consistent and interaction-aware
   than gain/split-count, and per-prediction SHAP plots let you explain *why*
   one specific prediction was made — the standard tool when explainability

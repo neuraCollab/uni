@@ -6,13 +6,15 @@ Naive Bayes is a **generative** classifier (see
 [Generative Classification: GDA, QDA, LDA](generative-classification-gda-lda.md)
 for the discriminative-vs-generative background and the Bayes'-rule
 argmax derivation it shares). Its distinguishing move is how it models the
-class-conditional density `P(x|y)` for a feature vector
-`x = (x^1, x^2, ..., x^d)`:
+class-conditional density $P(x \mid y)$ for a feature vector
+$x = (x^1, x^2, \ldots, x^d)$:
 
-```
-P(x|y) = P(x^1, x^2, ..., x^d | y)
-       = P(x^1|y) * P(x^2|y) * ... * P(x^d|y)
-```
+$$
+\begin{aligned}
+P(x \mid y) &= P(x^1, x^2, \ldots, x^d \mid y) \\
+&= P(x^1 \mid y) \cdot P(x^2 \mid y) \cdots P(x^d \mid y)
+\end{aligned}
+$$
 
 That is: **given the class label, the features are assumed mutually
 independent of each other.** This is the "naive" part — it's a strong
@@ -21,7 +23,7 @@ least somewhat correlated even within a class), but the classifier still
 tends to work well in practice. The reason: classification only needs the
 *argmax* over classes to come out right, not the actual posterior
 probabilities to be numerically accurate or well-calibrated. Even when the
-independence assumption distorts the magnitude of `P(x|y)` for each class,
+independence assumption distorts the magnitude of $P(x \mid y)$ for each class,
 it often distorts all classes' scores in a similar enough way that the
 *ranking* between classes — and hence the predicted label — stays correct.
 
@@ -30,47 +32,43 @@ it often distorts all classes' scores in a similar enough way that the
 Plugging the independence factorization into the generic generative-model
 argmax rule gives:
 
-```
-a(x) = argmax_{y in Y}  P(y) * P(x^1|y) * P(x^2|y) * ... * P(x^d|y)
-```
+$$a(x) = \arg\max_{y \in \mathcal{Y}} P(y) \cdot P(x^1 \mid y) \cdot P(x^2 \mid y) \cdots P(x^d \mid y)$$
 
-Each `P(x^k|y)` is a simple 1-D distribution estimated independently per
+Each $P(x^k \mid y)$ is a simple 1-D distribution estimated independently per
 feature per class — trivial to fit even with limited data, which is a big
 part of Naive Bayes's practical appeal.
 
 ## Laplace smoothing
 
-**The zero-probability problem:** if some feature value `x_j` never occurs
+**The zero-probability problem:** if some feature value $x_j$ never occurs
 together with a given class in the training set, the raw empirical estimate
-`P(X=x_j) = #{X=x_j}/N` is exactly `0` for that (class, value) combination.
+$P(X=x_j) = \#\{X=x_j\}/N$ is exactly $0$ for that (class, value) combination.
 Since the classification rule *multiplies* the per-feature likelihoods
 together, a single zero factor forces the **entire product to zero** for
 that class — no matter how strongly every other feature points to it. In
 other words, one unseen feature value can override all the other evidence.
 
-**The fix:** add a pseudo-count `alpha` to every observed count before
+**The fix:** add a pseudo-count $\alpha$ to every observed count before
 normalizing:
 
-```
-P_hat(X = x_j) = ( #{X = x_j} + alpha ) / ( N + m * alpha )
-```
+$$\hat{P}(X = x_j) = \frac{\#\{X = x_j\} + \alpha}{N + m \alpha}$$
 
-where `m` is the number of distinct values `X` can take, and `alpha` is a
-smoothing hyperparameter (`alpha = 1` is the classic "add-one" / Laplace
-smoothing; `alpha < 1` is sometimes called Lidstone smoothing).
+where $m$ is the number of distinct values $X$ can take, and $\alpha$ is a
+smoothing hyperparameter ($\alpha = 1$ is the classic "add-one" / Laplace
+smoothing; $\alpha < 1$ is sometimes called Lidstone smoothing).
 
-**How `alpha` trades off empirical frequency vs. a uniform prior:**
-- `alpha -> 0`: the `+alpha` terms vanish, and this recovers the raw MLE
-  frequency `#{X=x_j}/N` exactly — fully "trusting" the observed data, zero
+**How $\alpha$ trades off empirical frequency vs. a uniform prior:**
+- $\alpha \to 0$: the $+\alpha$ terms vanish, and this recovers the raw MLE
+  frequency $\#\{X=x_j\}/N$ exactly — fully "trusting" the observed data, zero
   counts included.
-- `alpha` large: the additive terms dominate both numerator and
-  denominator, and `P_hat(X=x_j) -> 1/m` for every value `x_j` — pulling
-  the estimate toward a **uniform distribution** over the `m` possible
+- $\alpha$ large: the additive terms dominate both numerator and
+  denominator, and $\hat{P}(X=x_j) \to 1/m$ for every value $x_j$ — pulling
+  the estimate toward a **uniform distribution** over the $m$ possible
   values, regardless of what was actually observed.
 
-So `alpha` is effectively a dial between "trust the data completely" (small
-`alpha`, risk of zero-probability overrides) and "trust a uniform prior"
-(large `alpha`, risk of washing out real signal in the data). It's exactly
+So $\alpha$ is effectively a dial between "trust the data completely" (small
+$\alpha$, risk of zero-probability overrides) and "trust a uniform prior"
+(large $\alpha$, risk of washing out real signal in the data). It's exactly
 the same idea as a Bayesian prior pulling a maximum-likelihood estimate
 toward a default belief — see
 [Bayesian Inference](bayesian-inference.md) for the general version of this
@@ -79,30 +77,26 @@ parameter under a Dirichlet prior).
 
 ## Continuous features: kernel density estimation (Parzen windows)
 
-Laplace smoothing assumes `X` takes one of finitely many discrete values.
+Laplace smoothing assumes $X$ takes one of finitely many discrete values.
 For a **continuous** feature, there's no finite set of values to count —
 you need a density estimate instead. One standard non-parametric approach
 (rather than assuming a parametric family like Gaussian, see below) is the
 **Parzen window** / **kernel density estimator (KDE)**.
 
-Simplest version — a box (uniform) kernel of half-width `h`: count how many
-training points `x_j` fall within `h` of the query point `a`, and normalize:
+Simplest version — a box (uniform) kernel of half-width $h$: count how many
+training points $x_j$ fall within $h$ of the query point $a$, and normalize:
 
-```
-p_hat(a) = (1 / (2h)) * sum_j  1[ a - h < x_j < a + h ]
-```
+$$\hat{p}(a) = \frac{1}{2h} \sum_j \mathbb{1}[ a - h < x_j < a + h ]$$
 
 More generally, replace the hard indicator with a smooth **kernel function**
-`K_h`:
+$K_h$:
 
-```
-p_hat(a) = (1 / (2h)) * sum_j  K_h(x_j - a)
-```
+$$\hat{p}(a) = \frac{1}{2h} \sum_j K_h(x_j - a)$$
 
 Each training point contributes a small "bump" of density around itself
-(shaped by `K_h`, scaled by the bandwidth `h`), and the estimate at any
-point `a` is the sum of all these bumps. This gives Naive Bayes a way to
-estimate `P(x^k|y)` for a continuous feature `x^k` without committing to a
+(shaped by $K_h$, scaled by the bandwidth $h$), and the estimate at any
+point $a$ is the sum of all these bumps. This gives Naive Bayes a way to
+estimate $P(x^k \mid y)$ for a continuous feature $x^k$ without committing to a
 specific parametric shape.
 
 **The parametric alternative** (also common, and what `GaussianNB` in
@@ -138,6 +132,6 @@ per-feature, per-class distribution really does look roughly bell-shaped.
 ## See also
 
 - [Generative Classification: GDA, QDA, LDA](generative-classification-gda-lda.md) —
-  the Gaussian alternative to independence assumptions for `P(x|y)`.
+  the Gaussian alternative to independence assumptions for $P(x \mid y)$.
 - [Bayesian Inference](bayesian-inference.md) — the general Bayesian
   machinery (priors, MAP) that Laplace smoothing is a special case of.

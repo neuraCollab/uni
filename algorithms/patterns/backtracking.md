@@ -68,7 +68,7 @@ def permutations(nums: list[int]) -> list[list[int]]:
 - Missing the dedup step (`if i > start and nums[i] == nums[i-1]: continue`) when the input has duplicates and the problem wants unique results.
 
 ## Complexity
-Typically O(2^n) (subsets) to O(n!) (permutations) time in the worst case — inherent to exhaustive search — but effective pruning often keeps real-world runtime far below the bound.
+Typically $O(2^n)$ (subsets) to $O(n!)$ (permutations) time in the worst case — inherent to exhaustive search — but effective pruning often keeps real-world runtime far below the bound.
 
 ## Related Patterns
 - [Dynamic Programming](dynamic-programming.md) — when overlapping subproblems let you memoize instead of re-exploring.

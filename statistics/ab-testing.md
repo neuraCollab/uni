@@ -8,7 +8,7 @@ The standard industry framework for running controlled online experiments to mea
 
 ### 1. Formulate a hypothesis
 
-State clearly, before looking at any data: what change you're testing, what metric it should move, and in which direction — e.g. "Changing the checkout button color from grey to green will increase the checkout conversion rate." This becomes your `H₁`; `H₀` is "no difference in conversion rate between button colors."
+State clearly, before looking at any data: what change you're testing, what metric it should move, and in which direction — e.g. "Changing the checkout button color from grey to green will increase the checkout conversion rate." This becomes your $H_1$; $H_0$ is "no difference in conversion rate between button colors."
 
 ### 2. Pick a primary metric
 
@@ -18,7 +18,7 @@ Also worth defining upfront: **guardrail metrics** (things that must *not* get w
 
 ### 3. Compute required sample size (power analysis) — BEFORE running the test
 
-Given: the minimum detectable effect (MDE) you care about, the metric's baseline variance, your chosen significance level `α` (typically 0.05), and your target power (typically 0.80), compute the sample size needed per arm. This should always be done **before** the experiment starts, not after — deciding "how long to run" partway through based on the data you're seeing is exactly the peeking problem below.
+Given: the minimum detectable effect (MDE) you care about, the metric's baseline variance, your chosen significance level $\alpha$ (typically 0.05), and your target power (typically 0.80), compute the sample size needed per arm. This should always be done **before** the experiment starts, not after — deciding "how long to run" partway through based on the data you're seeing is exactly the peeking problem below.
 
 Smaller MDE, higher desired power, or lower α all *increase* the required sample size — this is the direct analytical link back to Type I/II errors and power (see [`hypothesis-testing-pvalue.md`](./hypothesis-testing-pvalue.md)).
 
@@ -47,11 +47,11 @@ Report the result as both a p-value/significance decision **and** a confidence i
 
 ### Peeking at results early and stopping when significant
 
-Checking the p-value repeatedly during the test and stopping as soon as it crosses `α` inflates the true false-positive rate far above the nominal 5% — because you're effectively running many implicit hypothesis tests (one per peek) and taking the first "win," which is exactly the multiple comparisons problem in disguise. With continuous monitoring, the false positive rate can climb to 20-30%+ even though every individual peek used `α = 0.05`. **Fix**: pre-commit to a sample size/duration and only look once (a fixed-horizon test), or use a sequential testing method explicitly designed for repeated looks (e.g. group sequential designs, always-valid p-values/mSPRT).
+Checking the p-value repeatedly during the test and stopping as soon as it crosses $\alpha$ inflates the true false-positive rate far above the nominal 5% — because you're effectively running many implicit hypothesis tests (one per peek) and taking the first "win," which is exactly the multiple comparisons problem in disguise. With continuous monitoring, the false positive rate can climb to 20-30%+ even though every individual peek used $\alpha = 0.05$. **Fix**: pre-commit to a sample size/duration and only look once (a fixed-horizon test), or use a sequential testing method explicitly designed for repeated looks (e.g. group sequential designs, always-valid p-values/mSPRT).
 
 ### Not accounting for multiple metrics / multiple tests
 
-Testing a dozen secondary metrics and reporting whichever one came back significant is p-hacking — with enough metrics, something will cross `α = 0.05` by chance alone (see [`hypothesis-testing-pvalue.md`](./hypothesis-testing-pvalue.md)). Fix: declare one primary metric upfront; apply a multiple-comparisons correction (Bonferroni, Benjamini-Hochberg) to any secondary/exploratory metrics you do report.
+Testing a dozen secondary metrics and reporting whichever one came back significant is p-hacking — with enough metrics, something will cross $\alpha = 0.05$ by chance alone (see [`hypothesis-testing-pvalue.md`](./hypothesis-testing-pvalue.md)). Fix: declare one primary metric upfront; apply a multiple-comparisons correction (Bonferroni, Benjamini-Hochberg) to any secondary/exploratory metrics you do report.
 
 ### Sample ratio mismatch (SRM)
 

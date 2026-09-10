@@ -14,8 +14,8 @@ data, whose predictions are averaged (regression) or majority-voted
    sample (sampled with replacement, same size as the original dataset, so
    ~63.2% of rows appear at least once per tree).
 2. **Random feature subsampling** — at each split, only a random subset of
-   features (`max_features`, commonly `sqrt(n_features)` for classification,
-   `n_features/3` for regression) is considered as split candidates.
+   features (`max_features`, commonly $\sqrt{n_{\text{features}}}$ for classification,
+   $n_{\text{features}}/3$ for regression) is considered as split candidates.
 
 ## Why both matter — decorrelating trees
 
@@ -28,36 +28,34 @@ averaging correlated trees barely reduces variance versus a single tree.
 Random feature subsampling forces different trees to discover different
 splits — a tree that can't see the dominant feature at a given node is forced
 to use a weaker-but-informative one instead. This decorrelates the trees, and
-averaging `N` decorrelated, unbiased estimators reduces variance roughly by a
-factor related to their average pairwise correlation, not by `1/N` alone.
+averaging $N$ decorrelated, unbiased estimators reduces variance roughly by a
+factor related to their average pairwise correlation, not by $1/N$ alone.
 Bagging supplies the "many different training sets" half; feature
 subsampling supplies the "and don't let them agree on structure" half.
 
 ## The formal bagging argument (why averaging reduces variance)
 
-Bagging (bootstrap aggregation) trains `k` base algorithms `b_i(x, X_i)` on
-`k` bootstrap resamples `X_1, ..., X_k` of the training set and averages
+Bagging (bootstrap aggregation) trains $k$ base algorithms $b_i(x, X_i)$ on
+$k$ bootstrap resamples $X_1, \ldots, X_k$ of the training set and averages
 them:
 
-```
-a(x) = (1/k) * (b_1(x, X_1) + b_2(x, X_2) + ... + b_k(x, X_k))
-```
+$$a(x) = \frac{1}{k}\left(b_1(x, X_1) + b_2(x, X_2) + \ldots + b_k(x, X_k)\right)$$
 
 Two claims follow directly from this construction (see
 [bias-variance-tradeoff.md](../model-evaluation/bias-variance-tradeoff.md)
 for the full formal decomposition these refer to):
 
-- **Bias is unchanged.** Expectation is linear, so `E[a(x, X)]` is just the
-  average of the `k` base models' expectations. Averaging identically
+- **Bias is unchanged.** Expectation is linear, so $\mathbb{E}[a(x, X)]$ is just the
+  average of the $k$ base models' expectations. Averaging identically
   distributed estimators doesn't shift their expected value — if each tree
   is (say) slightly biased downward on average, the average of many such
   trees is biased downward by the same amount. Bagging never fixes a model
   that's systematically wrong.
 - **Variance shrinks — if and only if the base models don't correlate.**
-  For `k` i.i.d. random variables with variance `σ²` each, the variance of
-  their average is `σ²/k` — this is the ideal case bagging is chasing.
-  Bagging's implicit assumption is that `cov(b_i(x, X_i), b_j(x, X_j)) ≈ 0`
-  for `i ≠ j`. In the ideal (zero-correlation) case you get the full `1/k`
+  For $k$ i.i.d. random variables with variance $\sigma^2$ each, the variance of
+  their average is $\sigma^2/k$ — this is the ideal case bagging is chasing.
+  Bagging's implicit assumption is that $\text{cov}(b_i(x, X_i), b_j(x, X_j)) \approx 0$
+  for $i \neq j$. In the ideal (zero-correlation) case you get the full $1/k$
   variance reduction; the more correlated the base learners are, the less
   variance reduction you actually get, because averaging correlated
   variables can't cancel their shared error component.
@@ -68,9 +66,9 @@ contains ~63% of the same rows) and, left alone, will tend to rediscover the
 same dominant splits near the root. That's a direct violation of bagging's
 "don't correlate" assumption, and it's exactly why Random Forest adds
 **random feature subsampling on top of bagging**: restricting each split to
-a random subset of `n < N` features forces different trees down different
-structural paths, lowering `cov(b_i, b_j)` and pushing the realized variance
-reduction closer to the ideal `1/k`. Bagging alone gives you *some*
+a random subset of $n < N$ features forces different trees down different
+structural paths, lowering $\text{cov}(b_i, b_j)$ and pushing the realized variance
+reduction closer to the ideal $1/k$. Bagging alone gives you *some*
 decorrelation (different resamples); feature subsampling gives you a lot
 more (different candidate splits), which is why RF reliably outperforms
 plain bagged trees.
@@ -88,7 +86,7 @@ plain bagged trees.
   standalone tree.
 - **`n_features` per split (`max_features`)** — fewer candidate features per
   split means *less correlation between trees* (more decorrelation, closer
-  to the ideal `1/k`), at the cost of each individual split being weaker
+  to the ideal $1/k$), at the cost of each individual split being weaker
   (a tree might be forced to use a less-informative feature), which can
   raise the bias of each tree slightly. More candidate features per split
   means more correlation between trees (closer to plain bagging) but

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import { NoteItem, CodeItem } from '../types';
 import { resolveMarkdownLink } from '../utils/linkResolver';
 import { 
@@ -169,7 +172,8 @@ export const NoteViewer: React.FC<NoteViewerProps> = ({
       {/* Main Markdown Content */}
       <article className="prose prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-amber-400 hover:prose-a:text-amber-300 prose-code:text-amber-300 prose-pre:bg-neutral-950 prose-pre:border prose-pre:border-neutral-800 text-neutral-200 text-sm sm:text-base leading-relaxed">
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex]}
           components={{
             h1: ({ children }) => (
               <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-100 tracking-tight mt-2 mb-6 pb-2 border-b border-neutral-800">

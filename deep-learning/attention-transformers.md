@@ -16,14 +16,12 @@ RNNs process a sequence step by step, so information from position 1 has to pass
 
 Each input token is projected (via three learned weight matrices) into a **query (Q)**, **key (K)**, and **value (V)** vector. The attention score between two positions is the dot product of one's query and the other's key, scaled and normalized:
 
-```
-Attention(Q, K, V) = softmax(Q K^T / sqrt(d_k)) V
-```
+$$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$$
 
-- `Q K^T` — for every pair of positions, how relevant is this key to that query (dot product = similarity).
-- `/ sqrt(d_k)` — scales down the dot products (which grow with dimension `d_k`) so the softmax doesn't saturate into near-one-hot outputs with vanishing gradients.
-- `softmax(...)` — turns each row into a probability distribution over "how much to attend to every other position."
-- `... V` — the output at each position is a weighted sum of every position's value vector, weighted by that attention distribution.
+- $QK^\top$ — for every pair of positions, how relevant is this key to that query (dot product = similarity).
+- $/\sqrt{d_k}$ — scales down the dot products (which grow with dimension $d_k$) so the softmax doesn't saturate into near-one-hot outputs with vanishing gradients.
+- $\text{softmax}(\cdot)$ — turns each row into a probability distribution over "how much to attend to every other position."
+- $\cdots V$ — the output at each position is a weighted sum of every position's value vector, weighted by that attention distribution.
 
 Every position's output can be computed independently of every other output (given Q, K, V for the whole sequence), which is exactly what makes this parallelizable, unlike an RNN's inherently sequential recurrence.
 
@@ -42,10 +40,12 @@ Attention as defined above is **permutation-invariant** — swap two tokens' pos
 
 Each encoder/decoder layer repeats the same skeleton:
 
-```
-x = x + SelfAttention(LayerNorm(x))     # residual connection + self-attention
-x = x + FeedForward(LayerNorm(x))       # residual connection + position-wise feedforward (2-layer MLP)
-```
+$$
+\begin{aligned}
+x &= x + \text{SelfAttention}(\text{LayerNorm}(x)) \qquad \text{residual connection + self-attention} \\
+x &= x + \text{FeedForward}(\text{LayerNorm}(x)) \qquad\ \text{residual connection + position-wise feedforward (2-layer MLP)}
+\end{aligned}
+$$
 
 (Exact placement of LayerNorm relative to the residual — "pre-norm" as shown vs. "post-norm" — varies between implementations; both are common.) The **residual connections** are what make stacking many such blocks trainable at all — same rationale as in very deep CNNs/ResNets: they give gradients a direct path backward through the network, mitigating vanishing gradients across depth. **LayerNorm** stabilizes activation scale similarly to how BatchNorm does in CNNs ([`regularization-overfitting.md`](regularization-overfitting.md)), but normalizes across the feature dimension per example instead of across the batch — important because it makes LayerNorm's behavior independent of batch size/composition, unlike BatchNorm.
 
@@ -81,8 +81,8 @@ Sequence tasks where long-range dependencies and training throughput both matter
 
 ## Common interview questions
 
-- **Write out the scaled dot-product attention formula and explain each term.** `softmax(QK^T / sqrt(d_k)) V` — see the "Scaled dot-product self-attention" section above.
-- **Why divide by `sqrt(d_k)`?** Without scaling, dot products grow with dimensionality, pushing softmax into a saturated near-one-hot regime with very small gradients; scaling keeps the softmax input in a well-conditioned range.
+- **Write out the scaled dot-product attention formula and explain each term.** $\text{softmax}(QK^\top / \sqrt{d_k})\,V$ — see the "Scaled dot-product self-attention" section above.
+- **Why divide by $\sqrt{d_k}$?** Without scaling, dot products grow with dimensionality, pushing softmax into a saturated near-one-hot regime with very small gradients; scaling keeps the softmax input in a well-conditioned range.
 - **Why do transformers need positional encoding but RNNs don't?** Self-attention is permutation-invariant by construction (no inherent notion of order); RNNs are inherently order-sensitive because they process tokens sequentially.
 - **What's the advantage of multi-head attention over single-head?** Lets the model attend to information from different representation subspaces/relationship types in parallel, instead of averaging everything into one attention pattern.
 - **Why are transformers more parallelizable than RNNs during training?** Every position's attention output can be computed independently given Q/K/V for the whole sequence, with no sequential dependency between timesteps — unlike an RNN's step-by-step recurrence.

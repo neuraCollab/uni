@@ -5,10 +5,10 @@
 - "**Contiguous** subarray/substring" + longest/shortest/maximum/minimum/count.
 - Constraint on the window contents: "at most K distinct characters", "sum <= target", "no repeating characters".
 - Asked for a fixed-size window aggregate (e.g. "max sum of any subarray of size k").
-- Input is a 1D array or string; brute force would be O(n^2) checking every subarray.
+- Input is a 1D array or string; brute force would be $O(n^2)$ checking every subarray.
 
 ## Pattern
-Maintain a window `[left, right]` over the array/string with some invariant (sum, character counts, distinct count). Expand `right` to grow the window; when the invariant is violated (or, for fixed-size windows, once size k is reached), shrink from `left` until it's valid again. Each element enters and leaves the window at most once, giving O(n) total.
+Maintain a window `[left, right]` over the array/string with some invariant (sum, character counts, distinct count). Expand `right` to grow the window; when the invariant is violated (or, for fixed-size windows, once size k is reached), shrink from `left` until it's valid again. Each element enters and leaves the window at most once, giving $O(n)$ total.
 
 ## Why this works
 Because the window's validity is monotonic in a useful sense (growing the window can only make an "at most K" constraint harder, shrinking can only make it easier), you never need to re-examine a `left`/`right` pair once you've moved past it — no nested loop required.
@@ -53,7 +53,7 @@ def max_sum_fixed_window(a: list[int], k: int) -> int:
 - Off-by-one in window length (`right - left + 1` vs `right - left`).
 
 ## Complexity
-Time O(n) — each pointer traverses the array at most once. Space O(1) to O(k) depending on what the window tracks (a fixed alphabet counter vs. a hash map).
+Time $O(n)$ — each pointer traverses the array at most once. Space $O(1)$ to $O(k)$ depending on what the window tracks (a fixed alphabet counter vs. a hash map).
 
 ## Related Patterns
 - [Two Pointers](two-pointers.md) — sliding window is a specialized, same-direction case.

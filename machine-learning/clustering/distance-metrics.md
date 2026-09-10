@@ -16,7 +16,7 @@ a modeling decision as the clustering algorithm itself.
 ## The metrics
 
 **Euclidean (`euclidean_distance`)** — straight-line (L2) distance:
-`sqrt(Σ(a_i - b_i)²)`. The default, intuitive notion of distance; assumes
+$\sqrt{\sum_i (a_i - b_i)^2}$. The default, intuitive notion of distance; assumes
 all dimensions are commensurable (same units/scale) and combines them
 isotropically (no dimension is treated as "more important").
 
@@ -27,25 +27,25 @@ and is what k-means' objective (within-cluster sum of squares) actually
 minimizes internally.
 
 **Manhattan (`manhattan_distance`)** — L1 / "taxicab" distance:
-`Σ|a_i - b_i|`. Less sensitive to large deviations in a single dimension
+$\sum_i |a_i - b_i|$. Less sensitive to large deviations in a single dimension
 than Euclidean (no squaring), so it's more robust when some dimensions
 occasionally have big outlying differences. Common in high-dimensional or
 grid-like/count data.
 
-**Chebyshev (`chebyshev_distance`)** — L∞ distance: `max|a_i - b_i|`, the
+**Chebyshev (`chebyshev_distance`)** — L∞ distance: $\max_i |a_i - b_i|$, the
 single largest per-coordinate difference. Useful when the "worst" dimension
 alone should determine dissimilarity (e.g. tolerance/threshold-style
 problems — two points are "different" if *any one* attribute differs a lot,
 regardless of the others).
 
 **Minkowski (`minkowski_distance`)** — the generalization:
-`(Σ|a_i - b_i|^p)^(1/p)`. `p=1` → Manhattan, `p=2` → Euclidean, `p → ∞` →
-Chebyshev. Tuning `p` interpolates between "sum up all differences fairly"
-(low `p`) and "only the worst dimension matters" (high `p`).
+$\left(\sum_i |a_i - b_i|^p\right)^{1/p}$. $p=1$ → Manhattan, $p=2$ → Euclidean, $p \to \infty$ →
+Chebyshev. Tuning $p$ interpolates between "sum up all differences fairly"
+(low $p$) and "only the worst dimension matters" (high $p$).
 
 **Pearson correlation distance (`pearson_distance = 1 - pearson_correlation`)**
 — measures *shape/pattern* similarity, not magnitude. Two vectors that are
-perfectly linearly related (`b = a * c + d` for any positive `c`) get
+perfectly linearly related ($b = a \cdot c + d$ for any positive $c$) get
 distance 0, even if their absolute values are wildly different scales. This
 matters when you care about **trend, not level** — e.g. clustering time
 series by whether they rise and fall together (co-movement), clustering gene
@@ -69,7 +69,7 @@ numeric range.
 Pearson correlation distance is the exception: because it's computed on each
 vector standardized internally (correlation is scale- and shift-invariant),
 it doesn't require pre-scaling for that reason — but it's answering a
-different question (shape similarity) than the L_p family (magnitude
+different question (shape similarity) than the $L_p$ family (magnitude
 similarity), so the choice should be driven by what "similar" should mean for
 the problem, not just convenience.
 
@@ -83,8 +83,8 @@ the problem, not just convenience.
 
 ## Common interview questions
 
-- What does the Minkowski `p` parameter control, and what do `p=1`, `p=2`,
-  `p→∞` reduce to?
+- What does the Minkowski `p` parameter control, and what do $p=1$, $p=2$,
+  $p\to\infty$ reduce to?
 - Why must you scale features before Euclidean-distance clustering, but not
   before Pearson-distance clustering?
 - When would you prefer Manhattan over Euclidean distance?

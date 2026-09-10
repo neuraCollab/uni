@@ -109,7 +109,7 @@ GROUP BY department, job_title;
 - `WHERE` filters **rows** *before* aggregation.
 - `HAVING` filters **groups** *after* aggregation — it can reference aggregate functions; `WHERE` cannot (see [`query-execution-order.md`](./query-execution-order.md)).
 
-Concrete example — "departments with more than 5 highly-paid (>$100k) employees":
+Concrete example — "departments with more than 5 highly-paid (>\$100k) employees":
 
 ```sql
 SELECT department, COUNT(*) AS high_earners

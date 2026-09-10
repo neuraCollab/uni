@@ -2,9 +2,9 @@
 
 ## What is it / why?
 
-The recommendation problem: predict a rating or preference `r_ui` (explicit) or
-`p_ui` (implicit) for a user-item pair `(u, i)`, using a historical
-**user-item interaction matrix** `R` that is almost entirely missing — any
+The recommendation problem: predict a rating or preference $r_{ui}$ (explicit) or
+$p_{ui}$ (implicit) for a user-item pair $(u, i)$, using a historical
+**user-item interaction matrix** $R$ that is almost entirely missing — any
 one user has only rated/interacted with a tiny fraction of the item catalog.
 The whole field is about filling in (or ranking) the missing entries of that
 sparse matrix well enough to surface items a user hasn't seen yet but would
@@ -13,7 +13,7 @@ like.
 Two families of approaches dominate the classical (pre-deep-learning) toolkit:
 **collaborative filtering** (use the interaction patterns of other
 users/items, no content needed) and **matrix factorization** (learn a compact
-latent-factor representation of users and items that reconstructs `R`).
+latent-factor representation of users and items that reconstructs $R$).
 
 ## Explicit vs. implicit feedback
 
@@ -42,22 +42,20 @@ Two symmetric variants:
 - **user2user** — recommend items liked by users similar to this user.
 
 **Similarity-weighted prediction.** For item2item, compute a similarity score
-between every pair of items, then predict a user's rating for item `i` as a
-similarity-weighted average of their ratings on similar items `j`:
+between every pair of items, then predict a user's rating for item $i$ as a
+similarity-weighted average of their ratings on similar items $j$:
 
-```
-N(i,j) = sum_u S(i,j,u) / sum_u |S(i,j,u)|
-```
+$$N(i,j) = \frac{\sum_u S(i,j,u)}{\sum_u |S(i,j,u)|}$$
 
-i.e. aggregate a pairwise similarity/agreement signal `S(i,j,u)` (computed
-per user `u` who rated both `i` and `j`) into a single normalized
-item-item similarity `N(i,j)`, then predict a rating by taking a weighted
-average of the target user's ratings on items similar to `i`, weighted by
+i.e. aggregate a pairwise similarity/agreement signal $S(i,j,u)$ (computed
+per user $u$ who rated both $i$ and $j$) into a single normalized
+item-item similarity $N(i,j)$, then predict a rating by taking a weighted
+average of the target user's ratings on items similar to $i$, weighted by
 that similarity. (The user2user variant is the mirror image: similarity
 between users instead of items, aggregated over co-rated items.)
 
-**Pearson correlation as the similarity measure.** `S_{i,j}` is standardly
-taken to be the **Pearson correlation** between items `i` and `j`, computed
+**Pearson correlation as the similarity measure.** $S_{i,j}$ is standardly
+taken to be the **Pearson correlation** between items $i$ and $j$, computed
 over the users who rated both (or between users, computed over items they
 both rated). Why Pearson and not raw cosine/dot-product similarity: Pearson
 first centers each user's (or item's) ratings around their own mean, so it
@@ -79,22 +77,18 @@ content-based methods just need the item's/user's attributes.
 
 ## Matrix factorization
 
-**Idea:** decompose the sparse rating matrix `R` (users × items) into two
+**Idea:** decompose the sparse rating matrix $R$ (users × items) into two
 low-rank latent-factor matrices:
 
-```
-R ≈ X · Yᵀ
-```
+$$R \approx X Y^\top$$
 
-where `X` is `n_users × k` (user factors) and `Y` is `n_items × k` (item
-factors), `k` a small latent dimensionality. The predicted rating for user
-`u`, item `i` is just the dot product of their latent vectors:
+where $X$ is $n_{\text{users}} \times k$ (user factors) and $Y$ is $n_{\text{items}} \times k$ (item
+factors), $k$ a small latent dimensionality. The predicted rating for user
+$u$, item $i$ is just the dot product of their latent vectors:
 
-```
-r̂_ui = x_u · y_i
-```
+$$\hat{r}_{ui} = x_u \cdot y_i$$
 
-Instead of relying on raw neighborhood similarity, the model learns `k`
+Instead of relying on raw neighborhood similarity, the model learns $k$
 latent dimensions that jointly explain the observed ratings — implicitly
 capturing things like genre affinity, without anyone hand-labeling them.
 
@@ -115,20 +109,20 @@ capturing things like genre affinity, without anyone hand-labeling them.
 ## Alternating Least Squares (ALS)
 
 **Algorithm:**
-1. Fix `Y` (item factors), solve for `X` (user factors): with `Y` fixed, the
+1. Fix $Y$ (item factors), solve for $X$ (user factors): with $Y$ fixed, the
    loss becomes a per-user regularized least-squares problem with a closed-form
    solution.
-2. Fix `X`, solve for `Y` the same way, per item.
+2. Fix $X$, solve for $Y$ the same way, per item.
 3. Alternate 1-2 until convergence.
 
-**Why this works well:** jointly optimizing `X` and `Y` together is
+**Why this works well:** jointly optimizing $X$ and $Y$ together is
 non-convex (the loss has products of the two unknowns). But *fixing either
 one* turns the problem into an ordinary regularized least-squares problem in
 the other — convex, closed-form, easy. This alternating structure is exactly
 the same pattern as the [EM algorithm](probabilistic-ml/em-algorithm.md)
 alternating between an E-step and an M-step, each easy to solve while holding
 the other fixed. The key difference: ALS adds **L2 regularization** on both
-`X` and `Y` to keep the factors from overfitting to what is usually a very
+$X$ and $Y$ to keep the factors from overfitting to what is usually a very
 sparse set of observed entries.
 
 ## Implicit ALS (iALS)
@@ -141,18 +135,18 @@ violate both assumptions, so iALS reframes the problem:
 |---|---|---|
 | Typical signal | Ratings 1-5, stars, likes | Clicks, views, purchases |
 | What "zero" / missing means | A genuinely missing/unknown value | Absence of interaction is itself an (uncertain) negative signal, not just missing data |
-| Target variable | Precise numeric rating | Binary preference `p_ui ∈ {0,1}` |
+| Target variable | Precise numeric rating | Binary preference $p_{ui} \in \{0,1\}$ |
 | Loss computed over | Only observed/known ratings | **All** user-item pairs |
-| Weighting | Equal weight for every observed rating | Weighted by a confidence term `c_ui` |
-| Complexity per optimization step | `O(|R|·k² + N·k³)` | `O(|R|·k² + (N+M)·k³)` |
+| Weighting | Equal weight for every observed rating | Weighted by a confidence term $c_{ui}$ |
+| Complexity per optimization step | $O(\lvert R\rvert \cdot k^2 + N \cdot k^3)$ | $O(\lvert R\rvert \cdot k^2 + (N+M) \cdot k^3)$ |
 
-(`|R|` = number of observed ratings/interactions, `N` = number of users, `M`
-= number of items, `k` = latent dimensionality.)
+($\lvert R\rvert$ = number of observed ratings/interactions, $N$ = number of users, $M$
+= number of items, $k$ = latent dimensionality.)
 
 **Confidence weighting, in words:** since implicit feedback gives no real
 negatives, iALS treats *every* user-item pair as having some preference
-`p_ui ∈ {0,1}` (1 if any interaction happened, 0 otherwise), but weights how
-much to trust that label with a confidence `c_ui` that grows with
+$p_{ui} \in \{0,1\}$ (1 if any interaction happened, 0 otherwise), but weights how
+much to trust that label with a confidence $c_{ui}$ that grows with
 interaction **intensity/frequency** — a user who watched a show five times or
 clicked an item repeatedly gets a much higher-confidence positive than a
 single stray click, and unobserved pairs get low (but nonzero) confidence
@@ -160,14 +154,14 @@ rather than being ignored outright.
 
 **Why summing over all pairs is tractable.** Naively, iALS's loss must be
 summed over *every* user-item pair — including the huge number of pairs with
-no interaction — which looks like it should cost `O(N·M)` per step, infeasible
+no interaction — which looks like it should cost $O(N \cdot M)$ per step, infeasible
 at industrial scale. The standard trick that makes iALS practical is an
 algebraic decomposition of that sum into (a) a data-independent global term
 that only depends on the current factor matrices and can be precomputed once
 per iteration, plus (b) a sparse correction term evaluated only over the
-`|R|` actually-observed interactions. This is what brings the per-step cost
-down to `O(|R|·k² + (N+M)·k³)` instead of scaling with the full dense
-`N × M` matrix — the reason iALS scales to industrial recommenders with
+$\lvert R\rvert$ actually-observed interactions. This is what brings the per-step cost
+down to $O(\lvert R\rvert \cdot k^2 + (N+M) \cdot k^3)$ instead of scaling with the full dense
+$N \times M$ matrix — the reason iALS scales to industrial recommenders with
 millions of items.
 
 ## When to use what
@@ -206,7 +200,7 @@ millions of items.
   with no trained model; model-based learns compact latent factors offline,
   which generalizes better under sparsity.)*
 - Walk through why ALS's sub-problems are convex when the joint problem isn't.
-- What does the confidence weight `c_ui` represent in iALS, and why do you
+- What does the confidence weight $c_{ui}$ represent in iALS, and why do you
   need it when there are no real negative labels?
 
 ## Common mistakes

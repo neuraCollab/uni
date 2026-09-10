@@ -16,10 +16,10 @@ Match what the problem statement is telegraphing to the pattern that handles it.
 | If the problem says... | Think... |
 |---|---|
 | Sorted array/list + find a pair/triplet summing to target | [Two Pointers](patterns/two-pointers.md) |
-| Palindrome check, or "in-place" / O(1) extra space on an array | [Two Pointers](patterns/two-pointers.md) |
+| Palindrome check, or "in-place" / $O(1)$ extra space on an array | [Two Pointers](patterns/two-pointers.md) |
 | Contiguous subarray/substring + longest/shortest/max/min | [Sliding Window](patterns/sliding-window.md) |
 | "At most K distinct", fixed-size window aggregate | [Sliding Window](patterns/sliding-window.md) |
-| Sorted array/monotonic predicate, O(log n) lookup | [Binary Search](patterns/binary-search.md) |
+| Sorted array/monotonic predicate, $O(\log n)$ lookup | [Binary Search](patterns/binary-search.md) |
 | "Find the min/max X such that condition holds" | [Binary Search](patterns/binary-search.md) (binary search on the answer) |
 | Tree/graph traversal, "is X reachable from Y", flood fill | [BFS/DFS](patterns/bfs-dfs.md) |
 | Shortest path / fewest steps in an **unweighted** graph | [BFS/DFS](patterns/bfs-dfs.md) (BFS) |

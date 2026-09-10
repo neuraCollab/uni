@@ -54,7 +54,7 @@ def topological_sort_kahn(num_nodes: int, edges: list[tuple[int, int]]) -> list[
 - Using plain DFS/BFS (for connectivity) when the problem actually needs edge *direction* respected — topological sort only makes sense on directed graphs.
 
 ## Complexity
-Time O(V + E). Space O(V + E) for the graph and in-degree/visited tracking.
+Time $O(V + E)$. Space $O(V + E)$ for the graph and in-degree/visited tracking.
 
 ## Related Patterns
 - [BFS/DFS](bfs-dfs.md) — both algorithms underlying topological sort are BFS/DFS variants.

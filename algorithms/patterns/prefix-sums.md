@@ -8,10 +8,10 @@
 - 2D grid range-sum queries (region sum) — 2D prefix sums.
 
 ## Pattern
-Precompute a running total `prefix[i] = a[0] + a[1] + ... + a[i-1]` once in O(n). Any range sum `a[l..r]` is then `prefix[r+1] - prefix[l]` in O(1), instead of re-summing the range every query.
+Precompute a running total `prefix[i] = a[0] + a[1] + ... + a[i-1]` once in $O(n)$. Any range sum `a[l..r]` is then `prefix[r+1] - prefix[l]` in $O(1)$, instead of re-summing the range every query.
 
 ## Why this works
-Sum is associative and the "total up to index i" only needs to be computed once; every range query is just a subtraction of two precomputed totals. This trades O(n) preprocessing + O(1) space per prefix array for O(1) queries, vs. O(n) per query with no preprocessing.
+Sum is associative and the "total up to index i" only needs to be computed once; every range query is just a subtraction of two precomputed totals. This trades $O(n)$ preprocessing + $O(1)$ space per prefix array for $O(1)$ queries, vs. $O(n)$ per query with no preprocessing.
 
 ## Template
 ```python
@@ -73,7 +73,7 @@ def range_count_query(a: list[int], k: int, low: int, high: int) -> int:
 - Forgetting the `{0: 1}` seed in the prefix-sum + hashmap pattern (needed so a subarray starting at index 0 that itself sums to k is counted).
 
 ## Complexity
-Build: O(n) time, O(n) space. Query: O(1) time per query after preprocessing.
+Build: $O(n)$ time, $O(n)$ space. Query: $O(1)$ time per query after preprocessing.
 
 ## Related Patterns
 - [Sliding Window](sliding-window.md) — better when the array *does* change or when you need the actual subarray, not just its sum, and the values are non-negative (monotonic window sum).

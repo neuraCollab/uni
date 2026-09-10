@@ -16,13 +16,13 @@ A plain (deterministic) autoencoder learns a bottleneck that compresses input to
 
 | | Autoencoder | VAE |
 |---|---|---|
-| Bottleneck | A single deterministic vector `z = encoder(x)` | Parameters of a distribution: `mean`, `log_var` |
-| Latent space structure | No guarantee of smoothness/continuity | Regularized toward `N(0, I)` -> smooth, sample-able |
-| Can generate new samples? | Not reliably (no idea what an arbitrary latent point decodes to) | Yes — sample `z ~ N(0, I)` and decode |
+| Bottleneck | A single deterministic vector $z = \text{encoder}(x)$ | Parameters of a distribution: `mean`, `log_var` |
+| Latent space structure | No guarantee of smoothness/continuity | Regularized toward $\mathcal{N}(0, I)$ -> smooth, sample-able |
+| Can generate new samples? | Not reliably (no idea what an arbitrary latent point decodes to) | Yes — sample $z \sim \mathcal{N}(0, I)$ and decode |
 
 ### The reparameterization trick
 
-The encoder produces `h_mean` and `h_log_var`. Naively you'd sample `z ~ N(h_mean, exp(h_log_var))` directly — but **you can't backpropagate through a random sampling operation**: gradients don't flow through `torch.randn(...)` calls whose parameters depend on the network, because sampling isn't a differentiable function of its parameters.
+The encoder produces `h_mean` and `h_log_var`. Naively you'd sample $z \sim \mathcal{N}(\text{h\_mean}, \exp(\text{h\_log\_var}))$ directly — but **you can't backpropagate through a random sampling operation**: gradients don't flow through `torch.randn(...)` calls whose parameters depend on the network, because sampling isn't a differentiable function of its parameters.
 
 The fix: sample the randomness from an independent, parameter-free source and combine it deterministically with the encoder's outputs:
 
@@ -41,7 +41,7 @@ kl_loss = -0.5 * torch.sum(
 )
 ```
 
-This is the closed-form KL divergence between the learned posterior `q(z|x) = N(mean, exp(log_var))` and the prior `N(0, I)`, for diagonal Gaussians. It penalizes the encoder for drifting the latent distribution away from a standard normal. Without this term, the model could minimize reconstruction loss by mapping each input to an arbitrarily narrow, far-apart region of latent space (effectively memorizing inputs with a near-zero-variance "distribution" per example) — that would reconstruct perfectly but produce a latent space with huge gaps that don't decode to anything meaningful, defeating the purpose of having a probabilistic structure at all. The KL term forces distributions to overlap and cluster near the origin, keeping the space continuous and generative.
+This is the closed-form KL divergence between the learned posterior $q(z|x) = \mathcal{N}(\text{mean}, \exp(\text{log\_var}))$ and the prior $\mathcal{N}(0, I)$, for diagonal Gaussians. It penalizes the encoder for drifting the latent distribution away from a standard normal. Without this term, the model could minimize reconstruction loss by mapping each input to an arbitrarily narrow, far-apart region of latent space (effectively memorizing inputs with a near-zero-variance "distribution" per example) — that would reconstruct perfectly but produce a latent space with huge gaps that don't decode to anything meaningful, defeating the purpose of having a probabilistic structure at all. The KL term forces distributions to overlap and cluster near the origin, keeping the space continuous and generative.
 
 ### Reconstruction loss vs. KL loss tradeoff (beta-VAE)
 
@@ -50,7 +50,7 @@ recon_loss = torch.sum(torch.square(x - y), dim=1)   # MSE-style; BCE is also co
 total_loss = torch.mean(recon_loss + kl_loss)
 ```
 
-These two terms pull in different directions: reconstruction loss wants the latent code to preserve as much input-specific information as possible (favoring wide/precise, less-regularized `q(z|x)`); KL loss wants every `q(z|x)` to collapse toward the same `N(0, I)` (favoring less information retained). **Beta-VAE** generalizes this by weighting the KL term with a factor `beta`: `recon_loss + beta * kl_loss`. `beta > 1` pushes harder toward a more regularized, more disentangled latent space at the cost of reconstruction fidelity (useful when you want interpretable latent dimensions); `beta < 1` favors sharper reconstructions at the cost of a less-structured latent space.
+These two terms pull in different directions: reconstruction loss wants the latent code to preserve as much input-specific information as possible (favoring wide/precise, less-regularized `q(z|x)`); KL loss wants every `q(z|x)` to collapse toward the same `N(0, I)` (favoring less information retained). **Beta-VAE** generalizes this by weighting the KL term with a factor $\beta$: $\text{recon\_loss} + \beta \cdot \text{kl\_loss}$. `beta > 1` pushes harder toward a more regularized, more disentangled latent space at the cost of reconstruction fidelity (useful when you want interpretable latent dimensions); `beta < 1` favors sharper reconstructions at the cost of a less-structured latent space.
 
 ## Example
 
@@ -85,8 +85,8 @@ Generative modeling where you want a smooth, sample-able latent space (image gen
 ## Common interview questions
 
 - **Why is the reparameterization trick necessary?** Backprop can't flow through a stochastic sampling node whose distribution parameters depend on the network; reparameterizing moves the randomness into an independent, parameter-free noise term so the rest of the computation is deterministic and differentiable.
-- **What does the KL term in the VAE loss actually do, and what happens without it?** Regularizes the learned per-example latent distribution toward `N(0, I)`. Without it, the model can "cheat" by collapsing each input to a near-deterministic point far from others, defeating the point of a continuous, sample-able latent space (this failure mode is sometimes called posterior collapse in the opposite direction — here it's closer to encoder "memorization").
-- **How would you generate a new sample from a trained VAE?** Sample `z ~ N(0, I)` directly (no encoder needed) and run it through the decoder.
+- **What does the KL term in the VAE loss actually do, and what happens without it?** Regularizes the learned per-example latent distribution toward $\mathcal{N}(0, I)$. Without it, the model can "cheat" by collapsing each input to a near-deterministic point far from others, defeating the point of a continuous, sample-able latent space (this failure mode is sometimes called posterior collapse in the opposite direction — here it's closer to encoder "memorization").
+- **How would you generate a new sample from a trained VAE?** Sample $z \sim \mathcal{N}(0, I)$ directly (no encoder needed) and run it through the decoder.
 - **What's the effect of increasing beta in a beta-VAE?** More disentangled/regularized latent space, at the cost of reconstruction fidelity.
 - **VAE vs. GAN — high level differences?** VAE optimizes an explicit likelihood-based objective (reconstruction + KL) and gives a well-defined encoder for inference over latents; typically produces blurrier samples. GAN trains a generator against a discriminator adversarially, no explicit likelihood, typically sharper samples but less stable training and no built-in encoder.
 

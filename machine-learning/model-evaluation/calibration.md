@@ -6,16 +6,14 @@ A classifier's predicted probabilities are **calibrated** when they mean
 what they say: among all the objects the model assigns a score of 0.67,
 roughly 67% of them should actually be positive.
 
-```
-P(y_i = 1 | q(x_i) = p_hat) = p_hat
-```
+$$P(y_i = 1 \mid q(x_i) = \hat{p}) = \hat{p}$$
 
-where `q(x)` is the model's output score. The left side is the *true*,
+where $q(x)$ is the model's output score. The left side is the *true*,
 empirical fraction of positives among objects the model assigned score
-`p_hat`; calibration means that empirical fraction should equal `p_hat`
+$\hat{p}$; calibration means that empirical fraction should equal $\hat{p}$
 itself.
 
-**Concrete example:** if the model assigns `p_hat = 0.67` to a thousand
+**Concrete example:** if the model assigns $\hat{p} = 0.67$ to a thousand
 different objects, roughly 67% of that thousand should truly be class 1. If,
 on the real data, only 30% of those objects turn out to be class 1, the
 model's probabilities are badly miscalibrated — even if its *ranking* of
@@ -31,7 +29,7 @@ monotonic transform of the scores (see the pairwise definition of AUC-ROC
 in [Classification Metrics](classification-metrics.md)). Calibration
 matters whenever you need the *actual number*, not just the ranking:
 
-- **Cost-sensitive decision-making** — e.g. multiplying `P(fraud)` by a
+- **Cost-sensitive decision-making** — e.g. multiplying $P(\text{fraud})$ by a
   dollar cost matrix to decide whether to block a transaction; the decision
   threshold comes from real costs, not an arbitrary rank cutoff.
 - **Combining or ensembling probabilities from multiple models** —
@@ -55,33 +53,29 @@ itself rank-based, like AUC-ROC.
 
 ### Histogram (binning) calibration
 
-1. Split `[0, 1]` into `k` bins — either **equal-width** or
-   **equal-frequency** (equal-mass) bins. On each bin `B_j`, predict a
-   single constant probability `theta_j` for every object whose raw score
-   `q(x_i)` falls in `B_j`.
-2. Choose the `theta_j` to best match the true average label within each
+1. Split $[0, 1]$ into $k$ bins — either **equal-width** or
+   **equal-frequency** (equal-mass) bins. On each bin $B_j$, predict a
+   single constant probability $\theta_j$ for every object whose raw score
+   $q(x_i)$ falls in $B_j$.
+2. Choose the $\theta_j$ to best match the true average label within each
    bin — solve:
 
-```
-sum_{j=1}^k | ( sum_{i=1}^N I[q(x_i) in B_j] * y_i ) / |B_j|  -  theta_j |  ->  min over (theta_1, ..., theta_k)
-```
+$$\sum_{j=1}^{k} \left| \frac{\sum_{i=1}^{N} \mathbb{1}[q(x_i) \in B_j] \, y_i}{|B_j|} - \theta_j \right| \to \min_{\theta_1, \ldots, \theta_k}$$
 
-In words: `theta_j` is set to (as close as possible to) the empirical
+In words: $\theta_j$ is set to (as close as possible to) the empirical
 fraction of positives among the calibration-set objects that landed in bin
-`B_j`.
+$B_j$.
 
 ### Isotonic regression calibration
 
 Similar idea, but the bin **boundaries are also learned**, and the sequence
 of bin levels is constrained to be non-decreasing (isotonic = monotonic).
-Boundaries `0 = b_0 <= b_1 <= ... <= b_k = 1` define bins
-`B_j = { t : b_{j-1} <= t < b_j }`, with `theta_1 <= theta_2 <= ... <= theta_k`.
-Both the boundaries `b_j` and the levels `theta_j` are fit by approximating
-`y_i` with a piecewise-constant, monotonic function `g` of `q(x_i)`:
+Boundaries $0 = b_0 \leq b_1 \leq \ldots \leq b_k = 1$ define bins
+$B_j = \{ t : b_{j-1} \leq t < b_j \}$, with $\theta_1 \leq \theta_2 \leq \ldots \leq \theta_k$.
+Both the boundaries $b_j$ and the levels $\theta_j$ are fit by approximating
+$y_i$ with a piecewise-constant, monotonic function $g$ of $q(x_i)$:
 
-```
-sum_i (y_i - g(q(x_i)))^2  ->  min over g     (g piecewise-constant, monotonic)
-```
+$$\sum_i (y_i - g(q(x_i)))^2 \to \min_{g} \quad (g \text{ piecewise-constant, monotonic})$$
 
 This is strictly more flexible than fixed-width/fixed-frequency histogram
 binning — it adapts bin widths to wherever the data actually needs
@@ -92,7 +86,7 @@ of overfitting on a small calibration set.
 
 A simpler, parametric alternative: fit a single **sigmoid** to map raw
 scores to calibrated probabilities
-(`p_calibrated = sigmoid(A * score + B)`, with `A, B` fit by logistic
+($p_{\text{calibrated}} = \text{sigmoid}(A \cdot \text{score} + B)$, with $A, B$ fit by logistic
 regression on held-out data). More restrictive than isotonic regression (it
 assumes the miscalibration curve itself has a sigmoid shape), but far less
 prone to overfitting when calibration data is scarce. A more general,
@@ -106,16 +100,14 @@ overfit training scores.
 
 ### Expected Calibration Error (ECE) and Maximum Calibration Error (MCE)
 
-Bin `[0, 1]` by **predicted** probability (same idea as histogram
+Bin $[0, 1]$ by **predicted** probability (same idea as histogram
 calibration above), then compare, per bin, the empirical fraction of
-positives `y_bar(B_j)` against the average predicted probability
-`q_bar(B_j)`:
+positives $\bar{y}(B_j)$ against the average predicted probability
+$\bar{q}(B_j)$:
 
-```
-ECE = sum_{j=1}^k (|B_j| / N) * | y_bar(B_j) - q_bar(B_j) |
+$$ECE = \sum_{j=1}^{k} \frac{|B_j|}{N} \left| \bar{y}(B_j) - \bar{q}(B_j) \right|$$
 
-MCE = max_{j=1,...,k} | y_bar(B_j) - q_bar(B_j) |
-```
+$$MCE = \max_{j=1,\ldots,k} \left| \bar{y}(B_j) - \bar{q}(B_j) \right|$$
 
 ECE is the size-weighted average gap, across bins, between "what the model
 said" and "what actually happened"; MCE is the single worst-bin gap. Both
@@ -126,13 +118,11 @@ time).
 
 ### Brier Score
 
-```
-BrierScore = (1/N) * sum_{i=1}^N (y_i - q(x_i))^2
-```
+$$\text{BrierScore} = \frac{1}{N} \sum_{i=1}^{N} (y_i - q(x_i))^2$$
 
 This is literally **[MSE](regression-metrics.md) applied to probabilities
-instead of a continuous target** — treat `y_i in {0, 1}` as the "true
-value" and `q(x_i)` as the "prediction." Lower is better; `0` is perfect.
+instead of a continuous target** — treat $y_i \in \{0, 1\}$ as the "true
+value" and $q(x_i)$ as the "prediction." Lower is better; $0$ is perfect.
 Brier Score is generally **preferred over ECE/MCE** as a single headline
 number, because it's a smooth, strictly proper scoring rule (it's minimized
 exactly when the predicted probabilities equal the true probabilities)

@@ -14,9 +14,7 @@ Bad initialization can prevent training from working at all (symmetric weights n
 
 Setting every weight to `0` seems harmless (or even principled — "start neutral"), but it's fatal:
 
-```
-W = 0   =>   ∂L/∂W = 0 for every weight, identically, for every neuron in a layer
-```
+$$W = 0 \implies \frac{\partial L}{\partial W} = 0 \text{ for every weight, identically, for every neuron in a layer}$$
 
 The reason is a **symmetry** argument, and it's one of the most commonly asked interview questions on this topic: if every neuron in a layer starts with identical weights, every neuron computes the identical function of the input, so every neuron receives the identical gradient during backprop. They then get updated by the identical amount, so they *stay* identical — forever. The layer never differentiates into diverse feature detectors; effectively, a layer of `n` identical neurons behaves like a layer of 1 neuron no matter how wide you make it. (Biases can safely start at zero — it's specifically the *weights feeding into the same neurons* that must be broken out of symmetry. Zero bias with random weights is fine and common.)
 
@@ -24,34 +22,28 @@ The reason is a **symmetry** argument, and it's one of the most commonly asked i
 
 The obvious fix is to break symmetry with randomness: draw every weight i.i.d. from a fixed distribution, e.g.
 
-```
-W ~ N(μ=0, σ²)
-```
+$$W \sim \mathcal{N}(\mu=0, \sigma^2)$$
 
-This breaks symmetry, but a *fixed* variance `σ²` doesn't account for how many inputs feed into a neuron (the layer's fan-in). Each unit's pre-activation is a sum of `n_in` weighted terms, so its variance scales with `n_in * σ²`:
+This breaks symmetry, but a *fixed* variance $\sigma^2$ doesn't account for how many inputs feed into a neuron (the layer's fan-in). Each unit's pre-activation is a sum of $n_{in}$ weighted terms, so its variance scales with $n_{in} \cdot \sigma^2$:
 
-- If `σ²` is too small relative to the layer width, the variance of the pre-activations shrinks layer after layer — activations (and later, gradients flowing back through them) collapse toward zero deeper into the network: **vanishing**.
-- If `σ²` is too large, the opposite happens — activations and gradients grow layer after layer: **exploding**.
+- If $\sigma^2$ is too small relative to the layer width, the variance of the pre-activations shrinks layer after layer — activations (and later, gradients flowing back through them) collapse toward zero deeper into the network: **vanishing**.
+- If $\sigma^2$ is too large, the opposite happens — activations and gradients grow layer after layer: **exploding**.
 
 Either failure mode makes deep networks slow or impossible to train, which is exactly the vanishing/exploding gradient problem described in [`neural-networks-backprop.md`](neural-networks-backprop.md#common-interview-questions).
 
 ### Xavier / Glorot initialization
 
-Xavier (Glorot) initialization fixes the fan-in blind spot by calibrating the distribution's spread using *both* the number of input units (`n_in`) and output units (`n_out`) of the layer, with the explicit design goal of keeping the variance of activations — and of gradients flowing backward — roughly constant as you move through the network, instead of systematically shrinking or growing layer by layer. The uniform-distribution form:
+Xavier (Glorot) initialization fixes the fan-in blind spot by calibrating the distribution's spread using *both* the number of input units ($n_{in}$) and output units ($n_{out}$) of the layer, with the explicit design goal of keeping the variance of activations — and of gradients flowing backward — roughly constant as you move through the network, instead of systematically shrinking or growing layer by layer. The uniform-distribution form:
 
-```
-W_i ~ U[ -sqrt(6 / (n_in + n_out)),  sqrt(6 / (n_in + n_out)) ]
-```
+$$W_i \sim U\!\left[ -\sqrt{\frac{6}{n_{in} + n_{out}}},\ \sqrt{\frac{6}{n_{in} + n_{out}}} \right]$$
 
-(A Gaussian version exists too, `W ~ N(0, 2/(n_in+n_out))`, with the same calibration idea — the uniform form above is the one transcribed here.) Xavier's derivation assumes roughly linear/symmetric activations around 0 (it was designed with tanh/sigmoid in mind), which is where it's most theoretically justified.
+(A Gaussian version exists too, $W \sim \mathcal{N}\!\left(0, \frac{2}{n_{in}+n_{out}}\right)$, with the same calibration idea — the uniform form above is the one transcribed here.) Xavier's derivation assumes roughly linear/symmetric activations around 0 (it was designed with tanh/sigmoid in mind), which is where it's most theoretically justified.
 
 ### He initialization (not from the source material, included for completeness)
 
 ReLU breaks Xavier's assumption: it zeros out roughly half its inputs (everything negative), which halves the effective variance passed forward. **He initialization** is the ReLU-specific correction, scaling the variance up to compensate:
 
-```
-W ~ N(0, 2 / n_in)
-```
+$$W \sim \mathcal{N}\!\left(0, \frac{2}{n_{in}}\right)$$
 
 Rule of thumb: Xavier/Glorot for tanh/sigmoid-style networks, He for ReLU/Leaky-ReLU-style networks (`nn.init.kaiming_normal_` / `nn.init.xavier_uniform_` in PyTorch, respectively).
 
@@ -84,14 +76,14 @@ In practice you rarely call these manually for standard layers — `nn.Linear`, 
 
 - **Why does initializing all weights to zero break training?** The symmetry argument: identical weights → identical neuron outputs → identical gradients → identical updates, forever. The layer never diversifies. (Be ready to state this precisely — it's a very common question.)
 - **What goes wrong with naive fixed-variance random initialization in a deep network?** Doesn't account for layer width (fan-in/fan-out); too-small variance vanishes activations deeper into the network, too-large variance explodes them.
-- **What does Xavier/Glorot initialization do differently, and why does it use both `n_in` and `n_out`?** Calibrates the initialization variance using fan-in and fan-out so that activation (and gradient) variance stays roughly constant across layers, rather than systematically shrinking/growing with depth.
+- **What does Xavier/Glorot initialization do differently, and why does it use both $n_{in}$ and $n_{out}$?** Calibrates the initialization variance using fan-in and fan-out so that activation (and gradient) variance stays roughly constant across layers, rather than systematically shrinking/growing with depth.
 - **Why does He initialization exist separately from Xavier?** ReLU zeros out about half its inputs, which effectively halves the variance passed to the next layer relative to what Xavier assumes (roughly linear/symmetric activations); He compensates by scaling the variance up.
 - **Is zero-initializing biases a problem?** No — the failure mode is specifically about *weights feeding into the same neuron pool* being identical; zero bias with randomly-initialized weights breaks symmetry fine.
 
 ## Common mistakes
 
 - Initializing every weight (not just bias) to zero or any other single constant value, and being surprised the network doesn't train.
-- Using a fixed-variance random init (e.g. `N(0, 0.01)`) regardless of layer width — works fine for small/shallow nets, silently degrades as networks get deeper or layers get wider/narrower.
+- Using a fixed-variance random init (e.g. $\mathcal{N}(0, 0.01)$) regardless of layer width — works fine for small/shallow nets, silently degrades as networks get deeper or layers get wider/narrower.
 - Mismatching the initialization scheme and activation function (e.g. He init tuned for ReLU's half-zeroed variance, used with tanh) — usually not catastrophic, but leaves performance on the table.
 - Treating initialization as a complete fix for vanishing/exploding gradients in very deep networks — it helps at the start of training, but doesn't substitute for architectural fixes (residual connections, normalization layers) once depth gets large.
 

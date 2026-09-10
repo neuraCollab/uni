@@ -18,7 +18,7 @@ but they optimize for completely different objectives.
 3. **Eigendecompose** it — eigenvectors are the **principal components**
    (orthogonal directions), eigenvalues are the variance captured along each.
 4. **Sort** components by descending eigenvalue.
-5. **Project** onto the top-`k` components (`X_reduced = X_centered @ V_k`).
+5. **Project** onto the top-$k$ components (`X_reduced = X_centered @ V_k`).
 
 PCA has no concept of class labels — it purely asks "which directions
 preserve the most spread in the data?" `explained_variance_ratio_` tells you
@@ -31,14 +31,14 @@ reduction, decorrelating features before a distance-based or linear model
 
 ## LDA — how it works
 
-1. Compute the **within-class scatter matrix** `S_W` — how spread out each
+1. Compute the **within-class scatter matrix** $S_W$ — how spread out each
    class is around its own mean (averaged/summed over classes).
-2. Compute the **between-class scatter matrix** `S_B` — how far apart the
+2. Compute the **between-class scatter matrix** $S_B$ — how far apart the
    class means are from the overall mean.
-3. Find the projection directions `w` that **maximize the ratio**
-   `(wᵀ S_B w) / (wᵀ S_W w)` — i.e., maximize between-class separation
+3. Find the projection directions $w$ that **maximize the ratio**
+   $\dfrac{w^\top S_B w}{w^\top S_W w}$ — i.e., maximize between-class separation
    *relative to* within-class spread. Solved as a generalized eigenvalue
-   problem on `S_W^(-1) S_B`.
+   problem on $S_W^{-1} S_B$.
 4. Project onto the top eigenvectors.
 
 **Assumptions:** classical LDA assumes each class is (approximately)
@@ -48,7 +48,7 @@ violated, Quadratic Discriminant Analysis (QDA, which fits a separate
 covariance per class) or a different method is usually more appropriate.
 
 **Key constraint:** LDA can produce at most `n_classes - 1` discriminant
-components — `S_B` has rank at most `n_classes - 1` since it's built from the
+components — $S_B$ has rank at most `n_classes - 1` since it's built from the
 differences between `n_classes` means and one grand mean. With 3 classes
 (e.g. the iris dataset), LDA tops out at 2 dimensions — conveniently exactly
 enough for a 2D scatter plot.
@@ -57,7 +57,7 @@ enough for a 2D scatter plot.
 
 | | PCA | LDA |
 |---|---|---|
-| Supervision | Unsupervised — never looks at `y` | Supervised — explicitly uses class labels |
+| Supervision | Unsupervised — never looks at $y$ | Supervised — explicitly uses class labels |
 | Objective | Maximize **total variance** captured | Maximize **between-class / within-class** scatter ratio |
 | Max output dims | `min(n_features, n_samples)` | `n_classes - 1` |
 | Goal | Best low-dim *representation* of the data | Best low-dim *separation* for classification |
@@ -79,8 +79,8 @@ posterior probability — this reduces to a linear decision boundary, which is
 why it's called *linear* discriminant analysis. See
 [Logistic Regression](../linear-models/logistic-regression.md) for the
 more commonly used discriminative alternative — LDA is generative
-(models `P(x|y)` then applies Bayes' rule), logistic regression is
-discriminative (models `P(y|x)` directly), and they coincide asymptotically
+(models $P(x \mid y)$ then applies Bayes' rule), logistic regression is
+discriminative (models $P(y \mid x)$ directly), and they coincide asymptotically
 under LDA's Gaussian-shared-covariance assumptions.
 
 ## When to use / when not
@@ -114,7 +114,7 @@ signal on the table by ignoring them.
 - How would you pick the number of PCA components to keep?
   (`explained_variance_ratio_` cumulative sum / elbow, or cross-validate
   downstream performance.)
-- What happens to LDA when the within-class scatter matrix `S_W` is singular
+- What happens to LDA when the within-class scatter matrix $S_W$ is singular
   (e.g. `n_features > n_samples`)? (Need regularization —
   `shrinkage` in scikit-learn's `LinearDiscriminantAnalysis` — or PCA first
   to reduce dimensionality below `n_samples`.)

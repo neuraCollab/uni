@@ -10,11 +10,9 @@ All t-tests rely on the **t-distribution** — like a normal distribution but wi
 
 ### One-sample t-test
 
-Tests whether a single sample's mean differs from a known/hypothesized value `μ₀`.
+Tests whether a single sample's mean differs from a known/hypothesized value $\mu_0$.
 
-```
-t = (x̄ − μ₀) / (s / √n)
-```
+$$t = \frac{\bar{x} - \mu_0}{s / \sqrt{n}}$$
 
 **Example**: "Is the average delivery time different from the advertised 30 minutes?"
 
@@ -22,13 +20,11 @@ t = (x̄ − μ₀) / (s / √n)
 
 Tests whether two *independent* groups have different means.
 
-```
-t = (x̄₁ − x̄₂) / SE(x̄₁ − x̄₂)
-```
+$$t = \frac{\bar{x}_1 - \bar{x}_2}{SE(\bar{x}_1 - \bar{x}_2)}$$
 
 **Example**: "Do users in test vs. control have different average session length?" — the standard A/B test workhorse for continuous metrics (see [`ab-testing.md`](./ab-testing.md)).
 
-**Assumptions**: independence between (and within) groups, approximate normality of each group's mean (often via CLT — see [`distributions-clt.md`](./distributions-clt.md), so raw data needn't be normal if `n` is large), and — for the *standard* (Student's) version — **equal variances** between groups.
+**Assumptions**: independence between (and within) groups, approximate normality of each group's mean (often via CLT — see [`distributions-clt.md`](./distributions-clt.md), so raw data needn't be normal if $n$ is large), and — for the *standard* (Student's) version — **equal variances** between groups.
 
 **Welch's t-test**: a correction used when the two groups have *unequal* variances (very common in practice — e.g. comparing a small control group to a large treatment group, or metrics with different spreads). Welch's version adjusts the standard error formula and uses an approximate (often non-integer) degrees of freedom instead of assuming equal variance. **Rule of thumb**: default to Welch's t-test unless you have good reason to believe variances are equal — it's nearly as powerful when variances *are* equal, and much safer when they aren't. (This is what most stats software, e.g. `scipy.stats.ttest_ind(equal_var=False)`, recommends as the default.)
 
@@ -36,9 +32,7 @@ t = (x̄₁ − x̄₂) / SE(x̄₁ − x̄₂)
 
 Tests whether the mean *difference* between paired/matched observations (same subject measured twice, or naturally paired units) is zero.
 
-```
-t = d̄ / (s_d / √n)     where dᵢ = x₁ᵢ − x₂ᵢ
-```
+$$t = \frac{\bar{d}}{s_d / \sqrt{n}} \quad \text{where } d_i = x_{1i} - x_{2i}$$
 
 **Example**: "Did the same users' spend change before vs. after a UI redesign?" Paired designs remove between-subject variance, giving more power than treating the two measurements as independent groups — use a paired test whenever the data is naturally paired.
 
@@ -48,21 +42,23 @@ Tests whether **3 or more** group means differ, using a single omnibus test.
 
 ### Why not just run pairwise t-tests?
 
-With `k` groups, there are `k(k-1)/2` possible pairs. Running a t-test on every pair inflates the overall false-positive rate exactly like the multiple comparisons problem (see [`hypothesis-testing-pvalue.md`](./hypothesis-testing-pvalue.md)) — e.g. with 5 groups (10 pairwise tests) at `α = 0.05` each, the chance of at least one false "significant" pair by pure chance is well above 5%. ANOVA controls this by testing all groups simultaneously with one test at the stated `α`.
+With $k$ groups, there are $k(k-1)/2$ possible pairs. Running a t-test on every pair inflates the overall false-positive rate exactly like the multiple comparisons problem (see [`hypothesis-testing-pvalue.md`](./hypothesis-testing-pvalue.md)) — e.g. with 5 groups (10 pairwise tests) at $\alpha = 0.05$ each, the chance of at least one false "significant" pair by pure chance is well above 5%. ANOVA controls this by testing all groups simultaneously with one test at the stated $\alpha$.
 
 ### F-statistic intuition
 
 ANOVA compares the variance *between* group means to the variance *within* groups:
 
-```
-F = (variance between groups) / (variance within groups)
-  = MSB / MSW
-```
+$$
+\begin{aligned}
+F &= \frac{\text{variance between groups}}{\text{variance within groups}} \\
+&= \frac{MSB}{MSW}
+\end{aligned}
+$$
 
-- Large `F` → the group means are spread out relative to the natural noise within each group → evidence the groups really differ.
-- `F ≈ 1` → between-group spread is no bigger than you'd expect from within-group noise alone → no evidence of a difference.
+- Large $F$ → the group means are spread out relative to the natural noise within each group → evidence the groups really differ.
+- $F \approx 1$ → between-group spread is no bigger than you'd expect from within-group noise alone → no evidence of a difference.
 
-`H₀`: all group means are equal. Rejecting `H₀` tells you **at least one** group differs from the rest — it does **not** tell you *which* group(s). That requires a follow-up **post-hoc test** (e.g. Tukey's HSD) with its own multiple-comparisons correction.
+$H_0$: all group means are equal. Rejecting $H_0$ tells you **at least one** group differs from the rest — it does **not** tell you *which* group(s). That requires a follow-up **post-hoc test** (e.g. Tukey's HSD) with its own multiple-comparisons correction.
 
 **Assumptions**: independence, approximate normality within each group, and (for standard one-way ANOVA) equal variances across groups (analogous to the t-test's equal-variance assumption; Welch's ANOVA is the corresponding fix).
 
@@ -70,9 +66,7 @@ F = (variance between groups) / (variance within groups)
 
 For **categorical**/count data rather than continuous means. Two common flavors, same underlying statistic:
 
-```
-χ² = Σ (observed − expected)² / expected
-```
+$$\chi^2 = \sum \frac{(\text{observed} - \text{expected})^2}{\text{expected}}$$
 
 ### Goodness-of-fit
 
@@ -105,7 +99,7 @@ Non-parametric tests make no assumption about the underlying distribution's shap
 
 ### Shapiro-Wilk test
 
-Not an alternative to a t-test itself — it's a test **for normality**, often run first as a diagnostic to decide whether a parametric test is even appropriate. `H₀`: the sample comes from a normal distribution. A small p-value here is evidence *against* normality (pushing you toward a non-parametric alternative below).
+Not an alternative to a t-test itself — it's a test **for normality**, often run first as a diagnostic to decide whether a parametric test is even appropriate. $H_0$: the sample comes from a normal distribution. A small p-value here is evidence *against* normality (pushing you toward a non-parametric alternative below).
 
 ### Kolmogorov-Smirnov (KS) test
 
@@ -126,7 +120,7 @@ Non-parametric alternative to the **paired t-test** — tests whether the median
 3. What does a significant ANOVA result actually tell you (and not tell you)?
 4. What's Welch's correction and when should you use it by default?
 5. Walk through the difference between chi-square goodness-of-fit and chi-square independence tests.
-6. Your data is heavily skewed with `n = 15` — what test would you use to compare two groups, and why?
+6. Your data is heavily skewed with $n = 15$ — what test would you use to compare two groups, and why?
 7. What does the Shapiro-Wilk test's null hypothesis assume, and what do you do if you reject it?
 
 ## Common mistakes

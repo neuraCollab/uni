@@ -13,18 +13,21 @@ Sometimes you don't want a single point estimate — you want an **interval**, o
 
 ## How does it work?
 
-Standard regression minimizes squared error, whose minimizer is the conditional **mean**. Quantile regression instead minimizes the **pinball loss** (a.k.a. quantile loss), whose minimizer is the conditional quantile `q`:
+Standard regression minimizes squared error, whose minimizer is the conditional **mean**. Quantile regression instead minimizes the **pinball loss** (a.k.a. quantile loss), whose minimizer is the conditional quantile $q$:
 
-```
-L_q(y, y_hat) = (y - y_hat) * q          if y >= y_hat
-              = (y_hat - y) * (1 - q)    if y < y_hat
-```
+$$
+L_q(y, \hat{y}) =
+\begin{cases}
+q(y - \hat{y}) & \text{if } y \geq \hat{y} \\
+(1-q)(\hat{y} - y) & \text{if } y < \hat{y}
+\end{cases}
+$$
 
-Equivalently: `L_q(y, y_hat) = max( q * (y - y_hat), (q - 1) * (y - y_hat) )`.
+Equivalently: $L_q(y, \hat{y}) = \max\big( q(y - \hat{y}),\, (q - 1)(y - \hat{y}) \big)$.
 
-- `q = 0.5` → the pinball loss becomes (half of) absolute error, and its minimizer is the **median** — this recovers median regression, which is already more outlier-robust than OLS.
-- `q` close to 1 → heavily penalizes under-prediction (predicting too low) more than over-prediction → pushes the fit toward the upper tail of the distribution.
-- `q` close to 0 → the opposite, pushes toward the lower tail.
+- $q = 0.5$ → the pinball loss becomes (half of) absolute error, and its minimizer is the **median** — this recovers median regression, which is already more outlier-robust than OLS.
+- $q$ close to 1 → heavily penalizes under-prediction (predicting too low) more than over-prediction → pushes the fit toward the upper tail of the distribution.
+- $q$ close to 0 → the opposite, pushes toward the lower tail.
 
 The loss is **asymmetric** by design — that asymmetry is exactly what makes the minimizer land on a quantile other than the mean/median.
 
@@ -37,7 +40,7 @@ The loss is **asymmetric** by design — that asymmetry is exactly what makes th
 ## Common interview questions
 
 - What loss does quantile regression minimize, and why does it produce a quantile instead of a mean?
-- Why is `q=0.5` equivalent to minimizing absolute error?
+- Why is $q=0.5$ equivalent to minimizing absolute error?
 - How would you build a prediction interval using quantile regression?
 - What's "quantile crossing," and why can it happen with independently-fit quantile models?
 - Why is quantile regression more robust to outliers than OLS? *(Bounded influence of large residuals, similar in spirit to Huber/robust regression — see [Robust Regression](robust-regression.md).)*

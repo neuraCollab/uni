@@ -52,7 +52,7 @@ loss = loss_bce(predict, y_train) + loss_dice(predict, y_train)
 ```
 
 - **BCE (binary cross-entropy)**, applied per-pixel, treats every pixel as an independent binary classification problem. Simple and well-behaved for optimization, but under **class imbalance** — e.g. a small foreground object on a large background, very common in segmentation — the loss is dominated by the (easy, numerous) background pixels, and the model can get a deceptively low loss while doing a poor job on the (rare, hard) foreground.
-- **Dice loss** directly optimizes the **overlap** between prediction and ground truth (it's a differentiable relaxation of the Dice coefficient, `2*|A∩B| / (|A|+|B|)`), which is invariant to the *size* imbalance between foreground and background — a missed 5-pixel object hurts the Dice score just as much proportionally as a missed 500-pixel object. This makes it much better suited to imbalanced segmentation masks than BCE alone.
+- **Dice loss** directly optimizes the **overlap** between prediction and ground truth (it's a differentiable relaxation of the Dice coefficient, $\dfrac{2\lvert A \cap B \rvert}{\lvert A \rvert + \lvert B \rvert}$), which is invariant to the *size* imbalance between foreground and background — a missed 5-pixel object hurts the Dice score just as much proportionally as a missed 500-pixel object. This makes it much better suited to imbalanced segmentation masks than BCE alone.
 
 ```python
 class SoftDiceLoss(nn.Module):

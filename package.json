@@ -11,12 +11,15 @@
     "preview": "vite preview --host 0.0.0.0 --port 3000"
   },
   "dependencies": {
+    "katex": "^0.18.7",
     "lucide-react": "^1.16.0",
     "motion": "^12.4.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.3",
-    "remark-gfm": "^4.0.0"
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.9",

@@ -13,7 +13,7 @@ parameters — the "model" is just the stored training data.
 - **Regression**: average (or weighted average) of the `k` nearest
   neighbors' target values.
 - **Distance-weighted variants**: instead of every neighbor voting equally,
-  weight each neighbor's vote/value by `1/distance` (or similar) so closer
+  weight each neighbor's vote/value by $1/\text{distance}$ (or similar) so closer
   neighbors count more — reduces the impact of a tie-breaking far-away
   neighbor pulled into the `k` set only because `k` was set slightly too
   large.
@@ -27,7 +27,7 @@ parameters — the "model" is just the stored training data.
 - **Large k**: prediction averages over many neighbors — smoother, more
   stable, **high bias**: can wash out genuine local structure and
   underfit, eventually converging toward always predicting the global
-  majority class/mean as `k → n`.
+  majority class/mean as $k \to n$.
 
 This is the bias-variance tradeoff (see
 [Bias-Variance Tradeoff](model-evaluation/bias-variance-tradeoff.md)),

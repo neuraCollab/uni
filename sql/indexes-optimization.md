@@ -6,7 +6,7 @@ An index is an auxiliary data structure that lets the database find rows without
 
 ## How indexes work (B-tree default)
 
-Most general-purpose indexes (Postgres/MySQL InnoDB/SQL Server default) are **B-trees**: a balanced tree structure keeping keys sorted, giving `O(log n)` lookups, range scans, and ordered traversal.
+Most general-purpose indexes (Postgres/MySQL InnoDB/SQL Server default) are **B-trees**: a balanced tree structure keeping keys sorted, giving $O(\log n)$ lookups, range scans, and ordered traversal.
 
 ```sql
 CREATE INDEX idx_employees_dept ON employees(department);

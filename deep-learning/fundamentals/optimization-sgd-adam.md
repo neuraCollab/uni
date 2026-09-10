@@ -10,41 +10,43 @@ Plain gradient descent uses a single global step size and treats every parameter
 
 ## How does it work?
 
-**Gradient Descent (batch).** Compute the gradient of the loss over the *entire* dataset, take one step: `theta -= lr * grad`. Accurate but far too slow/expensive per step for deep learning.
+**Gradient Descent (batch).** Compute the gradient of the loss over the *entire* dataset, take one step: $\theta \leftarrow \theta - \text{lr} \cdot \nabla_\theta L$. Accurate but far too slow/expensive per step for deep learning.
 
 **SGD (stochastic / mini-batch).** Estimate the gradient from a small batch instead of the full dataset. Noisier, but each step is cheap, and the noise itself can help escape shallow local minima/saddle points.
 
-```
-theta -= lr * grad(theta; batch)
-```
+$$\theta \leftarrow \theta - \text{lr} \cdot \nabla_\theta L(\theta;\, \text{batch})$$
 
 **SGD + Momentum.** Accumulate a running (exponentially-weighted) average of past gradients — a "velocity" — and step in that direction instead of the raw gradient. Damps oscillation across steep/narrow ravines and accelerates along consistent directions.
 
-```
-v = beta * v + (1 - beta) * grad        # beta ~ 0.9
-theta -= lr * v
-```
+$$
+\begin{aligned}
+v &\leftarrow \beta v + (1 - \beta) \nabla_\theta L \qquad (\beta \approx 0.9) \\
+\theta &\leftarrow \theta - \text{lr} \cdot v
+\end{aligned}
+$$
 
 **RMSprop.** Adapts the learning rate *per parameter* by dividing by the root of a running average of squared gradients. Parameters with consistently large gradients get their effective step size shrunk; parameters with small/sparse gradients get relatively larger steps.
 
-```
-s = beta * s + (1 - beta) * grad**2      # beta ~ 0.99
-theta -= lr * grad / (sqrt(s) + eps)
-```
+$$
+\begin{aligned}
+s &\leftarrow \beta s + (1 - \beta) (\nabla_\theta L)^2 \qquad (\beta \approx 0.99) \\
+\theta &\leftarrow \theta - \text{lr} \cdot \frac{\nabla_\theta L}{\sqrt{s} + \varepsilon}
+\end{aligned}
+$$
 
 **Adam (Adaptive Moment Estimation).** Combines both ideas: a momentum term (1st moment, mean of gradients) and an RMSprop-style term (2nd moment, mean of squared gradients), plus a bias-correction step because both running averages are initialized at zero and are biased toward zero early in training.
 
-```
-m = beta1 * m + (1 - beta1) * grad             # 1st moment (momentum)
-s = beta2 * s + (1 - beta2) * grad**2          # 2nd moment (RMSprop-style)
+$$
+\begin{aligned}
+m &\leftarrow \beta_1 m + (1 - \beta_1) \nabla_\theta L &&\text{1st moment (momentum)} \\
+s &\leftarrow \beta_2 s + (1 - \beta_2) (\nabla_\theta L)^2 &&\text{2nd moment (RMSprop-style)} \\[4pt]
+\hat{m} &= \frac{m}{1 - \beta_1^t} &&\text{bias correction} \\
+\hat{s} &= \frac{s}{1 - \beta_2^t} \\[4pt]
+\theta &\leftarrow \theta - \text{lr} \cdot \frac{\hat{m}}{\sqrt{\hat{s}} + \varepsilon}
+\end{aligned}
+$$
 
-m_hat = m / (1 - beta1**t)                     # bias correction
-s_hat = s / (1 - beta2**t)
-
-theta -= lr * m_hat / (sqrt(s_hat) + eps)
-```
-
-Defaults that work well almost everywhere: `beta1=0.9`, `beta2=0.999`, `eps=1e-8`. Adam is the default choice for most deep learning problems because it's robust to the initial learning rate choice and converges fast; plain SGD+momentum sometimes generalizes *better* on large vision models when tuned carefully (a known empirical gap), which is why you still see it in some training recipes (e.g. ResNet/ImageNet).
+Defaults that work well almost everywhere: $\beta_1=0.9$, $\beta_2=0.999$, $\varepsilon=10^{-8}$. Adam is the default choice for most deep learning problems because it's robust to the initial learning rate choice and converges fast; plain SGD+momentum sometimes generalizes *better* on large vision models when tuned carefully (a known empirical gap), which is why you still see it in some training recipes (e.g. ResNet/ImageNet).
 
 ### Learning rate: the single most important hyperparameter
 

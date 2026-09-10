@@ -14,7 +14,7 @@ Feedforward networks and CNNs assume fixed-size, order-independent (or locally-o
 
 ### Vanilla RNN and the vanishing/exploding gradient problem
 
-At each timestep: `h_t = activation(W_h @ h_{t-1} + W_x @ x_t + b)`. Training uses backpropagation through time (BPTT) — the same chain rule as normal backprop, but unrolled across every timestep. The gradient flowing back to an early timestep is a product of many Jacobians (one per timestep in between). Over long sequences:
+At each timestep: $h_t = \text{activation}(W_h h_{t-1} + W_x x_t + b)$. Training uses backpropagation through time (BPTT) — the same chain rule as normal backprop, but unrolled across every timestep. The gradient flowing back to an early timestep is a product of many Jacobians (one per timestep in between). Over long sequences:
 
 - If those per-step derivatives are consistently `< 1` (common with `tanh`/sigmoid activations, which saturate), the gradient **vanishes** — shrinks toward zero, so the network effectively can't learn dependencies spanning more than a few dozen steps.
 - If consistently `> 1`, the gradient **explodes** — blows up numerically, destabilizing training (usually mitigated with gradient clipping).
