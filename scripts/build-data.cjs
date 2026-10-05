@@ -1,300 +1,155 @@
+// Builds src/data/repo.json from the markdown notes and Python code in this repo.
+// Runs automatically before `dev`, `build` and `lint` (see package.json).
 const fs = require('fs');
 const path = require('path');
 
+const ROOT = path.join(__dirname, '..');
+const OUT = path.join(ROOT, 'src', 'data', 'repo.json');
+
 const SECTIONS = [
-  { id: 'algorithms', title: 'Algorithms', icon: 'Binary', desc: 'Patterns, data structures, sorting, metaheuristics' },
-  { id: 'machine-learning', title: 'Machine Learning', icon: 'BrainCircuit', desc: 'Linear models, trees, clustering, evaluation, preprocessing' },
-  { id: 'deep-learning', title: 'Deep Learning', icon: 'Layers', desc: 'PyTorch, CNNs, RNNs, VAEs, transformers, regularization' },
-  { id: 'python', title: 'Python', icon: 'Code', desc: 'OOP, iterators, async, memory model, typing, common traps' },
-  { id: 'sql', title: 'SQL', icon: 'Database', desc: 'Window functions, CTEs, joins, query order, optimization' },
-  { id: 'statistics', title: 'Statistics', icon: 'BarChart2', desc: 'Probability, distributions, hypothesis testing, A/B testing' },
+  { id: 'algorithms', title: 'Algorithms', desc: 'Patterns, data structures, sorting, metaheuristics' },
+  { id: 'machine-learning', title: 'Machine Learning', desc: 'Linear models, trees, clustering, evaluation, preprocessing' },
+  { id: 'deep-learning', title: 'Deep Learning', desc: 'PyTorch, CNNs, RNNs, VAEs, transformers, regularization' },
+  { id: 'python', title: 'Python', desc: 'OOP, iterators, async, memory model, typing, common traps' },
+  { id: 'sql', title: 'SQL', desc: 'Window functions, CTEs, joins, query order, optimization' },
+  { id: 'statistics', title: 'Statistics', desc: 'Probability, distributions, hypothesis testing, A/B testing' },
 ];
 
-function walkDir(dir, fileList = []) {
-  if (!fs.existsSync(dir)) return fileList;
-  const files = fs.readdirSync(dir);
-  for (const file of files) {
-    if (file === 'node_modules' || file === '.git' || file === 'dist' || file === 'scripts' || file === 'src') continue;
-    const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
-    if (stat.isDirectory()) {
-      walkDir(fullPath, fileList);
-    } else {
-      fileList.push(fullPath);
-    }
+const posix = (p) => p.split(path.sep).join('/');
+
+function walk(dir, out = []) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, out);
+    else out.push(posix(path.relative(ROOT, full)));
   }
-  return fileList;
+  return out;
 }
 
-function extractTitle(content, filename) {
-  const match = content.match(/^#\s+(.+)$/m);
-  if (match) return match[1].trim();
-  const base = path.basename(filename, path.extname(filename));
-  return base.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+// Body of a `## Heading` (or `### Heading`) section, up to the next `##`.
+function section(content, heading, level = 2) {
+  const re = new RegExp(`^${'#'.repeat(level)}\\s+${heading}\\s*$([\\s\\S]*?)(?=^##\\s|(?![\\s\\S]))`, 'im');
+  return content.match(re)?.[1] ?? '';
 }
 
-function extractExcerpt(content) {
-  const lines = content.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('```') && !trimmed.startsWith('|') && !trimmed.startsWith('![')) {
-      return trimmed.slice(0, 220);
-    }
-  }
-  return '';
+const bullets = (block) => [...block.matchAll(/^\s*-\s+(.+)$/gm)].map((m) => m[1].trim());
+
+// Resolve a relative markdown link against the note's directory.
+const resolve = (fromFile, href) => posix(path.normalize(path.join(path.dirname(fromFile), href.split('#')[0])));
+
+function title(content, file) {
+  const h1 = content.match(/^#\s+(.+)$/m);
+  if (h1) return h1[1].trim();
+  return path.basename(file, '.md').replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function extractInterviewQuestions(content, notePath, noteTitle, section) {
-  const questions = [];
-  const regex = /##\s+Common\s+interview\s+questions([\s\S]*?)(?=\n##\s+|$)/i;
-  const match = content.match(regex);
-  if (match) {
-    const block = match[1];
-    const itemRegex = /-\s+([^\n]+)/g;
-    let itemMatch;
-    while ((itemMatch = itemRegex.exec(block)) !== null) {
-      const fullText = itemMatch[1].trim();
-      let question = fullText;
-      let hint = '';
-      const hintMatch = fullText.match(/\*?\((.+?)\)\*?$/);
-      if (hintMatch) {
-        hint = hintMatch[1];
-        question = fullText.replace(/\*?\((.+?)\)\*?$/, '').trim();
-      }
-      questions.push({
-        id: `${notePath}#q${questions.length + 1}`,
-        question,
-        hint,
-        notePath,
-        noteTitle,
-        section,
-      });
-    }
-  }
-  return questions;
+// First prose paragraph, hard-wrapped lines joined.
+function excerpt(content) {
+  const para = content
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .find((p) => p && !/^(#|```|\||!\[|-|\d+\.)/.test(p));
+  const text = (para ?? '').replace(/\s+/g, ' ');
+  return text.length > 220 ? `${text.slice(0, 220).trimEnd()}…` : text;
 }
 
-function extractClues(content, patternName, notePath) {
-  const clues = [];
-  const match = content.match(/###\s+Key\s+clues([\s\S]*?)(?=\n##\s+|$)/i);
-  if (match) {
-    const block = match[1];
-    const itemRegex = /-\s+([^\n]+)/g;
-    let itemMatch;
-    while ((itemMatch = itemRegex.exec(block)) !== null) {
-      clues.push(itemMatch[1].trim());
-    }
-  }
-  return clues;
+function questions(content, note) {
+  return bullets(section(content, 'Common interview questions')).map((text, i) => {
+    const hint = text.match(/\*?\((.+?)\)\*?$/);
+    return {
+      id: `${note.path}#q${i + 1}`,
+      question: hint ? text.slice(0, hint.index).trim() : text,
+      hint: hint ? hint[1] : '',
+      notePath: note.path,
+      noteTitle: note.title,
+      section: note.section,
+    };
+  });
 }
 
-function extractCodeRefs(content, currentDir) {
-  const refs = [];
-  const regex = /\[.*?\]\((.*?\.(?:py|sh))\)/g;
-  let match;
-  while ((match = regex.exec(content)) !== null) {
-    const linkPath = match[1].split('#')[0];
-    const resolved = path.normalize(path.join(currentDir, linkPath)).replace(/\\/g, '/');
-    refs.push(resolved);
-  }
-  return Array.from(new Set(refs));
+function lookupTable(content, file) {
+  return section(content, 'Pattern lookup table')
+    .split('\n')
+    .filter((l) => l.startsWith('|') && !/^\|\s*-/.test(l))
+    .slice(1) // header row
+    .map((l) => l.split('|').map((s) => s.trim()).filter(Boolean))
+    .filter((cells) => cells.length >= 2)
+    .map(([clue, target]) => {
+      const link = target.match(/\[(.*?)\]\((.*?)\)/);
+      return { clue, pattern: link ? link[1] : target, notePath: link ? resolve(file, link[2]) : '' };
+    });
 }
 
-function parseAlgorithmsLookupTable(readmeContent) {
-  const table = [];
-  const regex = /##\s+Pattern\s+lookup\s+table([\s\S]*?)(?=\n##\s+|$)/i;
-  const match = readmeContent.match(regex);
-  if (match) {
-    const lines = match[1].split('\n');
-    for (const line of lines) {
-      if (line.includes('|') && !line.includes('---|---') && !line.includes('If the problem says')) {
-        const parts = line.split('|').map(s => s.trim()).filter(Boolean);
-        if (parts.length >= 2) {
-          const clue = parts[0];
-          const patternTarget = parts[1];
-          const patternMatch = patternTarget.match(/\[(.*?)\]\((.*?)\)/);
-          const patternName = patternMatch ? patternMatch[1] : patternTarget;
-          const targetPath = patternMatch ? path.normalize(path.join('algorithms', patternMatch[2])).replace(/\\/g, '/') : '';
-          table.push({
-            clue,
-            pattern: patternName,
-            targetPath,
-          });
-        }
-      }
-    }
-  }
-  return table;
-}
-
-function extractQuickRevisionOrder(content) {
-  const regex = /##\s+Quick\s+revision\s+order([\s\S]*?)(?=\n##\s+|$)/i;
-  const match = content.match(regex);
-  if (match) {
-    return match[1].trim();
-  }
-  return '';
+function reviewOrder(content, file) {
+  const block = section(content, 'Suggested review order');
+  return [...block.matchAll(/\]\(([^)]+\.md)\)/g)].map((m) => resolve(file, m[1]));
 }
 
 function main() {
-  const files = walkDir('.');
-  const mdFiles = files.filter(f => f.endsWith('.md') && !f.startsWith('AI_STUDIO') && !f.startsWith('README.md'));
-  const pyFiles = files.filter(f => f.endsWith('.py'));
+  const files = walk(ROOT).filter((f) => SECTIONS.some((s) => f.startsWith(`${s.id}/`)));
 
-  console.log(`Processing ${mdFiles.length} markdown files and ${pyFiles.length} python files...`);
+  const code = files
+    .filter((f) => f.endsWith('.py'))
+    .map((f) => ({ path: f, filename: path.basename(f), section: f.split('/')[0], content: fs.readFileSync(path.join(ROOT, f), 'utf8') }));
+  const codePaths = new Set(code.map((c) => c.path));
 
   const notes = [];
   const allQuestions = [];
-  const allClues = [];
-  const codeFiles = [];
-  let algorithmsLookupTable = [];
+  const patternClues = [];
+  const cramPlans = [];
+  let lookup = [];
 
-  // Parse Python files
-  for (const pyPath of pyFiles) {
-    const cleanPath = pyPath.replace(/^\.\//, '').replace(/\\/g, '/');
-    const content = fs.readFileSync(pyPath, 'utf8');
-    const section = cleanPath.split('/')[0];
-    const parts = cleanPath.split('/');
-    const subsection = parts.length > 2 ? parts[1] : '';
-    codeFiles.push({
-      id: cleanPath,
-      path: cleanPath,
-      filename: path.basename(cleanPath),
-      section,
-      subsection,
+  for (const file of files.filter((f) => f.endsWith('.md') && path.basename(f) !== 'template.md')) {
+    const content = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    const parts = file.split('/');
+    const note = {
+      path: file,
+      title: title(content, file),
+      section: parts[0],
+      subsection: parts.length > 2 ? parts[1] : '',
+      filename: parts[parts.length - 1],
+      isReadme: parts[parts.length - 1] === 'README.md',
+      isScaffolding: file.includes('/leetcode/'),
+      excerpt: excerpt(content),
       content,
-      lines: content.split('\n').length,
-    });
-  }
+      codeRefs: [...new Set([...content.matchAll(/\]\(([^)]+\.py)(?:#[^)]*)?\)/g)].map((m) => resolve(file, m[1])))].filter((p) => codePaths.has(p)),
+      questionCount: 0,
+    };
 
-  // Parse Markdown files
-  for (const mdPath of mdFiles) {
-    const cleanPath = mdPath.replace(/^\.\//, '').replace(/\\/g, '/');
-    const content = fs.readFileSync(mdPath, 'utf8');
-    const parts = cleanPath.split('/');
-    const section = parts[0];
-    const subsection = parts.length > 2 ? parts[1] : '';
-    const filename = path.basename(cleanPath);
-    const title = extractTitle(content, filename);
-    const excerpt = extractExcerpt(content);
-    const isReadme = filename.toLowerCase() === 'readme.md';
-    const isScaffolding = cleanPath.includes('leetcode');
-    const codeRefs = extractCodeRefs(content, path.dirname(cleanPath));
-    const quickRev = isReadme ? extractQuickRevisionOrder(content) : '';
+    const qs = questions(content, note);
+    note.questionCount = qs.length;
+    allQuestions.push(...qs);
 
-    if (cleanPath === 'algorithms/README.md') {
-      algorithmsLookupTable = parseAlgorithmsLookupTable(content);
+    if (note.isReadme && parts.length === 2) {
+      const steps = reviewOrder(content, file);
+      if (steps.length) cramPlans.push({ section: note.section, steps });
+      if (note.section === 'algorithms') lookup = lookupTable(content, file);
     }
 
-    const noteQuestions = extractInterviewQuestions(content, cleanPath, title, section);
-    allQuestions.push(...noteQuestions);
-
-    if (section === 'algorithms' && cleanPath.includes('patterns/') && !isReadme) {
-      const clues = extractClues(content, title, cleanPath);
-      if (clues.length > 0) {
-        allClues.push({
-          pattern: title,
-          notePath: cleanPath,
-          clues,
-        });
-      }
+    if (file.startsWith('algorithms/patterns/')) {
+      const clues = bullets(section(content, 'Key clues', 3));
+      if (clues.length) patternClues.push({ pattern: note.title, notePath: file, clues });
     }
 
-    notes.push({
-      id: cleanPath.replace(/\.md$/, ''),
-      path: cleanPath,
-      title,
-      section,
-      subsection,
-      filename,
-      isReadme,
-      isScaffolding,
-      excerpt,
-      content,
-      codeRefs,
-      quickRevisionOrder: quickRev,
-      interviewQuestionsCount: noteQuestions.length,
-    });
+    notes.push(note);
   }
 
-  // Build output TS
-  const outDir = path.join(__dirname, '..', 'src', 'data');
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, { recursive: true });
+  const notePaths = new Set(notes.map((n) => n.path));
+  for (const plan of cramPlans) {
+    const missing = plan.steps.filter((s) => !notePaths.has(s));
+    if (missing.length) throw new Error(`${plan.section}/README.md review order links to missing notes: ${missing.join(', ')}`);
   }
 
-  const outputTs = `// Automatically generated by scripts/build-data.js
-// Do not edit manually. Total notes: ${notes.length}, Code files: ${codeFiles.length}
+  // Keep cram plans in sidebar section order.
+  cramPlans.sort((a, b) => SECTIONS.findIndex((s) => s.id === a.section) - SECTIONS.findIndex((s) => s.id === b.section));
 
-export interface SectionMeta {
-  id: string;
-  title: string;
-  icon: string;
-  desc: string;
-}
-
-export interface NoteItem {
-  id: string;
-  path: string;
-  title: string;
-  section: string;
-  subsection: string;
-  filename: string;
-  isReadme: boolean;
-  isScaffolding: boolean;
-  excerpt: string;
-  content: string;
-  codeRefs: string[];
-  quickRevisionOrder?: string;
-  interviewQuestionsCount: number;
-}
-
-export interface CodeItem {
-  id: string;
-  path: string;
-  filename: string;
-  section: string;
-  subsection: string;
-  content: string;
-  lines: number;
-}
-
-export interface InterviewQuestion {
-  id: string;
-  question: string;
-  hint: string;
-  notePath: string;
-  noteTitle: string;
-  section: string;
-}
-
-export interface PatternClueItem {
-  pattern: string;
-  notePath: string;
-  clues: string[];
-}
-
-export interface LookupItem {
-  clue: string;
-  pattern: string;
-  targetPath: string;
-}
-
-export const SECTIONS: SectionMeta[] = ${JSON.stringify(SECTIONS, null, 2)};
-
-export const NOTES: NoteItem[] = ${JSON.stringify(notes, null, 2)};
-
-export const CODE_FILES: CodeItem[] = ${JSON.stringify(codeFiles, null, 2)};
-
-export const ALL_QUESTIONS: InterviewQuestion[] = ${JSON.stringify(allQuestions, null, 2)};
-
-export const PATTERN_CLUES: PatternClueItem[] = ${JSON.stringify(allClues, null, 2)};
-
-export const ALGORITHMS_LOOKUP_TABLE: LookupItem[] = ${JSON.stringify(algorithmsLookupTable, null, 2)};
-`;
-
-  fs.writeFileSync(path.join(outDir, 'repoData.ts'), outputTs, 'utf8');
-  console.log(`Wrote repoData.ts successfully! Generated ${notes.length} notes, ${codeFiles.length} code files, ${allQuestions.length} interview questions, ${allClues.length} pattern recognition items, ${algorithmsLookupTable.length} lookup rows.`);
+  const data = { sections: SECTIONS, notes, code, questions: allQuestions, patternClues, lookup, cramPlans };
+  fs.mkdirSync(path.dirname(OUT), { recursive: true });
+  fs.writeFileSync(OUT, JSON.stringify(data));
+  console.log(
+    `repo.json: ${notes.length} notes, ${code.length} code files, ${allQuestions.length} questions, ` +
+      `${patternClues.length} patterns, ${lookup.length} lookup rows, ${cramPlans.length} cram plans`,
+  );
 }
 
 main();

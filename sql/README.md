@@ -35,7 +35,7 @@ FROM  →  JOIN/ON  →  WHERE  →  GROUP BY  →  HAVING  →  SELECT  →  DI
 | [`indexes-optimization.md`](./indexes-optimization.md) | B-tree indexes, when they help/don't (low cardinality, leading wildcards, functions on columns), composite index order, covering indexes, EXPLAIN ANALYZE, N+1 problem, over-indexing |
 | [`interview-problems.md`](./interview-problems.md) | 8 classic problems with pattern + solution: second-highest salary, highest-avg-salary department, login streaks, running totals, duplicate detection, employees > manager salary, median, pivot |
 
-## Suggested read order
+## Suggested review order
 
 1. [`select-where-groupby.md`](./select-where-groupby.md) — fundamentals
 2. [`joins.md`](./joins.md)

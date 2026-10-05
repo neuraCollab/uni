@@ -1,14 +1,22 @@
 export type ViewMode = 'browse' | 'quiz' | 'cram' | 'flashcards' | 'code' | 'lookup';
 
-export interface SectionMeta {
+export interface Route {
+  view: ViewMode;
+  note: string;
+  code: string;
+  /** Cram mode: selected section. */
+  section: string;
+  /** Flashcards: restrict to questions from one note. */
+  filter: string;
+}
+
+export interface Section {
   id: string;
   title: string;
-  icon: string;
   desc: string;
 }
 
-export interface NoteItem {
-  id: string;
+export interface Note {
   path: string;
   title: string;
   section: string;
@@ -19,21 +27,17 @@ export interface NoteItem {
   excerpt: string;
   content: string;
   codeRefs: string[];
-  quickRevisionOrder?: string;
-  interviewQuestionsCount: number;
+  questionCount: number;
 }
 
-export interface CodeItem {
-  id: string;
+export interface CodeFile {
   path: string;
   filename: string;
   section: string;
-  subsection: string;
   content: string;
-  lines: number;
 }
 
-export interface InterviewQuestion {
+export interface Question {
   id: string;
   question: string;
   hint: string;
@@ -42,14 +46,29 @@ export interface InterviewQuestion {
   section: string;
 }
 
-export interface PatternClueItem {
+export interface PatternClues {
   pattern: string;
   notePath: string;
   clues: string[];
 }
 
-export interface LookupItem {
+export interface LookupRow {
   clue: string;
   pattern: string;
-  targetPath: string;
+  notePath: string;
+}
+
+export interface CramPlan {
+  section: string;
+  steps: string[];
+}
+
+export interface RepoData {
+  sections: Section[];
+  notes: Note[];
+  code: CodeFile[];
+  questions: Question[];
+  patternClues: PatternClues[];
+  lookup: LookupRow[];
+  cramPlans: CramPlan[];
 }

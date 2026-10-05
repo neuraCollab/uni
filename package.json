@@ -4,16 +4,18 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "prebuild": "node scripts/build-data.cjs",
-    "lint": "tsc --noEmit",
-    "dev": "vite --host 0.0.0.0 --port 3000",
+    "data": "node scripts/build-data.cjs",
+    "predev": "npm run data",
+    "dev": "vite",
+    "prebuild": "npm run data",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0 --port 3000"
+    "preview": "vite preview",
+    "prelint": "npm run data",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "katex": "^0.18.7",
     "lucide-react": "^1.16.0",
-    "motion": "^12.4.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.3",

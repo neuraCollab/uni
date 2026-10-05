@@ -26,7 +26,7 @@ Interview-cram notes on the statistical reasoning that shows up in DS/ML intervi
 | Compare 2 groups without assuming normality | Mann-Whitney U test |
 | Compare 2 paired measurements without assuming normality | Wilcoxon signed-rank test |
 
-## Suggested reading order
+## Suggested review order
 
 1. [`probability-bayes.md`](./probability-bayes.md) — the foundation everything else builds on
 2. [`distributions-clt.md`](./distributions-clt.md) — CLT is the bridge from raw data to inference

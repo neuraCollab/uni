@@ -23,6 +23,15 @@ Interview-cram notes on neural networks, covering fundamentals, architectures, a
 - [Embeddings](embeddings.md) — learned lookup tables vs. one-hot, dimensionality tradeoffs, pretrained (word2vec/GloVe) vs. learned-from-scratch, generalization to tabular/recommender embeddings. *(TensorFlow-sourced example.)*
 - [Attention & Transformers](attention-transformers.md) — self-attention, scaled dot-product formula, multi-head attention, positional encoding, encoder/decoder block structure, BERT vs. GPT. *(Written from general knowledge — absent from both source repos.)*
 
+## Suggested review order
+
+1. [Neural Networks & Backpropagation](fundamentals/neural-networks-backprop.md)
+2. [Optimization: SGD, Momentum, Adam](fundamentals/optimization-sgd-adam.md)
+3. [Tensors & Autograd](pytorch/tensors-autograd.md)
+4. [Regularization & Overfitting](regularization-overfitting.md)
+5. [Attention & Transformers](attention-transformers.md)
+6. [Variational Autoencoders](pytorch/vae.md)
+
 ## Secondary reference: Keras/TensorFlow
 
 [`keras-tf-reference/code/`](keras-tf-reference/code/) holds Keras/TF equivalents of a few core patterns — useful if an interview leans TensorFlow, or just to see the same idea in a second framework:

@@ -31,7 +31,7 @@ checkpoints/
 data/
 datasets/
 
-# Study app (Vite/React) — build/deps, never commit
+# Study app (Vite/React) — build/deps and generated src/data/repo.json, never commit
 node_modules/
 dist/
 *.local

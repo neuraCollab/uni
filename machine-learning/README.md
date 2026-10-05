@@ -80,8 +80,20 @@ The math underneath "why this loss function, why this model family" — start he
 
 - [Collaborative Filtering, Matrix Factorization, ALS/iALS](recommender-systems.md) — explicit vs. implicit feedback, item2item/user2user CF, Pearson-based similarity, ALS and its EM-like alternating structure, the ALS-vs-iALS comparison table
 
-## Quick revision order
+## Suggested review order
 
-If you're cramming: **regularization → logistic regression → classification metrics → cross-validation → data leakage → bias-variance → trees/ensembles → clustering overview → hyperparameter optimization.** That's the path most DS/ML interviews actually probe.
+The path most DS/ML interviews actually probe:
 
-Related: [Statistics](../statistics/README.md) for the probability/hypothesis-testing foundations these notes assume · [Deep Learning](../deep-learning/README.md) for neural-network-specific material.
+1. [Regularization](linear-models/regularization.md)
+2. [Logistic Regression](linear-models/logistic-regression.md)
+3. [Classification Metrics](model-evaluation/classification-metrics.md)
+4. [Cross-Validation](model-evaluation/cross-validation.md)
+5. [Data Leakage](model-evaluation/data-leakage.md)
+6. [Bias-Variance Tradeoff](model-evaluation/bias-variance-tradeoff.md)
+7. [Decision Trees](trees-ensembles/decision-trees.md) → [Gradient Boosting](trees-ensembles/gradient-boosting-catboost-lgbm.md)
+8. [Clustering Overview](clustering/overview.md)
+9. [Hyperparameter Optimization](hyperparameter-optimization.md)
+
+## Related
+
+[Statistics](../statistics/README.md) for the probability/hypothesis-testing foundations these notes assume · [Deep Learning](../deep-learning/README.md) for neural-network-specific material.

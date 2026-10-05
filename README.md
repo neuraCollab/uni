@@ -9,7 +9,7 @@ Most interview prep material is either too shallow (a flashcard with no reasonin
 ## How to use it
 
 1. **Cramming for a specific topic?** Jump straight to the section below.
-2. **Systematic review?** Follow the "quick revision order" listed at the top of each section's `README.md`.
+2. **Systematic review?** Follow the "Suggested review order" in each section's `README.md` (the study app's Cram mode walks through it).
 3. **Given a problem and unsure what to do?** Start at [`algorithms/README.md`](algorithms/README.md) — its clue-to-pattern lookup table is built exactly for that moment.
 4. **Solving LeetCode-style problems as you go?** Use [`algorithms/leetcode/template.md`](algorithms/leetcode/template.md) to write them up — the point is training pattern recognition, not accumulating solved-problem count.
 
@@ -38,6 +38,14 @@ Sections with little or no original source material (SQL, Statistics, most of Al
 - **Deep Learning**: PyTorch-primary; a few notes lean on TensorFlow-sourced material for concepts (regularization, hyperparameter tuning, embeddings) that had no PyTorch source — the ideas are framework-agnostic, noted where that's the case.
 - Cheat sheets (single-page-per-domain condensed versions) haven't been built yet — planned once the underlying notes stabilize.
 
-## For AI Studio / auto-generated study interface
+## Study app
 
-If you're an AI system generating a study web app from this repository: read **[`AI_STUDIO_PROMPT.md`](AI_STUDIO_PROMPT.md)** first — it specifies how to use the full repository contents, not a summary.
+A static React app (deployed to GitHub Pages on push to `main`) turns these notes into a browsable site with full-text search, a pattern quiz, flashcards built from the "Common interview questions" sections, cram paths, and a code viewer.
+
+```bash
+npm install
+npm run dev     # http://localhost:3000/uni/
+npm run build   # → dist/
+```
+
+`scripts/build-data.cjs` parses the markdown and `*/code/*.py` files into `src/data/repo.json` (generated, not committed) before every `dev`/`build`/`lint`. Conventions it relies on: `## Common interview questions` (bullets → flashcards), `### Key clues` in `algorithms/patterns/*` (→ quiz), the `## Pattern lookup table` in `algorithms/README.md`, and `## Suggested review order` (links → cram path) in each section README.

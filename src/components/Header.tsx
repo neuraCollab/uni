@@ -1,124 +1,62 @@
-import React from 'react';
-import { ViewMode } from '../types';
-import { 
-  BookOpen, 
-  Sparkles, 
-  Flame, 
-  Layers, 
-  Code2, 
-  Search, 
-  TableProperties
-} from 'lucide-react';
+import { BookOpen, Code2, Flame, Layers, Search, Sparkles, TableProperties, type LucideIcon } from 'lucide-react';
+import type { ViewMode } from '../types';
+import { CODE_FILES, QUESTIONS } from '../data';
 
-interface HeaderProps {
-  currentView: ViewMode;
+const TABS: { mode: ViewMode; label: string; icon: LucideIcon; badge?: number }[] = [
+  { mode: 'browse', label: 'Notes', icon: BookOpen },
+  { mode: 'quiz', label: 'Pattern Quiz', icon: Sparkles },
+  { mode: 'lookup', label: 'Pattern Table', icon: TableProperties },
+  { mode: 'cram', label: 'Cram Mode', icon: Flame },
+  { mode: 'flashcards', label: 'Flashcards', icon: Layers, badge: QUESTIONS.length },
+  { mode: 'code', label: 'Code', icon: Code2, badge: CODE_FILES.length },
+];
+
+interface Props {
+  view: ViewMode;
   onSelectView: (mode: ViewMode) => void;
   onOpenSearch: () => void;
-  stats: {
-    notesCount: number;
-    questionsCount: number;
-    codeCount: number;
-  };
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  currentView,
-  onSelectView,
-  onOpenSearch,
-  stats
-}) => {
-  const navItems: { mode: ViewMode; label: string; icon: React.FC<{ className?: string }>; badge?: string }[] = [
-    { mode: 'browse', label: 'Notes & Docs', icon: BookOpen },
-    { mode: 'quiz', label: 'Pattern Quiz', icon: Sparkles, badge: 'Algorithms' },
-    { mode: 'cram', label: 'Cram Mode', icon: Flame, badge: 'High Signal' },
-    { mode: 'flashcards', label: 'Flashcards', icon: Layers, badge: `${stats.questionsCount}` },
-    { mode: 'code', label: 'Code Vault', icon: Code2, badge: `${stats.codeCount}` },
-    { mode: 'lookup', label: 'Pattern Table', icon: TableProperties },
-  ];
-
+export function Header({ view, onSelectView, onOpenSearch }: Props) {
   return (
-    <header className="bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800 sticky top-0 z-30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
-          {/* Brand */}
-          <div className="flex items-center gap-3 shrink-0 cursor-pointer" onClick={() => onSelectView('browse')}>
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-amber-600 via-orange-500 to-yellow-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-orange-950/40">
-              IP
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-neutral-100 tracking-tight text-base sm:text-lg">Interview Prep</span>
-                <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                  Knowledge Base
-                </span>
-              </div>
-              <p className="text-xs text-neutral-400 hidden sm:block">
-                Curated 2-minute revision notes, patterns & code
-              </p>
-            </div>
-          </div>
+    <header className="bg-neutral-900 border-b border-neutral-800 px-4 sm:px-6">
+      <div className="flex items-center justify-between h-14 gap-4">
+        <button className="flex items-center gap-3 shrink-0" onClick={() => onSelectView('browse')}>
+          <span className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-yellow-500 flex items-center justify-center text-white font-bold">
+            IP
+          </span>
+          <span className="font-bold tracking-tight text-lg">Interview Prep</span>
+        </button>
 
-          {/* Search trigger button */}
-          <div className="flex-1 max-w-md hidden md:block">
-            <button
-              id="search-trigger-btn"
-              onClick={onOpenSearch}
-              className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-lg bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/60 text-sm text-neutral-400 hover:text-neutral-200 transition-colors shadow-inner"
-            >
-              <div className="flex items-center gap-2">
-                <Search className="w-4 h-4 text-neutral-400" />
-                <span>Search all notes, code, clues...</span>
-              </div>
-              <kbd className="text-[10px] font-mono bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-700 text-neutral-400">
-                ⌘K
-              </kbd>
-            </button>
-          </div>
-
-          {/* Right Mobile Search Icon */}
-          <div className="flex items-center gap-2 md:hidden">
-            <button
-              onClick={onOpenSearch}
-              className="p-2 rounded-lg bg-neutral-800 border border-neutral-700 text-neutral-300 hover:text-white"
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* View mode tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto py-1 border-t border-neutral-800/50 scrollbar-none text-xs sm:text-sm">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentView === item.mode;
-            return (
-              <button
-                key={item.mode}
-                id={`nav-tab-${item.mode}`}
-                onClick={() => onSelectView(item.mode)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-neutral-800 text-amber-400 shadow-sm border border-neutral-700'
-                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400' : 'text-neutral-400'}`} />
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    isActive 
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' 
-                      : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
-                  }`}>
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        <button
+          onClick={onOpenSearch}
+          aria-label="Search"
+          className="flex items-center gap-2 md:flex-1 md:max-w-md px-3 py-1.5 rounded-lg bg-neutral-800 border border-neutral-700 text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
+        >
+          <Search className="w-4 h-4" />
+          <span className="hidden md:inline flex-1 text-left">Search notes and code…</span>
+          <kbd className="hidden md:inline text-[10px] font-mono px-1.5 rounded border border-neutral-700">Ctrl K</kbd>
+        </button>
       </div>
+
+      <nav className="flex items-center gap-1 overflow-x-auto py-1 text-xs sm:text-sm">
+        {TABS.map(({ mode, label, icon: Icon, badge }) => {
+          const active = view === mode;
+          return (
+            <button
+              key={mode}
+              onClick={() => onSelectView(mode)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+                active ? 'bg-neutral-800 text-amber-400' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+              {badge !== undefined && <span className="text-[10px] px-1.5 rounded-full font-mono bg-neutral-800 border border-neutral-700">{badge}</span>}
+            </button>
+          );
+        })}
+      </nav>
     </header>
   );
-};
+}

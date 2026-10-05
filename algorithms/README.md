@@ -49,6 +49,18 @@ Match what the problem statement is telegraphing to the pattern that handles it.
 | Fixed-width keys / bounded-length strings to sort | [Sorting notes](sorting/notes.md) (radix sort) |
 | Huge/non-convex search space, no exact algorithm scales (e.g. TSP-shaped) | [Metaheuristics](advanced/metaheuristics.md) (GA / PSO / SA / ACO) |
 
+## Suggested review order
+
+1. [Two Pointers](patterns/two-pointers.md)
+2. [Sliding Window](patterns/sliding-window.md)
+3. [Binary Search](patterns/binary-search.md)
+4. [BFS / DFS](patterns/bfs-dfs.md)
+5. [Shortest Paths](patterns/shortest-paths.md)
+6. [Dynamic Programming](patterns/dynamic-programming.md)
+7. [Intervals](patterns/intervals.md)
+8. [Monotonic Stack](patterns/monotonic-stack.md)
+9. [Heaps](data-structures/heaps.md)
+
 ## How to use this repo before an interview
 1. Skim the lookup table above to refresh pattern recognition.
 2. For each pattern you're rusty on, re-read its `Template` and `Common Mistakes` sections in [`patterns/`](patterns/) — those are the highest-signal parts.
