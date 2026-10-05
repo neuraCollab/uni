@@ -1,27 +1,53 @@
-"""End-to-end model: KG-lexicon NER -> node-level relation classifier -> clique events."""
+"""End-to-end, graph-only model:
+
+1. entities: lexicon (``alias`` edges) of the background KG + GeoNames / NCBI subgraphs, small
+   places disambiguated by the place hierarchy (ner.py);
+2. relations: Personalized PageRank on the document graph joined with the background KG, plus
+   the background KG's prior for the very edge (graph_re.py);
+3. n-ary events: maximal cliques of the relation graph restricted to edges whose two nodes share a
+   sentence node in the document graph (events.py).
+
+No classifier is trained.  ``fit`` builds the background KG and chooses the walk parameters and
+one threshold per relation by grid search, using cross-fitting: the entities and KG evidence for
+each training document come from a KG built *without* that document, as at test time.
+"""
 from __future__ import annotations
 
+import itertools
 import random
-from collections import Counter
 from dataclasses import dataclass, field
-from pathlib import Path
 
-import numpy as np
-from sklearn.ensemble import HistGradientBoostingClassifier
-
-from .brat import RELATION_ROLES, ROLE_OF_TYPE, Document, Entity
-from .events import cliques_to_events, event_candidates, gold_events
+from .brat import Document, Entity
+from .events import cliques_to_events, gold_events
+from .graph_re import WalkParams, ppr_scores, tune_thresholds
 from .kg import KnowledgeGraph
 from .ner import EntityRecognizer
-from .relations import RELATIONS, build_matrix, gold_triples
+from .relations import RELATIONS, DocGraph, gold_triples
+
+# Grid explored by ``fit`` (all combinations).
+PARAM_GRID = {
+    "damping": [0.05, 0.1, 0.3],
+    "w_sent": [0.05, 0.3],
+    "w_kg": [0.25, 0.5, 1.0],
+    "w_geo": [0.0, 1.0],
+    "kg_prior": [0.0, 3.0, 10.0],
+    "centrality": [0.0, 1.0],
+}
+EVENT_SCALES = [0.5, 1.0, 1.5, 2.0, 3.0]
 
 
 def fold_order(docs: list[Document], seed: int = 13) -> list[Document]:
-    """Shuffled document order; fold k is ``order[k::folds]``. Shared with train_ner.py so the
-    cross-fitted NER models and the relation classifier use the same folds."""
+    """Shuffled document order; fold k is ``order[k::folds]``."""
     order = docs[:]
     random.Random(seed).shuffle(order)
     return order
+
+
+def event_edges(scores, thresholds, scale: float, dg: DocGraph):
+    """Relation edges usable as event arguments: accepted at ``scale`` x the relation threshold and
+    joined through a common sentence node (a 2-hop path entity - sentence - entity)."""
+    return {k for k, s in scores.items()
+            if s >= thresholds[k[0]] * scale and set(dg.sent[k[1]]) & set(dg.sent[k[2]])}
 
 
 @dataclass
@@ -32,154 +58,80 @@ class Prediction:
     scores: dict[tuple[str, str, str], float]
     triples: set[tuple[str, str, str]] = field(default_factory=set)
     events: list[frozenset] = field(default_factory=list)
-    dg: object = None
+    dg: DocGraph | None = None
 
 
-class PestKGModel:
-    def __init__(self, folds: int = 5, ner_threshold: float = 0.3, threshold: float = 0.4,
-                 gold_entities: bool = False, augment_gold: bool = True, tune: bool = True,
-                 ner_model: str | None = None, ner_mode: str = "hybrid", seed: int = 13) -> None:
+class GraphKGModel:
+    def __init__(self, folds: int = 5, ner_threshold: float = 0.3, gold_entities: bool = False,
+                 seed: int = 13, verbose: bool = True) -> None:
         self.folds = folds
         self.ner_threshold = ner_threshold
-        self.threshold = threshold  # global; per-relation overrides in self.rel_threshold
-        self.rel_threshold: dict[str, float] = {}
         self.gold_entities = gold_entities
-        self.augment_gold = augment_gold
-        self.tune = tune
-        # Optional transformer NER (see neural_ner.py / train_ner.py). It is used at prediction
-        # time only: training features still come from the cross-fitted dictionary NER, because
-        # the network has seen the training documents and would make them look too easy.
-        self.ner_model = ner_model
-        self.ner_mode = ner_mode
         self.seed = seed
+        self.verbose = verbose
+        self.params = WalkParams()
+        self.rel_threshold: dict[str, float] = {}
+        self.event_scale = 1.0
 
     def _entities(self, doc: Document, ner: EntityRecognizer) -> list[Entity]:
         return list(doc.entities.values()) if self.gold_entities else ner(doc.text)
 
-    def _classifier(self):
-        return HistGradientBoostingClassifier(
-            max_iter=300, learning_rate=0.05, max_leaf_nodes=31, min_samples_leaf=20,
-            l2_regularization=1.0, categorical_features=[0, 1, 2], random_state=self.seed,
-        )
-
-    def fit(self, docs: list[Document]) -> "PestKGModel":
-        """Cross-fitting: features for each training document come from a KG and lexicon built
-        without that document, so the classifier sees KG evidence as noisy as at test time.
-        The same folds give out-of-fold scores used to pick one threshold per relation."""
+    def fit(self, docs: list[Document]) -> "GraphKGModel":
         order = fold_order(docs, self.seed)
-        X, y, fold, aug, records = [], [], [], [], []
-        missed = Counter()  # gold triples whose nodes the NER did not find (unrecoverable FN)
+        held_out = []  # (doc graph, fold KG, gold triples, gold events)
         for k in range(self.folds):
             held = order[k::self.folds]
-            held_ids = {d.id for d in held}
-            kg = KnowledgeGraph.build([d for d in order if d.id not in held_ids])
+            ids = {d.id for d in held}
+            kg = KnowledgeGraph.build([d for d in order if d.id not in ids])
             ner = EntityRecognizer(kg, self.ner_threshold)
-            fold_dir = Path(self.ner_model) / f"fold{k}" if self.ner_model else None
-            if fold_dir is not None and fold_dir.exists():
-                # Cross-fitted transformer NER: this fold's model never saw these documents.
-                from .neural_ner import NeuralNER, NeuralRecognizer
-
-                ner = NeuralRecognizer(NeuralNER(str(fold_dir)), kg, ner, mode=self.ner_mode)
             for doc in held:
-                dg, keys, Xd, yd = build_matrix(doc, self._entities(doc, ner), kg)
-                records.append((doc, dg, keys, k))
-                found = {kk for kk, yy in zip(keys, yd) if yy}
-                for rel, *_ in gold_triples(doc) - found:
-                    missed[rel] += 1
-                if len(Xd):
-                    X.append(Xd); y.append(yd); fold.append(np.full(len(yd), k))
-                if self.augment_gold and not self.gold_entities:
-                    # Same document seen through gold entities: many more positive examples.
-                    _, _, Xg, yg = build_matrix(doc, list(doc.entities.values()), kg)
-                    if len(Xg):
-                        aug.append((Xg, yg, k))
-        X, y, fold = np.vstack(X), np.concatenate(y), np.concatenate(fold)
-        Xa = np.vstack([a[0] for a in aug]) if aug else np.empty((0, X.shape[1]))
-        ya = np.concatenate([a[1] for a in aug]) if aug else np.empty(0)
-        fa = np.concatenate([np.full(len(a[1]), a[2]) for a in aug]) if aug else np.empty(0)
+                held_out.append((DocGraph(doc, self._entities(doc, ner)), kg, gold_triples(doc), gold_events(doc)))
 
-        if self.tune:
-            oof = np.zeros(len(y))
-            for k in range(self.folds):
-                tr, te = fold != k, fold == k
-                clf = self._classifier().fit(np.vstack([X[tr], Xa[fa != k]]), np.concatenate([y[tr], ya[fa != k]]))
-                oof[te] = clf.predict_proba(X[te])[:, 1]
-            self.rel_threshold = _tune(X[:, 0], y, oof, missed)
-            self._fit_events(records, oof)
-        self.clf = self._classifier().fit(np.vstack([X, Xa]), np.concatenate([y, ya]))
+        best = None
+        keys = list(PARAM_GRID)
+        for values in itertools.product(*(PARAM_GRID[k] for k in keys)):
+            params = WalkParams(**dict(zip(keys, values)))
+            samples = [(ppr_scores(dg, kg, params), gold) for dg, kg, gold, _ in held_out]
+            thresholds, f1 = tune_thresholds(samples)
+            if best is None or f1 > best[0]:
+                best = (f1, params, thresholds, samples)
+        f1, self.params, self.rel_threshold, samples = best
+
+        # How permissive the relation graph used for cliques should be.
+        best_ev = None
+        for scale in EVENT_SCALES:
+            tp = n_pred = n_gold = 0
+            for (scores, _), (dg, _, _, gold_ev) in zip(samples, held_out):
+                edges = event_edges(scores, self.rel_threshold, scale, dg)
+                pred = set(cliques_to_events(edges, dg.type))
+                gold = {e for e in gold_ev if len(e) > 1}
+                tp += len(pred & gold); n_pred += len(pred); n_gold += len(gold)
+            ev_f1 = 2 * tp / (n_pred + n_gold) if n_pred + n_gold else 0.0
+            if best_ev is None or ev_f1 > best_ev[0]:
+                best_ev = (ev_f1, scale)
+        self.event_scale = best_ev[1]
+        if self.verbose:
+            print(f"fit: walk {self.params}, out-of-fold relation F1 {f1:.3f}, "
+                  f"event scale {self.event_scale} (out-of-fold event F1 {best_ev[0]:.3f})")
+
         self.kg = KnowledgeGraph.build(docs)
         self.ner = EntityRecognizer(self.kg, self.ner_threshold)
-        if self.ner_model:
-            from .neural_ner import NeuralNER, NeuralRecognizer
-
-            self.ner = NeuralRecognizer(NeuralNER(self.ner_model), self.kg, self.ner, mode=self.ner_mode)
         return self
-
-    def _fit_events(self, records, oof) -> None:
-        """Learn which cliques of the (out-of-fold) relation graph are real n-ary events."""
-        Xe, ye, fe, n_gold = [], [], [], 0
-        i = 0
-        for doc, dg, keys, k in records:
-            scores = dict(zip(keys, oof[i:i + len(keys)]))
-            i += len(keys)
-            gold = gold_events(doc)
-            n_gold += sum(1 for ev in gold if len(ev) > 1)
-            for ev, feats in event_candidates(scores, dg.type, dg, self.rel_threshold):
-                Xe.append(feats); ye.append(int(ev in gold)); fe.append(k)
-        Xe, ye, fe = np.array(Xe, dtype=float), np.array(ye), np.array(fe)
-        oof_e = np.zeros(len(ye))
-        for k in range(self.folds):
-            clf = HistGradientBoostingClassifier(max_iter=200, learning_rate=0.05, random_state=self.seed)
-            oof_e[fe == k] = clf.fit(Xe[fe != k], ye[fe != k]).predict_proba(Xe[fe == k])[:, 1]
-        best = (0.0, 0.5)
-        for t in np.arange(0.05, 0.91, 0.025):
-            tp = ((oof_e >= t) & (ye == 1)).sum()
-            best = max(best, (2 * tp / ((oof_e >= t).sum() + n_gold), -t))
-        self.event_threshold = float(-best[1])
-        self.event_clf = HistGradientBoostingClassifier(
-            max_iter=200, learning_rate=0.05, random_state=self.seed).fit(Xe, ye)
 
     def predict(self, docs: list[Document]) -> list[Prediction]:
         preds = []
         for doc in docs:
             ents = self._entities(doc, self.ner)
-            dg, keys, X, _ = build_matrix(doc, ents, self.kg, with_labels=False)
-            proba = self.clf.predict_proba(X)[:, 1] if len(X) else []
-            scores = dict(zip(keys, map(float, proba)))
-            preds.append(Prediction(doc.id, ents, dg.type, scores, dg=dg))
+            dg = DocGraph(doc, ents)
+            preds.append(Prediction(doc.id, ents, dg.type, ppr_scores(dg, self.kg, self.params), dg=dg))
         self.decide(preds)
         return preds
 
     def decide(self, preds: list[Prediction]) -> None:
         for p in preds:
-            p.triples = {k for k, s in p.scores.items() if s >= self.rel_threshold.get(k[0], self.threshold)}
-            if getattr(self, "event_clf", None) is None:
-                p.events = cliques_to_events(p.triples, p.node_type)
-                continue
-            th = {r: self.rel_threshold.get(r, self.threshold) for r in RELATIONS}
-            cands = event_candidates(p.scores, p.node_type, p.dg, th)
-            if not cands:
-                p.events = []
-                continue
-            proba = self.event_clf.predict_proba(np.array([f for _, f in cands], dtype=float))[:, 1]
-            p.events = sorted((ev for (ev, _), s in zip(cands, proba) if s >= self.event_threshold), key=sorted)
-
-
-def _tune(rel_idx, y, scores, missed) -> dict[str, float]:
-    """Per-relation threshold maximising out-of-fold F1 (counting NER misses as false negatives)."""
-    out = {}
-    for i, rel in enumerate(RELATIONS):
-        m = rel_idx == i
-        yr, sr = y[m], scores[m]
-        n_gold = yr.sum() + missed[rel]
-        best = (0.0, 0.5)
-        for t in np.arange(0.05, 0.91, 0.025):
-            pred = sr >= t
-            tp = (pred & (yr == 1)).sum()
-            f1 = 2 * tp / (pred.sum() + n_gold) if pred.sum() + n_gold else 0.0
-            best = max(best, (f1, -t))
-        out[rel] = round(float(-best[1]), 3)
-    return out
+            p.triples = {k for k, s in p.scores.items() if s >= self.rel_threshold[k[0]]}
+            edges = event_edges(p.scores, self.rel_threshold, self.event_scale, p.dg)
+            p.events = cliques_to_events(edges, p.node_type)
 
 
 def to_document(doc: Document, pred: Prediction) -> Document:
@@ -194,10 +146,9 @@ def to_document(doc: Document, pred: Prediction) -> Document:
         )
         out.relations.append((rel, mh.id, mt.id))
     for ev in pred.events:
-        nodes = dict(ev)
         anchor = None
         args = {}
-        for role, node in sorted(nodes.items()):
+        for role, node in sorted(dict(ev).items()):
             ms = dg.mentions[node]
             m = ms[0] if anchor is None else min(ms, key=lambda x: abs(x.start - anchor))
             anchor = m.start if anchor is None else anchor
@@ -206,4 +157,4 @@ def to_document(doc: Document, pred: Prediction) -> Document:
     return out
 
 
-__all__ = ["PestKGModel", "Prediction", "to_document", "RELATIONS", "RELATION_ROLES", "ROLE_OF_TYPE"]
+__all__ = ["GraphKGModel", "Prediction", "to_document", "fold_order", "RELATIONS"]
