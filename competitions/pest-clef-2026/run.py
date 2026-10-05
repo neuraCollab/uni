@@ -70,13 +70,17 @@ def main() -> None:
     ap.add_argument("--oracle-thresholds", action="store_true")
     ap.add_argument("--no-augment", action="store_true")
     ap.add_argument("--ner-threshold", type=float, default=0.3)
+    ap.add_argument("--ner-model", default=None,
+                    help="directory of a transformer NER trained by train_ner.py (on train for dev, train+dev for test)")
+    ap.add_argument("--ner-mode", choices=["neural", "hybrid"], default="hybrid")
     ap.add_argument("--out", type=Path, default=HERE / "outputs")
     args = ap.parse_args()
 
     train, dev = load("train"), load("dev")
     if args.mode == "dev":
         model = PestKGModel(ner_threshold=args.ner_threshold, gold_entities=args.gold_entities,
-                            augment_gold=not args.no_augment).fit(train)
+                            augment_gold=not args.no_augment, ner_model=args.ner_model,
+                            ner_mode=args.ner_mode).fit(train)
         preds = model.predict(dev)
         print("== dev, thresholds tuned out-of-fold on train", model.rel_threshold)
         print(format_report(evaluate(dev, preds)))
@@ -86,7 +90,8 @@ def main() -> None:
             print(format_report(evaluate(dev, preds)))
         write_submission(dev, preds, model, args.out / "dev")
     else:
-        model = PestKGModel(ner_threshold=args.ner_threshold, augment_gold=not args.no_augment).fit(train + dev)
+        model = PestKGModel(ner_threshold=args.ner_threshold, augment_gold=not args.no_augment,
+                            ner_model=args.ner_model, ner_mode=args.ner_mode).fit(train + dev)
         test = load("test")
         preds = model.predict(test)
         write_submission(test, preds, model, args.out / "test")

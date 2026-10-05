@@ -29,7 +29,7 @@ class Prediction:
 class PestKGModel:
     def __init__(self, folds: int = 5, ner_threshold: float = 0.3, threshold: float = 0.4,
                  gold_entities: bool = False, augment_gold: bool = True, tune: bool = True,
-                 seed: int = 13) -> None:
+                 ner_model: str | None = None, ner_mode: str = "hybrid", seed: int = 13) -> None:
         self.folds = folds
         self.ner_threshold = ner_threshold
         self.threshold = threshold  # global; per-relation overrides in self.rel_threshold
@@ -37,6 +37,11 @@ class PestKGModel:
         self.gold_entities = gold_entities
         self.augment_gold = augment_gold
         self.tune = tune
+        # Optional transformer NER (see neural_ner.py / train_ner.py). It is used at prediction
+        # time only: training features still come from the cross-fitted dictionary NER, because
+        # the network has seen the training documents and would make them look too easy.
+        self.ner_model = ner_model
+        self.ner_mode = ner_mode
         self.seed = seed
 
     def _entities(self, doc: Document, ner: EntityRecognizer) -> list[Entity]:
@@ -90,6 +95,10 @@ class PestKGModel:
         self.clf = self._classifier().fit(np.vstack([X, Xa]), np.concatenate([y, ya]))
         self.kg = KnowledgeGraph.build(docs)
         self.ner = EntityRecognizer(self.kg, self.ner_threshold)
+        if self.ner_model:
+            from .neural_ner import NeuralNER, NeuralRecognizer
+
+            self.ner = NeuralRecognizer(NeuralNER(self.ner_model), self.kg, self.ner, mode=self.ner_mode)
         return self
 
     def _fit_events(self, records, oof) -> None:
