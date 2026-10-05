@@ -4,6 +4,7 @@ from __future__ import annotations
 import random
 from collections import Counter
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -13,6 +14,14 @@ from .events import cliques_to_events, event_candidates, gold_events
 from .kg import KnowledgeGraph
 from .ner import EntityRecognizer
 from .relations import RELATIONS, build_matrix, gold_triples
+
+
+def fold_order(docs: list[Document], seed: int = 13) -> list[Document]:
+    """Shuffled document order; fold k is ``order[k::folds]``. Shared with train_ner.py so the
+    cross-fitted NER models and the relation classifier use the same folds."""
+    order = docs[:]
+    random.Random(seed).shuffle(order)
+    return order
 
 
 @dataclass
@@ -57,8 +66,7 @@ class PestKGModel:
         """Cross-fitting: features for each training document come from a KG and lexicon built
         without that document, so the classifier sees KG evidence as noisy as at test time.
         The same folds give out-of-fold scores used to pick one threshold per relation."""
-        order = docs[:]
-        random.Random(self.seed).shuffle(order)
+        order = fold_order(docs, self.seed)
         X, y, fold, aug, records = [], [], [], [], []
         missed = Counter()  # gold triples whose nodes the NER did not find (unrecoverable FN)
         for k in range(self.folds):
@@ -66,6 +74,12 @@ class PestKGModel:
             held_ids = {d.id for d in held}
             kg = KnowledgeGraph.build([d for d in order if d.id not in held_ids])
             ner = EntityRecognizer(kg, self.ner_threshold)
+            fold_dir = Path(self.ner_model) / f"fold{k}" if self.ner_model else None
+            if fold_dir is not None and fold_dir.exists():
+                # Cross-fitted transformer NER: this fold's model never saw these documents.
+                from .neural_ner import NeuralNER, NeuralRecognizer
+
+                ner = NeuralRecognizer(NeuralNER(str(fold_dir)), kg, ner, mode=self.ner_mode)
             for doc in held:
                 dg, keys, Xd, yd = build_matrix(doc, self._entities(doc, ner), kg)
                 records.append((doc, dg, keys, k))

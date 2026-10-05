@@ -225,9 +225,10 @@ class Linker:
             cands = [c for c in self.kg.link_candidates(surface_key(variant)) if c[0] in compatible]
             if not cands:
                 continue
-            if etype == "Location" and len(cands) > 1:
+            if etype == "Location" and len(cands) > 1 and cands[0][2] == 0:
+                # No training evidence for any reading: prefer a place inside the document's places.
                 inside = [c for c in cands if context & set(self.kg.ancestors(c[1]))]
-                if inside and inside[0][2] == 0:  # no training evidence: trust the hierarchy
+                if inside:
                     return inside[0][1]
             return cands[0][1]
         if self.fuzzy and etype in self.by_type:
@@ -242,11 +243,16 @@ class Linker:
         return None
 
 
+ALWAYS_LINKED = {"Pest", "Plant", "Vector", "Location"}
+
+
 class NeuralRecognizer:
     """Drop-in replacement for ``EntityRecognizer``: neural spans, KG linking, and optionally
     the dictionary recogniser's entities where the network found nothing (``mode='hybrid'``)."""
 
-    def __init__(self, ner: NeuralNER, kg: KnowledgeGraph, dictionary=None, mode: str = "neural") -> None:
+    def __init__(self, ner: NeuralNER, kg: KnowledgeGraph, dictionary=None, mode: str = "neural",
+                 min_conf: float = 0.0) -> None:
+        self.min_conf = min_conf
         self.ner = ner
         self.kg = kg
         self.linker = Linker(kg)
@@ -260,12 +266,19 @@ class NeuralRecognizer:
         context = {e.norm for e in dict_ents if e.type == "Location" and e.norm}
         found = []
         for s, e, typ, conf in spans:
+            if conf < self.min_conf or not any(ch.isalnum() for ch in text[s:e]):
+                continue
             node = self.linker.link(text[s:e], typ, context)
+            if node is None and typ in ALWAYS_LINKED:
+                continue  # every gold taxon / place has an ontology id: an unlinkable span is noise
             found.append((s, e, typ, node, conf))
             if typ == "Location" and node:
                 context.add(node)
         if self.mode == "hybrid":
             for d in dict_ents:
+                # Only ontology-linked dictionary hits: its dates/diseases are noisier than the network's.
+                if not d.norm:
+                    continue
                 if not any(d.start < e and s < d.end for s, e, *_ in found):
                     found.append((d.start, d.end, d.type, d.norm, 0.5))
         ents = []

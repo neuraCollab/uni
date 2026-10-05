@@ -16,6 +16,7 @@ from pestkg.evaluate import format_report, prf
 from pestkg.kg import KnowledgeGraph
 from pestkg.ner import EntityRecognizer, entity_node
 from pestkg.neural_ner import NeuralNER, NeuralRecognizer
+from pestkg.pipeline import fold_order
 from run import DATA, load
 
 
@@ -42,17 +43,32 @@ def main() -> None:
     ap.add_argument("--batch-size", type=int, default=8)
     ap.add_argument("--max-length", type=int, default=512)
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--skip-full", action="store_true", help="reuse an already trained full model in --out")
+    ap.add_argument("--folds", type=int, default=0,
+                    help="also train K fold models (out/fold{k}, each without fold k) for cross-fitting run.py")
     args = ap.parse_args()
 
     splits = args.train.split(",")
     train = [d for s in splits for d in load(s)]
     out = args.out or DATA / "models" / f"{args.model.split('/')[-1]}__{'+'.join(splits)}"
     t0 = time.time()
-    ner = NeuralNER(args.model, max_length=args.max_length)
-    print(f"device: {ner.device}, {len(train)} training docs")
-    ner.fit(train, epochs=args.epochs, lr=args.lr, batch_size=args.batch_size)
-    ner.save(out)
-    print(f"saved {out} ({time.time() - t0:.0f}s)")
+    if args.skip_full and (out / "config.json").exists():
+        ner = NeuralNER(str(out), max_length=args.max_length)
+    else:
+        ner = NeuralNER(args.model, max_length=args.max_length)
+        print(f"device: {ner.device}, {len(train)} training docs")
+        ner.fit(train, epochs=args.epochs, lr=args.lr, batch_size=args.batch_size)
+        ner.save(out)
+        print(f"saved {out} ({time.time() - t0:.0f}s)")
+
+    if args.folds:
+        order = fold_order(train)
+        for k in range(args.folds):
+            held = {d.id for d in order[k::args.folds]}
+            print(f"== fold {k}: training on {len(train) - len(held)} docs")
+            NeuralNER(args.model, max_length=args.max_length).fit(
+                [d for d in train if d.id not in held], epochs=args.epochs, lr=args.lr, batch_size=args.batch_size,
+            ).save(out / f"fold{k}")
 
     if args.eval:
         docs = load(args.eval)
