@@ -80,6 +80,28 @@ Dev в подборе не участвует.
 то есть встречаются в одном предложении. Это ограничение подняло F1 событий с 0.23 до 0.28. Порог для
 рёбер событий подбирается так же, на train.
 
+## Формат Kaggle
+
+Сабмит — `outputs/test/submission.csv` с колонками `doc_id` и `knowledge_graph`; во второй колонке
+JSON-массив рёбер `{"predicate", "subject", "object"}` с одной строкой на узел. В Kaggle-версии
+данных три отношения EPOP переименованы: `Detected_on` → `Occurs_on`, `Expressed_by` → `Affects`,
+`Vected_by(вредитель, переносчик)` → `Transmits(переносчик, вредитель)`, то есть направление
+обратное. Перевод делает `pestkg/kaggle.py`.
+
+Эталонный граф Kaggle (`knowledge_graph` в `PestCLEF-2026_dev.json`) восстанавливается из текстовой
+разметки точно, 656 из 656 рёбер dev:
+* узел — это группа упоминаний с одинаковым набором нормализаций (NCBI/GeoNames/OntoBiotope), а
+  упоминание без нормализации остаётся отдельным узлом;
+* узлы дополнительно склеиваются по кореференции;
+* ребро — текстовое отношение, поднятое на узлы.
+
+Это те же узлы, что и в графе этого решения. Предсказанное ребро засчитывается, если предикат совпал,
+а строки субъекта и объекта входят в списки допустимых форм эталонного ребра. Для узла печатается
+его самое частое упоминание в документе.
+
+**Метрика Kaggle на dev** (`pestkg/kaggle.py::score`, параметры подобраны только на train): P 0.429,
+R 0.474, **F1 0.450**. На эталонных сущностях — F1 0.637.
+
 ## Результаты на dev
 
 Модель подобрана на train. Метрика — micro P/R/F1 по узлам и тройкам графа `(relation, head_id, tail_id)`.
@@ -118,8 +140,9 @@ GeoNames/NCBI и разрешением мест по иерархии — 0.726
 ## Запуск
 
 **На Kaggle:** импортируйте [`kaggle_submission.ipynb`](kaggle_submission.ipynb) (File → Import Notebook →
-GitHub), включите Internet и нажмите Run All. Нужен только CPU, выполнение занимает около 2 минут,
-результаты появятся в `/kaggle/working/`.
+GitHub), подключите данные соревнования (Add Input → `pest-clef-2026`), включите Internet и нажмите
+Run All. Нужен только CPU, выполнение занимает около 2 минут. Сабмит появится в
+`/kaggle/working/submission.csv`.
 
 **Локально:**
 
@@ -135,13 +158,14 @@ python run.py test           # подбор на train+dev, предсказан
 
 В `outputs/test/` появляются:
 
+* **`submission.csv`: сабмит для Kaggle** (`doc_id`, `knowledge_graph`);
 * `relations.csv`: тройки графа `doc_id, relation, head_type, head_id, head_text, tail_type, tail_id, tail_text, score`;
 * `events.csv`: n-арные события, аргументы в JSON `{роль: {id, text}}`;
 * `a2/*.a2`: предсказания в формате BioNLP-ST (как исходная разметка EPOP), с привязкой к упоминаниям;
 * `kg/kg_triples.tsv`, `kg/kg_nodes.json`: фоновый граф знаний из train+dev вместе с иерархией мест.
 
-> Формат сабмита Kaggle (`sample_submission.csv`) без авторизации недоступен, поэтому `relations.csv`
-> и `events.csv` — «сырые» таблицы графа. Под колонки соревнования их переводит `run.py::write_submission`.
+Если положить JSON соревнования в `data/kaggle/` (`PestCLEF-2026_dev.json`, `PestCLEF-2026_test.json`),
+`run.py dev` дополнительно печатает метрику Kaggle, а `run.py test` берёт список `doc_id` из test JSON.
 
 ## Структура
 
@@ -157,6 +181,7 @@ pestkg/
   events.py     события как максимальные клики
   pipeline.py   подбор параметров с кросс-фиттингом, предсказание
   evaluate.py   метрики на уровне графа
+  kaggle.py     формат Kaggle: имена предикатов, эталонный граф, метрика, submission.csv
 run.py, download_data.py
 ```
 
