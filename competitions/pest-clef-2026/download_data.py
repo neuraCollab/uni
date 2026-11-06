@@ -42,7 +42,10 @@ if __name__ == "__main__":
     if not (EXT / "names.dmp").exists():
         with tarfile.open(fileobj=io.BytesIO(fetch(NCBI_TAXDUMP))) as tar:
             for member in ("names.dmp", "nodes.dmp"):
-                tar.extract(member, EXT)
+                try:
+                    tar.extract(member, EXT, filter="data")
+                except TypeError:  # Python without tarfile extraction filters
+                    tar.extract(member, EXT)
 
     from pestkg.resources import build_cache
 

@@ -117,6 +117,12 @@ GeoNames/NCBI и разрешением мест по иерархии — 0.726
 
 ## Запуск
 
+**На Kaggle:** импортируйте [`kaggle_submission.ipynb`](kaggle_submission.ipynb) (File → Import Notebook →
+GitHub), включите Internet и нажмите Run All. Нужен только CPU, выполнение занимает около 2 минут,
+результаты появятся в `/kaggle/working/`.
+
+**Локально:**
+
 ```bash
 pip install -r requirements.txt     # numpy, networkx
 python download_data.py      # EPOP с Recherche Data Gouv, GeoNames, NCBI taxdump (~80 МБ); кэш подграфов
