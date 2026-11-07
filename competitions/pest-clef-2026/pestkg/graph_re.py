@@ -13,11 +13,14 @@ and whose edges are
   (weight ``w_kg * log(1 + #documents asserting it)``),
 * ``place — place``  when GeoNames puts one inside the other (weight ``w_geo``).
 
-The score of a candidate edge ``(rel, h, t)`` is the Personalized PageRank of ``t`` for a walk
-restarting at ``h`` (all PPR vectors of a document come from one matrix inverse), divided by the
-best score among the nodes of ``t``'s type, so that it reads "how close is ``t`` to ``h``
-compared with its competitors".  A relation is accepted when this score passes a per-relation
-threshold.  The ontology (allowed head/tail types of each relation) restricts the candidates.
+The score of a candidate edge ``(rel, h, t)`` is
+
+    sqrt(PPR_h(t) * PPR_t(h)) * |V| * (1 + kg_prior * log(1 + n_rel(h, t))) * centrality(h) ** c
+
+where PPR_h is the Personalized PageRank of a walk restarting at ``h`` (all PPR vectors of a
+document come from one matrix inverse), n_rel(h, t) is the number of training documents whose
+graph already holds this very edge, and centrality(h) is the PageRank of ``h`` relative to the
+best node of its type.  A relation is accepted when this score passes a per-relation threshold.  The ontology (allowed head/tail types of each relation) restricts the candidates.
 There is no learned classifier: the handful of graph parameters and thresholds are chosen by
 grid search on training documents.
 """
@@ -40,7 +43,6 @@ class WalkParams:
     w_geo: float = 1.0
     kg_prior: float = 0.0   # boost x (1 + kg_prior * log(1 + #docs with this very edge in the background KG))
     centrality: float = 0.0  # boost x (PageRank of the head / best PageRank of its type) ** centrality
-    norm: str = "sym"  # "max": divide by best node of the tail type; "raw": PPR x #nodes; "sym": sqrt(h->t * t->h) x #nodes
 
 
 def doc_matrix(dg: DocGraph, kg: KnowledgeGraph, p: WalkParams):
@@ -76,7 +78,7 @@ def doc_matrix(dg: DocGraph, kg: KnowledgeGraph, p: WalkParams):
 
 
 def ppr_scores(dg: DocGraph, kg: KnowledgeGraph, p: WalkParams) -> dict[tuple[str, str, str], float]:
-    """Max-normalised PPR score for every ontology-compatible candidate edge of the document."""
+    """Score of every ontology-compatible candidate edge of the document (formula in the module doc)."""
     if not dg.type:
         return {}
     ents, index, W = doc_matrix(dg, kg, p)
@@ -98,14 +100,9 @@ def ppr_scores(dg: DocGraph, kg: KnowledgeGraph, p: WalkParams) -> dict[tuple[st
                 cent[m] = (pr[index[m]] / top) ** p.centrality if top > 0 else 1.0
     out = {}
     for rel, h, t in dg.candidates():
-        col = R[:, index[h]]
-        if p.norm == "max":
-            best = max(col[index[x]] for x in by_type[dg.type[t]] if x != h)
-            out[(rel, h, t)] = float(col[index[t]] / best) if best > 0 else 0.0
-        elif p.norm == "raw":
-            out[(rel, h, t)] = float(col[index[t]] * n)
-        else:
-            out[(rel, h, t)] = float(math.sqrt(max(col[index[t]] * R[index[h], index[t]], 0)) * n)
+        # Symmetric closeness: walks from h reach t and walks from t reach h; x |V| removes the
+        # dependence on the size of the document graph.
+        out[(rel, h, t)] = float(math.sqrt(max(R[index[t], index[h]] * R[index[h], index[t]], 0)) * n)
         if p.kg_prior:
             out[(rel, h, t)] *= 1 + p.kg_prior * math.log1p(kg.edges.get((rel, h, t), 0))
         if p.centrality:

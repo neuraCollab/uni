@@ -53,7 +53,7 @@ def node_form(dg, node: str) -> str:
 def kaggle_edges(pred) -> list[tuple[str, str, str]]:
     """Predicted triples of one document as Kaggle (predicate, subject, object) strings."""
     out = []
-    for rel, h, t in sorted(pred.triples, key=lambda k: -pred.scores[k]):
+    for rel, h, t in sorted(pred.triples, key=lambda k: (-pred.scores[k], k)):
         s, o = node_form(pred.dg, h), node_form(pred.dg, t)
         if rel in REVERSED:
             s, o = o, s

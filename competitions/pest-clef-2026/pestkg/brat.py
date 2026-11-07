@@ -15,7 +15,6 @@ ROLE_OF_TYPE = {
     "Vector": "Vecteur",
     "Dissemination_pathway": "Voie_de_dispersion",
 }
-TYPE_OF_ROLE = {r: t for t, r in ROLE_OF_TYPE.items()}
 
 # Relation type -> (role of the head argument, role of the tail argument).
 RELATION_ROLES = {
@@ -27,7 +26,6 @@ RELATION_ROLES = {
     "Dispersed_by": ("Nuisance", "Dissemination_pathway"),
     "Vected_by": ("Nuisance", "Vector"),
 }
-ROLES_RELATION = {roles: rel for rel, roles in RELATION_ROLES.items()}
 
 
 @dataclass

@@ -7,7 +7,7 @@ Candidates are scored by graph_re.py.
 from __future__ import annotations
 
 import bisect
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 from .brat import Document, Entity
 from .ner import entity_node
@@ -22,7 +22,6 @@ SIGNATURES = {
     "Vected_by": ({"Pest", "Disease"}, {"Vector"}),
 }
 RELATIONS = list(SIGNATURES)
-TYPES = ["Pest", "Plant", "Location", "Date", "Disease", "Vector", "Dissemination_pathway"]
 
 
 class DocGraph:
@@ -38,17 +37,6 @@ class DocGraph:
             self.mentions[n].append(e)
             self.type.setdefault(n, e.type)
         self.sent = {n: [self.sentence(m.start) for m in ms] for n, ms in self.mentions.items()}
-        self.n_sent = len(self.bounds)
-        freq = Counter({n: len(ms) for n, ms in self.mentions.items()})
-        self.rank = {}
-        for t in TYPES:
-            ordered = sorted((n for n in freq if self.type[n] == t), key=lambda n: -freq[n])
-            for r, n in enumerate(ordered):
-                self.rank[n] = r
-        self.n_type = Counter(self.type.values())
-        title_end = doc.text.find("\n") if "\n" in doc.text[:400] else 200
-        self.in_title = {n: int(any(m.start < title_end for m in ms)) for n, ms in self.mentions.items()}
-        self.first = {n: min(m.start for m in ms) / max(len(doc.text), 1) for n, ms in self.mentions.items()}
 
     def sentence(self, offset: int) -> int:
         return bisect.bisect_right(self.bounds, offset) - 1
